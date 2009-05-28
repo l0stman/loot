@@ -38,7 +38,7 @@ parse_pair(char *s, int len)
   n = carlen(s);
   car = parse(s, n);
   s += n, len -= n;
-  if (*s == '.' && *(s+carlen(s)) != ')')
+  if (*s == '.' && *(s+1+carlen(s+1)) != ')')
 	err_quit("Illegal use of .");
   cdr = (*s == '.' ? parse(s+1, len-2):
 		 parse_pair(s, len));
