@@ -98,11 +98,11 @@ read_pair(FILE *fp)
   bputc('(', bp);
   while ((c = fgetc(fp)) != EOF && pn) {
 	if (isspace(c) || c == ';') {
-	  if (isspace(c))
-		bputc(' ', bp);
-	  else
-		ungetc(c, fp);
+	  ungetc(c, fp);
 	  skip(fp);
+	  if (!issep(c = fgetc(fp)))
+		bputc(' ', bp);
+	  ungetc(c, fp);
 	  continue;
 	}	
 	switch (c) {
@@ -121,6 +121,8 @@ read_pair(FILE *fp)
 	  bfree(q);
 	} else
 	  bputc(c, bp);
+	if (issep(c) && pn)
+	  skip(fp);
   }
   if (pn)
 	err_quit("Too many open parenthesis at line %d.", ln);

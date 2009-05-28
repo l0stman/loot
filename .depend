@@ -1,0 +1,5 @@
+error.o: error.c error.h
+exp.o: exp.c loot.h error.h exp.h
+loot.o: loot.c loot.h error.h
+main.o: main.c loot.h error.h reader.h
+reader.o: reader.c loot.h error.h reader.h
