@@ -157,7 +157,7 @@ static struct buf *
 read_quote(FILE *fp)
 {
   struct buf *bp, *res;
-  char *s = "(quote ";
+  char *s = "(quote";
   int mode = inter;
 
   inter = 0;	/* Passing in non-interactive mode */
@@ -166,6 +166,8 @@ read_quote(FILE *fp)
   
   res = binit();
   bwrite(res, s, strlen(s));
+  if (*bp->buf != '(')
+	bputc(' ', res);
   bwrite(res, bp->buf, bp->len);
   bputc(')', res);
   bfree(bp);
