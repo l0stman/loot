@@ -31,8 +31,8 @@ void *srealloc(void *, size_t size);
 static __inline__ int
 issep(c)
 {
-  return (isspace(c) || c == '(' || c == ';' ||
-		  c == ')' || c == '"' || c == '\'');
+  return (isspace(c) || c == '(' || c == ';' || c == ')' ||
+		  c == '"' || c == '\'' || c == '.');
 }
 
 static __inline__ int

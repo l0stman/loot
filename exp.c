@@ -3,7 +3,7 @@
 
 const struct exp false = { ATOM, {"#f"} };
 const struct exp true = { ATOM, {"#t"} };
-const struct exp null = { ATOM, {"()"} };
+struct exp null = { ATOM, {"()"} };
 
 /* Return true if the two expression a and b are atoms
  * and have the same symbols or if they occupy the
@@ -38,7 +38,7 @@ pairtostr(const struct exp *ep)
   s = tostr(ep->u.cp->car);
   bwrite(bp, s, strlen(s));
   free(s);
-  bputc('.', bp);
+  bwrite(bp, " . ", 3);
   s = tostr(ep->u.cp->cdr);
   bwrite(bp, s, strlen(s));
   free(s);

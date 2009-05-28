@@ -42,7 +42,7 @@ struct proc {	/* A procedure is a function or a primitive */
 
 extern const struct exp false;
 extern const struct exp true;
-extern const struct exp null;
+extern struct exp null;
 
 int iseq(const struct exp *, const struct exp *);
 char *tostr(const struct exp *);
