@@ -90,4 +90,11 @@ cons(struct exp *a, struct exp *b)
   ep->u.cp->cdr = b;
   return ep;
 }
+
+/* Test if the expression is null */
+static __inline__ int
+isnull(struct exp *ep)
+{
+  return iseq(ep, &null);
+}
 #endif /* !EXP_H */

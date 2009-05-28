@@ -31,19 +31,28 @@ static char *
 pairtostr(const struct exp *ep)
 {
   struct buf *bp;
-  char *s;
+  char *s, *car, *cdr = NULL;
 
   bp = binit();
+  car = tostr(car(ep->u.cp));
   bputc('(', bp);
-  s = tostr(ep->u.cp->car);
-  bwrite(bp, s, strlen(s));
-  free(s);
-  bwrite(bp, " . ", 3);
-  s = tostr(ep->u.cp->cdr);
-  bwrite(bp, s, strlen(s));
-  free(s);
+  bwrite(bp, car, strlen(car));
+  
+  if (!isnull(cdr(ep->u.cp))) {
+	if (ispair(cdr(ep->u.cp)))
+	  bputc(' ', bp);
+	else
+	  bwrite(bp, " . ", 3);  
+	cdr = tostr(cdr(ep->u.cp));
+	if (ispair(cdr(ep->u.cp)))	/* don't write the parenthesis */
+	  bwrite(bp, cdr+1, strlen(cdr)-2);
+	else if (!isnull(cdr(ep->u.cp)))
+	  bwrite(bp, cdr, strlen(cdr));
+  }
   bwrite(bp, ")", 2);
   s = bp->buf;
+  free(car);
+  free(cdr);
   free(bp);
   return s;
 }

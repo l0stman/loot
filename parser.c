@@ -24,7 +24,7 @@ parse_atm(char *s, int len)
   return ep;
 }
 
-/* Parse a pair expression */
+/* Parse a pair of expressions */
 static int carlen(char *);
 
 static struct exp *
@@ -40,8 +40,7 @@ parse_pair(char *s, int len)
   s += n, len -= n;
   if (*s == '.' && *(s+1+carlen(s+1)) != ')')
 	err_quit("Illegal use of .");
-  cdr = (*s == '.' ? parse(s+1, len-2):
-		 parse_pair(s, len));
+  cdr = (*s == '.' ? parse(s+1, len-2): parse_pair(s, len));
   return cons(car, cdr);
 }
 
