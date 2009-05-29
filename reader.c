@@ -49,7 +49,7 @@ skip(FILE *fp)
 
 /*
  * Read an expression from a file descriptor skipping blanks and comments.
- * Write the result to buf and return buf's length.
+ * Write the result into an buffer.
  */
 
 static struct buf *read_atm(FILE *, int);

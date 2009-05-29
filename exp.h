@@ -3,6 +3,10 @@
 
 enum type { ATOM, PAIR, PROC };
 
+#define symp(ep)	(ep)->u.sp
+#define pairp(ep)	(ep)->u.cp
+#define procp(ep)	(ep)->u.pp
+
 struct exp {
   enum type tp;	/* type of the expression */
   union {

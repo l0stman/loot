@@ -5,9 +5,8 @@ const struct exp false = { ATOM, {"#f"} };
 const struct exp true = { ATOM, {"#t"} };
 struct exp null = { ATOM, {"()"} };
 
-/* Return true if the two expression a and b are atoms
- * and have the same symbols or if they occupy the
- * same memory.
+/* Return true if the two expressions have the same
+ * symbols or if they occupy the same memory.
  */
 int
 iseq(const struct exp *a, const struct exp *b)
@@ -15,15 +14,15 @@ iseq(const struct exp *a, const struct exp *b)
   if (a->tp != b->tp)
 	return 0;
   else if (isatom(a))
-	return (strcmp(a->u.sp, b->u.sp) == 0);
-  return (void *)a->u.sp == (void *)b->u.sp;
+	return (strcmp(symp(a), symp(b)) == 0);
+  return (void *)symp(a) == (void *)symp(b);
 }
 
 /* Return a string representing an atom */
 static char *
 atmtostr(const struct exp *ep)
 {
-  return strdup(ep->u.sp);
+  return strdup(symp(ep));
 }
 
 /* Return a string representing a pair */
@@ -34,19 +33,19 @@ pairtostr(const struct exp *ep)
   char *s, *car, *cdr = NULL;
 
   bp = binit();
-  car = tostr(car(ep->u.cp));
+  car = tostr(car(pairp(ep)));
   bputc('(', bp);
   bwrite(bp, car, strlen(car));
-  
-  if (!isnull(cdr(ep->u.cp))) {
-	if (ispair(cdr(ep->u.cp)))
+   
+  if (!isnull(cdr(pairp(ep)))) {
+	if (ispair(cdr(pairp(ep))))
 	  bputc(' ', bp);
 	else
 	  bwrite(bp, " . ", 3);  
-	cdr = tostr(cdr(ep->u.cp));
-	if (ispair(cdr(ep->u.cp)))	/* don't write the parenthesis */
+	cdr = tostr(cdr(pairp(ep)));
+	if (ispair(cdr(pairp(ep))))	/* don't write the parenthesis */
 	  bwrite(bp, cdr+1, strlen(cdr)-2);
-	else if (!isnull(cdr(ep->u.cp)))
+	else if (!isnull(cdr(pairp(ep))))
 	  bwrite(bp, cdr, strlen(cdr));
   }
   bwrite(bp, ")", 2);
@@ -67,7 +66,7 @@ proctostr(const struct exp *ep)
 
   bp = binit();
   bwrite(bp, PROCSTR, strlen(PROCSTR));
-  if ((s = ep->u.pp->label) != NULL) {
+  if ((s = procp(ep)->label) != NULL) {
 	bputc(':', bp);
 	bwrite(bp, s, strlen(s));
   }

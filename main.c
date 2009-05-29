@@ -2,12 +2,23 @@
 #include "exp.h"
 #include "reader.h"
 #include "parser.h"
+#include "eval.h"
+
+static void
+print(struct exp *ep)
+{
+  char *s;
+
+  printf("%s %s\n", OUTPR, s = tostr(ep));
+  free(s);
+}
 
 int
 main(int argc, char *argv[])
 {
   FILE *fp;
   struct buf *bp;
+  struct exp *ep;
 
   if (argc > 1) {
 	if ((fp = fopen(argv[1], "r")) == NULL)
@@ -16,7 +27,11 @@ main(int argc, char *argv[])
   } else
 	fp = stdin;
 
-  while ((bp = read(fp)) != NULL)
-	printf("%s %s\n", OUTPR, tostr(parse(bp->buf, bp->len)));
+  while ((bp = read(fp)) != NULL) {
+	ep = eval(parse(bp->buf, bp->len));
+	if (inter && ep != NULL)
+	  print(ep);
+  }
+  putchar('\n');
   exit(0);
 }
