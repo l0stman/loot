@@ -1,5 +1,6 @@
 CFLAGS = -g -Wall -ansi -pedantic
-OBJS = main.o error.o reader.o loot.o exp.o parser.o type.o eval.o
+OBJS = main.o error.o reader.o loot.o exp.o parser.o type.o eval.o\
+env.o
 INSTDIR = /home/l0stman/bin
 PROGNAME = loot
 

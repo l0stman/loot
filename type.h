@@ -4,12 +4,12 @@
 int isnum(struct exp *);
 int isself(struct exp *);
 
-/* Test if exp is pair whose first element is an atom of symbol tag. */
+/* Test if exp is a list whose first element is an atom of symbol tag. */
 static __inline__ int
 istag(struct exp *ep, char *tag)
 {
-  return (!ispair(ep) || ispair(car(pairp(ep))) ? 0:
-		  strcmp(tag, symp(car(pairp(ep)))) == 0);
+  return islist(ep) && isatom(car(pairp(ep))) &&
+		  strcmp(tag, symp(car(pairp(ep)))) == 0;
 }
 
 /* Test if the expression is a definition. */

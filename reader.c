@@ -49,7 +49,7 @@ skip(FILE *fp)
 
 /*
  * Read an expression from a file descriptor skipping blanks and comments.
- * Write the result into an buffer.
+ * Write the result into a buffer.
  */
 
 static struct buf *read_atm(FILE *, int);
@@ -166,7 +166,7 @@ read_quote(FILE *fp)
   
   res = binit();
   bwrite(res, s, strlen(s));
-  if (*bp->buf != '(')
+  if (!issep(*bp->buf))
 	bputc(' ', res);
   bwrite(res, bp->buf, bp->len);
   bputc(')', res);

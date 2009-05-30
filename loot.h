@@ -25,8 +25,10 @@ void bwrite(struct buf *, char *, int);
 struct buf *binit(void);
 
 extern int inter;
-void *smalloc(size_t size);
-void *srealloc(void *, size_t size);
+void *smalloc(size_t);
+void *srealloc(void *, size_t);
+char *sstrdup(char *);
+char *sstrndup(char *, size_t);
 
 static __inline__ int
 issep(c)

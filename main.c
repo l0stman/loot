@@ -1,5 +1,6 @@
 #include "loot.h"
 #include "exp.h"
+#include "env.h"
 #include "reader.h"
 #include "parser.h"
 #include "eval.h"
@@ -19,6 +20,7 @@ main(int argc, char *argv[])
   FILE *fp;
   struct buf *bp;
   struct exp *ep;
+  struct env *envp;
 
   if (argc > 1) {
 	if ((fp = fopen(argv[1], "r")) == NULL)
@@ -26,9 +28,10 @@ main(int argc, char *argv[])
 	inter = 0;	/* Non interactive mode */
   } else
 	fp = stdin;
-
+  
+  envp = newenv();
   while ((bp = read(fp)) != NULL) {
-	ep = eval(parse(bp->buf, bp->len));
+	ep = eval(parse(bp->buf, bp->len), envp);
 	if (inter && ep != NULL)
 	  print(ep);
   }

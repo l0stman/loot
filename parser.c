@@ -20,7 +20,7 @@ parse_atm(char *s, int len)
 
   ep = smalloc(sizeof(*ep));
   ep->tp = ATOM;
-  ep->u.sp = strndup(s, len);
+  ep->u.sp = sstrndup(s, len);
   return ep;
 }
 
@@ -37,6 +37,8 @@ parse_pair(char *s, int len)
 	return &null;
   n = carlen(s);
   car = parse(s, n);
+  if (*(s+n) == ' ')
+	n++;
   s += n, len -= n;
   if (*s == '.' && *(s+1+carlen(s+1)) != ')')
 	err_quit("Illegal use of .");

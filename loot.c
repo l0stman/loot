@@ -24,6 +24,29 @@ srealloc(void *ptr, size_t size)
   return vp;
 }
 
+/* Safe strdup */
+char *
+sstrdup(char *s)
+{
+  char *d;
+
+  d = smalloc(strlen(s)+1);
+  strcpy(d, s);
+  return d;
+}
+
+/* Safe strndup */
+char *
+sstrndup(char *s, size_t n)
+{
+  char *d;
+
+  d = smalloc(n+1);
+  strncpy(d, s, n);
+  *(d+n) = '\0';
+  return d;
+}
+
 /*
  * Return a pointer to a buf structure.
  */

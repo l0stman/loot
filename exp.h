@@ -49,6 +49,7 @@ extern const struct exp true;
 extern struct exp null;
 
 int iseq(const struct exp *, const struct exp *);
+int islist(const struct exp *);
 char *tostr(const struct exp *);
 
 static __inline__ int
@@ -77,7 +78,7 @@ atom(char *s)
 
   ep = smalloc(sizeof(*ep));
   ep->tp = ATOM;
-  ep->u.sp = strdup(s);
+  ep->u.sp = sstrdup(s);
   return ep;
 }
 
@@ -97,7 +98,7 @@ cons(struct exp *a, struct exp *b)
 
 /* Test if the expression is null */
 static __inline__ int
-isnull(struct exp *ep)
+isnull(const struct exp *ep)
 {
   return iseq(ep, &null);
 }

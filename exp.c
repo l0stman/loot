@@ -22,7 +22,7 @@ iseq(const struct exp *a, const struct exp *b)
 static char *
 atmtostr(const struct exp *ep)
 {
-  return strdup(symp(ep));
+  return sstrdup(symp(ep));
 }
 
 /* Return a string representing a pair */
@@ -89,4 +89,13 @@ tostr(const struct exp *ep)
   else
 	err_quit("tostr: unknown expression");
   return NULL;
+}
+
+/* Return true if the expression is a null-terminated pair */
+int
+islist(const struct exp *ep)
+{
+  while (ispair(ep))
+	ep = cdr(pairp(ep));
+  return isnull(ep);
 }

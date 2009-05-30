@@ -31,7 +31,7 @@ isstr(struct exp *ep)
 static __inline__ int
 iscst(struct exp *ep)
 {
-  return iseq(ep, &false) || iseq(ep, &true) || iseq(ep, &null);
+  return iseq(ep, &false) || iseq(ep, &true);
 }
 
 /* Test if the expression is self-evaluating */
