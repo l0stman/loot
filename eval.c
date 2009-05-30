@@ -10,6 +10,7 @@ static struct exp *evvar(struct exp *, struct env *);
 static struct exp *evquote(struct exp *);
 static struct exp *evif(struct exp *, struct env *);
 static struct exp *evbegin(struct exp *, struct env *);
+static struct exp *evcond(struct exp *, struct env *);
 
 /* Evaluate the expression */
 struct exp *
@@ -27,6 +28,8 @@ eval(struct exp *ep, struct env *envp)
 	return evif(ep, envp);
   else if (isbegin(ep))
 	return evbegin(ep, envp);
+  else if (iscond(ep))
+	return evcond(ep, envp);
   else
 	return everr("unknown expression", ep);
 }
@@ -130,4 +133,21 @@ evbegin(struct exp *ep, struct env *envp)
   for (ep = cdr(ep); !isnull(ep); ep = cdr(ep))
 	form = eval(car(ep), envp);
   return form;
+}
+
+/* Eval a cond expression */
+static struct exp *
+evcond(struct exp *ep, struct env *envp)
+{
+  struct exp *clause;
+  struct exp _else_ = { ATOM, {"else"} };
+
+  for (ep = cdr(ep); !isnull(ep); ep = cdr(ep)) {
+	if (!islist(car(ep)))
+	  return everr("should be a list", car(ep));
+	if (iseq(&_else_, car(clause = car(ep))) ||
+		!iseq(&false, eval(car(clause), envp)))
+	  return eval(cons(atom("begin"), cdr(clause)), envp);
+  }
+  return NULL;
 }
