@@ -9,6 +9,7 @@ static struct exp *evdef(struct exp *, struct env *);
 static struct exp *evvar(struct exp *, struct env *);
 static struct exp *evquote(struct exp *);
 static struct exp *evif(struct exp *, struct env *);
+static struct exp *evbegin(struct exp *, struct env *);
 
 /* Evaluate the expression */
 struct exp *
@@ -24,6 +25,8 @@ eval(struct exp *ep, struct env *envp)
 	return evquote(ep);
   else if (isif(ep))
 	return evif(ep, envp);
+  else if (isbegin(ep))
+	return evbegin(ep, envp);
   else
 	return everr("unknown expression", ep);
 }
@@ -116,4 +119,15 @@ evif(struct exp *ep, struct env *envp)
   b = eval(car(ep), envp);
   res = (iseq(&false, b) ? car(cdr(cdr(ep))): car(cdr(ep)));
   return eval(res, envp);
+}
+
+/* Eval a begin expression */
+static struct exp *
+evbegin(struct exp *ep, struct env *envp)
+{
+  struct exp *form = NULL;
+
+  for (ep = cdr(ep); !isnull(ep); ep = cdr(ep))
+	form = eval(car(ep), envp);
+  return form;
 }
