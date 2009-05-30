@@ -8,6 +8,7 @@ static struct exp *everr(char *msg, struct exp *);
 static struct exp *evdef(struct exp *, struct env *);
 static struct exp *evvar(struct exp *, struct env *);
 static struct exp *evquote(struct exp *);
+static struct exp *evif(struct exp *, struct env *);
 
 /* Evaluate the expression */
 struct exp *
@@ -21,6 +22,8 @@ eval(struct exp *ep, struct env *envp)
 	return evvar(ep, envp);
   else if (isquote(ep))
 	return evquote(ep);
+  else if (isif(ep))
+	return evif(ep, envp);
   else
 	return everr("unknown expression", ep);
 }
@@ -99,4 +102,18 @@ static struct exp *
 evquote(struct exp *ep)
 {
   return (chknum(ep, 2) ? car(cdr(ep)): NULL);
+}
+
+/* Eval an if expression */
+static struct exp *
+evif(struct exp *ep, struct env *envp)
+{
+  struct exp *b, *res;
+  
+  if (!chknum(ep, 4))
+	return NULL;
+  ep = cdr(ep);
+  b = eval(car(ep), envp);
+  res = (iseq(&false, b) ? car(cdr(cdr(ep))): car(cdr(ep)));
+  return eval(res, envp);
 }
