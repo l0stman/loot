@@ -33,19 +33,19 @@ pairtostr(const struct exp *ep)
   char *s, *car, *cdr = NULL;
 
   bp = binit();
-  car = tostr(car(pairp(ep)));
+  car = tostr(car(ep));
   bputc('(', bp);
   bwrite(bp, car, strlen(car));
    
-  if (!isnull(cdr(pairp(ep)))) {
-	if (ispair(cdr(pairp(ep))))
+  if (!isnull(cdr(ep))) {
+	if (ispair(cdr(ep)))
 	  bputc(' ', bp);
 	else
 	  bwrite(bp, " . ", 3);  
-	cdr = tostr(cdr(pairp(ep)));
-	if (ispair(cdr(pairp(ep))))	/* don't write the parenthesis */
+	cdr = tostr(cdr(ep));
+	if (ispair(cdr(ep)))	/* don't write the parenthesis */
 	  bwrite(bp, cdr+1, strlen(cdr)-2);
-	else if (!isnull(cdr(pairp(ep))))
+	else if (!isnull(cdr(ep)))
 	  bwrite(bp, cdr, strlen(cdr));
   }
   bwrite(bp, ")", 2);
@@ -96,6 +96,6 @@ int
 islist(const struct exp *ep)
 {
   while (ispair(ep))
-	ep = cdr(pairp(ep));
+	ep = cdr(ep);
   return isnull(ep);
 }

@@ -16,8 +16,8 @@ struct exp {
   } u;
 };
 
-#define car(cp)	(cp)->car
-#define cdr(cp)	(cp)->cdr
+#define car(ep)	pairp(ep)->car
+#define cdr(ep)	pairp(ep)->cdr
 
 struct cons {	/* pair */
   struct exp *car;

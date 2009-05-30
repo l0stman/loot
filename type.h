@@ -8,8 +8,8 @@ int isself(struct exp *);
 static __inline__ int
 istag(struct exp *ep, char *tag)
 {
-  return islist(ep) && isatom(car(pairp(ep))) &&
-		  strcmp(tag, symp(car(pairp(ep)))) == 0;
+  return islist(ep) && isatom(car(ep)) &&
+	strcmp(tag, symp(car(ep))) == 0;
 }
 
 /* Test if the expression is a definition. */
