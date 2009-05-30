@@ -10,7 +10,7 @@ print(struct exp *ep)
 {
   char *s;
 
-  printf("%s %s\n", OUTPR, s = tostr(ep));
+  printf("%s%s\n", OUTPR, s = tostr(ep));
   free(s);
 }
 

@@ -3,6 +3,7 @@
 
 enum type { ATOM, PAIR, PROC };
 
+#define type(ep)	(ep)->tp
 #define symp(ep)	(ep)->u.sp
 #define pairp(ep)	(ep)->u.cp
 #define procp(ep)	(ep)->u.pp
@@ -55,22 +56,22 @@ char *tostr(const struct exp *);
 static __inline__ int
 isatom(const struct exp *ep)
 {
-  return (ep != NULL && ep->tp == ATOM);
+  return (ep != NULL && type(ep) == ATOM);
 }
 
 static __inline__ int
 ispair(const struct exp *ep)
 {
-  return (ep != NULL && ep->tp == PAIR);
+  return (ep != NULL && type(ep) == PAIR);
 }
 
 static __inline__ int
 isproc(const struct exp *ep)
 {
-  return (ep != NULL && ep->tp == PROC);
+  return (ep != NULL && type(ep) == PROC);
 }
 
-/* Return an atom whose symbol is the parameter */
+/* Return an atom whose symbol is s */
 static __inline__ struct exp *
 atom(char *s)
 {

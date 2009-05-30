@@ -11,7 +11,7 @@ struct exp null = { ATOM, {"()"} };
 int
 iseq(const struct exp *a, const struct exp *b)
 {
-  if (a->tp != b->tp)
+  if (type(a) != type(b))
 	return 0;
   else if (isatom(a))
 	return (strcmp(symp(a), symp(b)) == 0);
