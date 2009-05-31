@@ -110,3 +110,19 @@ newenv(void)
   ep->ep = NULL;
   return ep;
 }
+
+/* extenv: extend the environment with new bindings */
+struct env *
+extenv(struct exp *blist, struct env *envp)
+{
+  struct env *ep;
+  struct exp *bind;
+
+  ep = newenv();
+  ep->ep = envp;	/* enclosing environment */
+  for (; !isnull(blist); blist = cdr(blist)) {
+	bind = car(blist);
+	install(symp(car(bind)), cdr(bind), ep);
+  }
+  return ep;
+}

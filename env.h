@@ -23,6 +23,7 @@ struct frame *newframe(void);
 struct nlist *lookup(char *, struct env *);
 struct nlist *install(char *, struct exp *, struct env *);
 struct env *newenv(void);
+struct env *extenv(struct exp *, struct env *);
 void undef(char *, struct frame *);
 
 /* fframe: return the first frame in the environment */

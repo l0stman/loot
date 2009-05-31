@@ -12,6 +12,7 @@ static struct exp *evif(struct exp *, struct env *);
 static struct exp *evbegin(struct exp *, struct env *);
 static struct exp *evcond(struct exp *, struct env *);
 static struct exp *evlambda(struct exp *, struct env *);
+static struct exp *evapply(struct exp *, struct env *);
 
 /* Evaluate the expression */
 struct exp *
@@ -33,6 +34,8 @@ eval(struct exp *ep, struct env *envp)
 	return evcond(ep, envp);
   else if (islambda(ep))
 	return evlambda(ep, envp);
+  else if (islist(ep))	/* application */
+	return evapply(ep, envp);
   else
 	return everr("unknown expression", ep);
 }
@@ -156,7 +159,7 @@ evcond(struct exp *ep, struct env *envp)
 }
 
 /* Evaluate a lambda expression */
-static int ispars(struct exp *);
+static int chkpars(struct exp *);
 
 static struct exp *
 evlambda(struct exp *lp, struct env *envp)
@@ -164,14 +167,14 @@ evlambda(struct exp *lp, struct env *envp)
   struct exp *ep;
    
   ep = cdr(lp);
-  if (isnull(ep) || !ispars(car(ep)) || isnull(cdr(ep)))
+  if (isnull(ep) || !chkpars(car(ep)) || isnull(cdr(ep)))
 	return everr("syntax error in", lp);
   return proc(func(car(ep), cons(atom("begin"), cdr(ep)), envp));
 }
 
-/* Verify if the expression represents parameters of a function */
+/* Verify if the expression represents function's parameters */
 static int
-ispars(struct exp *ep)
+chkpars(struct exp *ep)
 {
   if (!ispair(ep))
 	return isatom(ep);
@@ -182,3 +185,49 @@ ispars(struct exp *ep)
 	}
   return 1;
 }
+
+/* Eval a compound expression */
+static struct exp *evmap(struct exp *, struct env *);
+
+static struct exp *
+evapply(struct exp *ep, struct env *envp)
+{
+  struct exp *op;
+  struct exp *args;
+  struct exp *parp;
+  struct exp *blist;	/* bindings list */
+
+  if (!isproc(op = eval(car(ep), envp)))
+	return everr("expression is not a procedure", car(ep));
+  if ((args = evmap(cdr(ep), envp)) == NULL)
+	return NULL;
+  if (procp(op)->tp == PRIM)	/* primitive */
+	return primp(op)(args);
+  for (parp = fpar(funcp(op)), blist = &null ; !isatom(parp);
+	   parp = cdr(parp), args = cdr(args)) {
+	if (isnull(args))
+	  return everr("too few arguments provided to", car(ep));
+	blist = cons(cons(car(parp), car(args)), blist);
+  }
+  if (isnull(parp)) {
+	if (!isnull(args))
+	  return everr("too many arguments provided to", car(ep));
+  }
+  else	/* variable length arguments */
+	blist = cons(cons(parp, args), blist);
+  return eval(fbody(funcp(op)), extenv(blist, fenv(funcp(op))));
+}
+
+/* Return a list a the evaluated expressions */
+static struct exp *
+evmap(struct exp *lp, struct env *envp)
+{
+  struct exp *ep;
+
+  if (isnull(lp))
+	return &null;
+  if ((ep = eval(car(lp), envp)) == NULL)	/* an error occured */
+	return NULL;
+  return cons(ep, evmap(cdr(lp), envp));
+}
+  

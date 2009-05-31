@@ -35,6 +35,9 @@ struct func {	/* Represents a function */
   struct env *envp;		/* environment of the function */
 };
 
+#define primp(ep)	procp(ep)->u.primp
+#define funcp(ep)	procp(ep)->u.funcp
+
 enum ftype { FUNC, PRIM };
 struct proc {	/* A procedure is a function or a primitive */
   enum ftype tp;	/* type of the procedure */
