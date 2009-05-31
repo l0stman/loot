@@ -73,14 +73,25 @@ evdef(struct exp *ep, struct env *envp)
 
 /* Bind a variable with a value */
 static int
-bind(char **varp, struct exp **valp, struct exp *ep)
+bind(char **varp, struct exp **valp, struct exp *lp)
 {
-  if (issym(car(ep))) {
+  struct exp *ep;
+  
+  if (ispair(ep = car(lp))) {	/* lambda shortcut */
+	if (!issym(car(ep))) {
+	  everr("should be a symbol", car(ep));
+	  return 0;
+	}
 	*varp = symp(car(ep));
-	*valp = car(cdr(ep));
+	*valp = cons(atom("lambda"), cons(cdr(ep), cdr(lp)));
 	return 1;
   }
-  everr("the expression couldn't be defined", car(ep));
+  if (issym(ep)) {
+	*varp = symp(ep);
+	*valp = car(cdr(lp));
+	return 1;
+  }
+  everr("the expression couldn't be defined", car(lp));
   return 0;
 }
 
@@ -220,7 +231,7 @@ evapply(struct exp *ep, struct env *envp)
   return eval(fbody(funcp(op)), extenv(blist, fenv(funcp(op))));
 }
 
-/* Return a list a the evaluated expressions */
+/* Return a list of evaluated expressions */
 static struct exp *
 evmap(struct exp *lp, struct env *envp)
 {
