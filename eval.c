@@ -195,7 +195,7 @@ evapply(struct exp *ep, struct env *envp)
   struct exp *op;
   struct exp *args;
   struct exp *parp;
-  struct exp *blist;	/* bindings list */
+  struct exp *blist;	/* binding list */
 
   if (!isproc(op = eval(car(ep), envp)))
 	return everr("expression is not a procedure", car(ep));
@@ -203,6 +203,8 @@ evapply(struct exp *ep, struct env *envp)
 	return NULL;
   if (procp(op)->tp == PRIM)	/* primitive */
 	return primp(op)(args);
+  
+  /* function */
   for (parp = fpar(funcp(op)), blist = &null ; !isatom(parp);
 	   parp = cdr(parp), args = cdr(args)) {
 	if (isnull(args))
@@ -222,12 +224,15 @@ evapply(struct exp *ep, struct env *envp)
 static struct exp *
 evmap(struct exp *lp, struct env *envp)
 {
-  struct exp *ep;
+  struct exp *ep, *res, *memp;
 
-  if (isnull(lp))
-	return &null;
-  if ((ep = eval(car(lp), envp)) == NULL)	/* an error occured */
-	return NULL;
-  return cons(ep, evmap(cdr(lp), envp));
+  for (memp = &null; !isnull(lp); lp = cdr(lp)) {
+	if ((ep = eval(car(lp), envp)) == NULL)	/* an error occured */
+	  return NULL;
+	memp = cons(ep, memp);
+  }
+  /* reverse the list */
+  for (res = &null; !isnull(memp); memp = cdr(memp))
+	res = cons(car(memp), res);
+  return res;
 }
-  
