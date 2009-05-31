@@ -11,6 +11,7 @@ static struct exp *evquote(struct exp *);
 static struct exp *evif(struct exp *, struct env *);
 static struct exp *evbegin(struct exp *, struct env *);
 static struct exp *evcond(struct exp *, struct env *);
+static struct exp *evlambda(struct exp *, struct env *);
 
 /* Evaluate the expression */
 struct exp *
@@ -30,6 +31,8 @@ eval(struct exp *ep, struct env *envp)
 	return evbegin(ep, envp);
   else if (iscond(ep))
 	return evcond(ep, envp);
+  else if (islambda(ep))
+	return evlambda(ep, envp);
   else
 	return everr("unknown expression", ep);
 }
@@ -45,7 +48,7 @@ everr(char *msg, struct exp *ep)
   return NULL;
 }
 
-/* Eval a define expression */
+/* Evaluate a define expression */
 static int bind(char **, struct exp **, struct exp *);
 static int chknum(struct exp *, int);
 
@@ -110,7 +113,7 @@ evquote(struct exp *ep)
   return (chknum(ep, 2) ? car(cdr(ep)): NULL);
 }
 
-/* Eval an if expression */
+/* Evaluate an if expression */
 static struct exp *
 evif(struct exp *ep, struct env *envp)
 {
@@ -124,7 +127,7 @@ evif(struct exp *ep, struct env *envp)
   return eval(res, envp);
 }
 
-/* Eval a begin expression */
+/* Evaluate a begin expression */
 static struct exp *
 evbegin(struct exp *ep, struct env *envp)
 {
@@ -135,7 +138,7 @@ evbegin(struct exp *ep, struct env *envp)
   return form;
 }
 
-/* Eval a cond expression */
+/* Evaluate a cond expression */
 static struct exp *
 evcond(struct exp *ep, struct env *envp)
 {
@@ -150,4 +153,32 @@ evcond(struct exp *ep, struct env *envp)
 	  return eval(cons(atom("begin"), cdr(clause)), envp);
   }
   return NULL;
+}
+
+/* Evaluate a lambda expression */
+static int ispars(struct exp *);
+
+static struct exp *
+evlambda(struct exp *lp, struct env *envp)
+{
+  struct exp *ep;
+   
+  ep = cdr(lp);
+  if (isnull(ep) || !ispars(car(ep)) || isnull(cdr(ep)))
+	return everr("syntax error in", lp);
+  return proc(func(car(ep), cons(atom("begin"), cdr(ep)), envp));
+}
+
+/* Verify if the expression represents parameters of a function */
+static int
+ispars(struct exp *ep)
+{
+  if (!ispair(ep))
+	return isatom(ep);
+  for (; !isatom(ep); ep = cdr(ep))
+	if (!issym(car(ep))) {
+	  everr("should be a symbol", car(ep));
+	  return 0;
+	}
+  return 1;
 }
