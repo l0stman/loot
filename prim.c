@@ -30,6 +30,9 @@ struct proc proc_cdr = { PRIM, "cdr", {prim_cdr} };
 struct exp *prim_eval(struct exp *, struct env *);
 struct proc proc_eval = { PRIM, "eval", {prim_eval} };
 
+struct exp *prim_load(struct exp *, struct env *);
+struct proc proc_load = { PRIM, "load", {prim_load} };
+
 /* List of primitive procedures */
 struct proc *primlist[] = {
   /* arithmetic */
@@ -39,7 +42,7 @@ struct proc *primlist[] = {
   /* test */
   &proc_eq,
   /* misc */
-  &proc_eval
+  &proc_eval, &proc_load,
 };
 size_t psiz = sizeof(primlist)/sizeof(primlist[0]);
 
@@ -216,4 +219,26 @@ load(char *path, struct env *envp)
   }
   fclose(fp);
   return 1;
+}
+
+/* Evaluate the expressions inside the file pointed by ep */
+struct exp *
+prim_load(struct exp *args, struct env *envp)
+{
+  char *path;
+  int mode = inter;
+  
+  if (!chkargs("load", args, 1))
+	return NULL;
+  else if (!isstr(car(args)))
+	return everr("load: should be a string", car(args));
+  path = symp(car(args));
+  /* dump the quotes around the path name */
+  path = sstrndup(path+1, strlen(path+1)-1);
+  
+  inter = 0;	/* non interactive mode */
+  load(path, envp);
+  inter = mode;
+  free(path);
+  return NULL;
 }

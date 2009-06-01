@@ -26,6 +26,13 @@ issym(struct exp *ep)
   return isatom(ep) && symp(ep) != NULL && !isself(ep);
 }
 
+/* Test if the expression is a string. */
+static __inline__ int
+isstr(struct exp *ep)
+{
+  return isatom(ep) && *symp(ep) == '"';
+}
+
 /* Test if the expression is a variable. */
 static __inline__ int
 isvar(struct exp *ep)

@@ -20,13 +20,6 @@ isnum(struct exp *ep)
   return (*cp == '\0' ? 1: 0);
 }
 
-/* Test if the expression is a string. */
-static __inline__ int
-isstr(struct exp *ep)
-{
-  return isatom(ep) && *symp(ep) == '"';
-}
-
 /* Test if the expression is constant. */
 static __inline__ int
 iscst(struct exp *ep)

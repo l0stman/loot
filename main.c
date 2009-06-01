@@ -1,9 +1,6 @@
 #include "loot.h"
 #include "exp.h"
 #include "env.h"
-#include "reader.h"
-#include "parser.h"
-#include "eval.h"
 #include "prim.h"
 
 static struct env *
