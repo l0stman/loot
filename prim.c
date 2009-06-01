@@ -31,7 +31,7 @@ struct proc *primlist[] = {
   /* pair */
   &proc_cons, &proc_car, &proc_cdr,
   /* test */
-  &proc_eq
+  &proc_eq,
 };
 size_t psiz = sizeof(primlist)/sizeof(primlist[0]);
 
@@ -47,7 +47,8 @@ chkargs(char *name, struct exp *args, int n)
   return 0;
 }
 
-struct exp *
+/* Apply f to the elements of lst to built a result */
+static struct exp *
 foldr(struct exp *(*f)(), struct exp *init, struct exp *lst)
 {
   struct exp *ep;

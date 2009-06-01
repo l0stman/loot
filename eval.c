@@ -204,7 +204,7 @@ evapply(struct exp *ep, struct env *envp)
 	return primp(op)(args);
   
   /* function */
-  for (parp = fpar(funcp(op)), blist = &null ; !isatom(parp);
+  for (parp = fpar(op), blist = &null ; !isatom(parp);
 	   parp = cdr(parp), args = cdr(args)) {
 	if (isnull(args))
 	  return everr("too few arguments provided to", car(ep));
@@ -216,7 +216,7 @@ evapply(struct exp *ep, struct env *envp)
   }
   else	/* variable length arguments */
 	blist = cons(cons(parp, args), blist);
-  return eval(fbody(funcp(op)), extenv(blist, fenv(funcp(op))));
+  return eval(fbody(op), extenv(blist, fenv(op)));
 }
 
 /* Return a list of evaluated expressions */

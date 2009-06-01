@@ -25,10 +25,6 @@ struct cons {	/* pair */
   struct exp *cdr;
 };
 
-#define fpar(fp)	(fp)->parp
-#define fbody(fp)	(fp)->bodyp
-#define fenv(fp)	(fp)->envp
-
 struct func {	/* Represents a function */
   struct exp *parp;	/* Parameters of the function */
   struct exp *bodyp;	/* body of the function */
@@ -37,6 +33,9 @@ struct func {	/* Represents a function */
 
 #define primp(ep)	procp(ep)->u.primp
 #define funcp(ep)	procp(ep)->u.funcp
+#define fpar(ep)	funcp(ep)->parp
+#define fbody(ep)	funcp(ep)->bodyp
+#define fenv(ep)	funcp(ep)->envp
 
 enum ftype { FUNC, PRIM };
 struct proc {	/* A procedure is a function or a primitive */
