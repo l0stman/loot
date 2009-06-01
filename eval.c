@@ -4,7 +4,6 @@
 #include "eval.h"
 #include "type.h"
 
-static struct exp *everr(char *msg, struct exp *);
 static struct exp *evdef(struct exp *, struct env *);
 static struct exp *evvar(struct exp *, struct env *);
 static struct exp *evquote(struct exp *);
@@ -38,17 +37,6 @@ eval(struct exp *ep, struct env *envp)
 	return evapply(ep, envp);
   else
 	return everr("unknown expression", ep);
-}
-
-/* Print the message and return a null pointer */
-static struct exp *
-everr(char *msg, struct exp *ep)
-{
-  char *s;
-  
-  warnx("%s: %s", msg, s = tostr(ep));
-  free(s);
-  return NULL;
 }
 
 /* Evaluate a define expression */
