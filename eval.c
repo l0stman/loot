@@ -124,7 +124,8 @@ evif(struct exp *ep, struct env *envp)
   if (!chknum(ep, 4))
 	return NULL;
   ep = cdr(ep);
-  b = eval(car(ep), envp);
+  if ((b = eval(car(ep), envp)) == NULL)
+	return NULL;
   res = (iseq(&false, b) ? car(cdr(cdr(ep))): car(cdr(ep)));
   return eval(res, envp);
 }
