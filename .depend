@@ -5,6 +5,6 @@ exp.o: exp.c loot.h error.h exp.h
 loot.o: loot.c loot.h error.h
 main.o: main.c loot.h error.h exp.h env.h reader.h parser.h eval.h prim.h
 parser.o: parser.c loot.h error.h exp.h parser.h
-prim.o: prim.c loot.h error.h exp.h type.h prim.h
+prim.o: prim.c loot.h error.h exp.h type.h prim.h eval.h
 reader.o: reader.c loot.h error.h reader.h
 type.o: type.c loot.h error.h exp.h type.h

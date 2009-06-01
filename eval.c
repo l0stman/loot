@@ -202,7 +202,7 @@ evapply(struct exp *ep, struct env *envp)
   if ((args = evmap(cdr(ep), envp)) == NULL)
 	return NULL;
   if (procp(op)->tp == PRIM)	/* primitive */
-	return primp(op)(args);
+	return primp(op)(args, envp);
   
   /* function */
   for (parp = fpar(op), blist = &null ; !isatom(parp);

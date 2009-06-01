@@ -136,15 +136,4 @@ isnull(const struct exp *ep)
 {
   return iseq(ep, &null);
 }
-
-/* Print the message and return a null pointer */
-static __inline__ struct exp *
-everr(char *msg, struct exp *ep)
-{
-  char *s;
-  
-  warnx("%s: %s", msg, s = tostr(ep));
-  free(s);
-  return NULL;
-}
 #endif /* !EXP_H */

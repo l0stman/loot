@@ -2,6 +2,7 @@
 #include "exp.h"
 #include "type.h"
 #include "prim.h"
+#include "eval.h"
 
 struct exp *prim_add(struct exp *);
 struct proc proc_add = { PRIM, "+", {prim_add} };
@@ -24,6 +25,9 @@ struct proc proc_car = { PRIM, "car", {prim_car} };
 struct exp *prim_cdr(struct exp *);
 struct proc proc_cdr = { PRIM, "cdr", {prim_cdr} };
 
+struct exp *prim_eval(struct exp *, struct env *);
+struct proc proc_eval = { PRIM, "eval", {prim_eval} };
+
 /* List of primitive procedures */
 struct proc *primlist[] = {
   /* arithmetic */
@@ -32,6 +36,7 @@ struct proc *primlist[] = {
   &proc_cons, &proc_car, &proc_cdr,
   /* test */
   &proc_eq,
+  &proc_eval
 };
 size_t psiz = sizeof(primlist)/sizeof(primlist[0]);
 
@@ -163,4 +168,13 @@ prim_cdr(struct exp *args)
 	return NULL;
   }
   return cdr(car(args));
+}
+
+/* Eval the expression */
+struct exp *
+prim_eval(struct exp *args, struct env *envp)
+{
+  if (!chkargs("eval", args, 1))
+	return NULL;
+  return eval(car(args), envp);
 }
