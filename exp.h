@@ -101,29 +101,29 @@ cons(struct exp *a, struct exp *b)
 }
 
 /* Return a function */
-static __inline__ struct func *
+static __inline__ struct proc *
 func(struct exp *parp, struct exp *bodyp, struct env *envp)
 {
   struct func *fp;
+  struct proc *pp;
 
   fp = smalloc(sizeof(*fp));
   fp->parp = parp;
   fp->bodyp = bodyp;
   fp->envp = envp;
-  return fp;
-}
-
-/* Return a procedure expression from a function */
-static __inline__ struct exp *
-proc(struct func *fp)
-{
-  struct proc *pp;
-  struct exp *ep;
-
+  
   pp = smalloc(sizeof(*pp));
   pp->tp = FUNC;
   pp->label = NULL;	/* anonymous procedure */
   pp->u.funcp = fp;
+  return pp;
+}
+
+/* Return an expression from a procedure */
+static __inline__ struct exp *
+proc(struct proc *pp)
+{
+  struct exp *ep;
 
   ep = smalloc(sizeof(*ep));
   ep->tp = PROC;
