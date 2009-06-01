@@ -6,4 +6,6 @@
 
 extern struct proc *primlist[];
 extern size_t psiz;
+
+int load(char *, struct env *);
 #endif /* !PRIM_H */

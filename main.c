@@ -19,37 +19,19 @@ initenv(void)
   return envp;
 }
 
-static void
-print(struct exp *ep)
-{
-  char *s;
-
-  printf("%s%s\n", OUTPR, s = tostr(ep));
-  free(s);
-}
-
 int
 main(int argc, char *argv[])
 {
-  FILE *fp;
-  struct buf *bp;
-  struct exp *ep;
   struct env *envp;
-
-  if (argc > 1) {
-	if ((fp = fopen(argv[1], "r")) == NULL)
-	  err_sys("Can't open file %s", argv[1]);
-	inter = 0;	/* Non interactive mode */
-  } else
-	fp = stdin;
   
   envp = initenv();
-  while ((bp = read(fp)) != NULL) {
-	ep = eval(parse(bp->buf, bp->len), envp);
-	if (inter && ep != NULL)
-	  print(ep);
-	bfree(bp);
+  if (--argc) {
+	inter = 0;	/* Non interactive mode */
+	while (argc--)
+	  load(*++argv, envp);
+  } else {
+	load(NULL, envp);
+	putchar('\n');
   }
-  putchar('\n');
   exit(0);
 }

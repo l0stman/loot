@@ -2,7 +2,9 @@
 #include "exp.h"
 #include "type.h"
 #include "prim.h"
+#include "reader.h"
 #include "eval.h"
+#include "parser.h"
 
 struct exp *prim_add(struct exp *);
 struct proc proc_add = { PRIM, "+", {prim_add} };
@@ -36,6 +38,7 @@ struct proc *primlist[] = {
   &proc_cons, &proc_car, &proc_cdr,
   /* test */
   &proc_eq,
+  /* misc */
   &proc_eval
 };
 size_t psiz = sizeof(primlist)/sizeof(primlist[0]);
@@ -177,4 +180,40 @@ prim_eval(struct exp *args, struct env *envp)
   if (!chkargs("eval", args, 1))
 	return NULL;
   return eval(car(args), envp);
+}
+
+/* Print the expression to the standard outupt */
+static __inline__ void
+print(struct exp *ep)
+{
+  char *s;
+
+  printf("%s %s\n", OUTPR, s = tostr(ep));
+  free(s);
+}
+
+/* Evaluate all the expressions in the file */
+int
+load(char *path, struct env *envp)
+{
+  FILE *fp;
+  struct buf *bp;
+  struct exp *ep;
+  
+  if (path != NULL) {
+	if ((fp = fopen(path, "r")) == NULL) {
+	  warn("Can't open file %s", path);
+	  return -1;
+	}
+  } else
+	fp = stdin;
+	  
+  while ((bp = read(fp)) != NULL) {
+	ep = eval(parse(bp->buf, bp->len), envp);
+	if (inter && ep != NULL)
+	  print(ep);
+	bfree(bp);
+  }
+  fclose(fp);
+  return 1;
 }
