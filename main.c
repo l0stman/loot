@@ -9,19 +9,14 @@ static struct env *
 initenv(void)
 {
   struct env *envp;
-  struct exp *ep;
   extern struct proc *primlist[];
   extern size_t psiz;
   struct proc **p;
 
   envp = newenv();
   install("null", &null, envp);
-  for (p = primlist; p < primlist+psiz; p++) {
-	ep = smalloc(sizeof(*ep));
-	ep->tp = PROC;
-	ep->u.pp = *p;
-	install((*p)->label, ep, envp);
-  }
+  for (p = primlist; p < primlist+psiz; p++)
+	install((*p)->label, proc(*p), envp);
   return envp;
 }
 
