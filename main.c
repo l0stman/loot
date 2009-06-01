@@ -4,13 +4,12 @@
 #include "reader.h"
 #include "parser.h"
 #include "eval.h"
+#include "prim.h"
 
 static struct env *
 initenv(void)
 {
   struct env *envp;
-  extern struct proc *primlist[];
-  extern size_t psiz;
   struct proc **p;
 
   envp = newenv();

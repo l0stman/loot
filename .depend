@@ -3,7 +3,7 @@ error.o: error.c error.h
 eval.o: eval.c loot.h error.h exp.h env.h eval.h type.h
 exp.o: exp.c loot.h error.h exp.h
 loot.o: loot.c loot.h error.h
-main.o: main.c loot.h error.h exp.h env.h reader.h parser.h eval.h
+main.o: main.c loot.h error.h exp.h env.h reader.h parser.h eval.h prim.h
 parser.o: parser.c loot.h error.h exp.h parser.h
 prim.o: prim.c loot.h error.h exp.h type.h prim.h
 reader.o: reader.c loot.h error.h reader.h

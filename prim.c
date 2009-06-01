@@ -12,9 +12,15 @@ struct proc proc_eq = { PRIM, "eq?", {prim_eq} };
 struct exp *prim_cons(struct exp *);
 struct proc proc_cons = { PRIM, "cons", {prim_cons} };
 
+struct exp *prim_car(struct exp *);
+struct proc proc_car = { PRIM, "car", {prim_car} };
+
+struct exp *prim_cdr(struct exp *);
+struct proc proc_cdr = { PRIM, "cdr", {prim_cdr} };
+
 /* List of primitive procedures */
 struct proc *primlist[] = {
-  &proc_add, &proc_eq, &proc_cons
+  &proc_add, &proc_eq, &proc_cons, &proc_car, &proc_cdr
 };
 size_t psiz = sizeof(primlist)/sizeof(primlist[0]);
 
@@ -64,4 +70,30 @@ prim_cons(struct exp *args)
   if (!chkargs("cons", args, 2))
 	return NULL;
   return cons(car(args), car(cdr(args)));
+}
+
+/* Return the first element of a pair */
+struct exp *
+prim_car(struct exp *args)
+{
+  if (!chkargs("car", args, 1))
+	return NULL;
+  if (!ispair(car(args))) {
+	warnx("car: the argument isn't a pair");
+	return NULL;
+  }
+  return car(car(args));
+}
+
+/* Return the second element of a pair */
+struct exp *
+prim_cdr(struct exp *args)
+{
+  if (!chkargs("cdr", args, 1))
+	return NULL;
+  if (!ispair(car(args))) {
+	warnx("cdr: the argument isn't a pair");
+	return NULL;
+  }
+  return cdr(car(args));
 }
