@@ -206,7 +206,7 @@ load(char *path, struct env *envp)
   if (path != NULL) {
 	if ((fp = fopen(path, "r")) == NULL) {
 	  warn("Can't open file %s", path);
-	  return -1;
+	  return 1;
 	}
   } else
 	fp = stdin;
@@ -218,7 +218,7 @@ load(char *path, struct env *envp)
 	bfree(bp);
   }
   fclose(fp);
-  return 1;
+  return 0;
 }
 
 /* Evaluate the expressions inside the file pointed by ep */

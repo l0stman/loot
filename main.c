@@ -3,6 +3,7 @@
 #include "env.h"
 #include "prim.h"
 
+/* Initialize the global environment */
 static struct env *
 initenv(void)
 {
@@ -25,7 +26,8 @@ main(int argc, char *argv[])
   if (--argc) {
 	inter = 0;	/* Non interactive mode */
 	while (argc--)
-	  load(*++argv, envp);
+	  if (load(*++argv, envp))
+		exit(1);
   } else {
 	load(NULL, envp);
 	putchar('\n');
