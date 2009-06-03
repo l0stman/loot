@@ -11,6 +11,8 @@ static struct exp *evif(struct exp *, struct env *);
 static struct exp *evbegin(struct exp *, struct env *);
 static struct exp *evcond(struct exp *, struct env *);
 static struct exp *evlambda(struct exp *, struct env *);
+static struct exp *evand(struct exp *, struct env *);
+static struct exp *evor(struct exp *, struct env *);
 static struct exp *evapply(struct exp *, struct env *);
 
 /* Evaluate the expression */
@@ -33,6 +35,10 @@ eval(struct exp *ep, struct env *envp)
 	return evcond(ep, envp);
   else if (islambda(ep))
 	return evlambda(ep, envp);
+  else if (isand(ep))
+	return evand(ep, envp);
+  else if (isor(ep))
+	return evor(ep, envp);
   else if (islist(ep))	/* application */
 	return evapply(ep, envp);
   else
@@ -156,6 +162,30 @@ evcond(struct exp *ep, struct env *envp)
 	  return eval(cons(atom("begin"), cdr(clause)), envp);
   }
   return NULL;
+}
+
+/* Evaluate an and expression */
+static struct exp *
+evand(struct exp *ep, struct env *envp)
+{
+  struct exp *res = (void *)&true;
+  
+  for (ep = cdr(ep); !isnull(ep) && !iseq(&false, res); ep = cdr(ep))
+	if ((res = eval(car(ep), envp)) == NULL)
+	  return NULL;
+  return res;
+}
+
+/* Evaluate an or expression */
+static struct exp *
+evor(struct exp *ep, struct env *envp)
+{
+  struct exp *res = (void *)&false;
+
+  for (ep = cdr(ep); !isnull(ep) && iseq(&false, res); ep = cdr(ep))
+	if ((res = eval(car(ep), envp)) == NULL)
+	  return NULL;
+  return res;
 }
 
 /* Evaluate a lambda expression */

@@ -60,7 +60,7 @@ chkargs(char *name, struct exp *args, int n)
 
 /* Apply f to the elements of lst to built a result */
 static struct exp *
-foldr(struct exp *(*f)(), struct exp *init, struct exp *lst)
+foldl(struct exp *(*f)(), struct exp *init, struct exp *lst)
 {
   struct exp *ep;
 
@@ -86,7 +86,7 @@ add(struct exp *sum, struct exp *ep)
 struct exp *
 prim_add(struct exp *args)
 {
-  return foldr(add, atom("0"), args);
+  return foldl(add, atom("0"), args);
 }
 
 /* Return the difference of two expressions */
@@ -110,7 +110,7 @@ prim_sub(struct exp *args)
   else if (!isnum(car(args)))
 	return everr("- : not a number", car(args));
   else
-	return foldr(sub, car(args), cdr(args));
+	return foldl(sub, car(args), cdr(args));
 }
 
 /* Return the product of two expressions */
@@ -129,7 +129,7 @@ prod(struct exp *prod, struct exp *ep)
 struct exp *
 prim_prod(struct exp *args)
 {
-  return foldr(prod, atom("1"), args);
+  return foldl(prod, atom("1"), args);
 }
 
 /* Test if two expressions occupy the same physical memory */

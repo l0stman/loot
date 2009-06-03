@@ -75,6 +75,20 @@ isbegin(struct exp *ep)
   return istag(ep, "begin");
 }
 
+/* Test if an expression is an and expression */
+static __inline__ int
+isand(struct exp *ep)
+{
+  return istag(ep, "and");
+}
+
+/* Test if an expression is an or expression */
+static __inline__ int
+isor(struct exp *ep)
+{
+  return istag(ep, "or");
+}
+
 /* Test if an expression is a lambda expression */
 static __inline__ int
 islambda(struct exp *ep)

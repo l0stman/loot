@@ -1,0 +1,36 @@
+;;; Library for loot
+;; Test function
+(define (null? x) (eq? x null))
+
+(define (zero? x) (eq? x 0))
+
+(define (list? x)
+  (or (null? x)
+      (and (pair? x) (list? (cdr x)))))
+
+(define (foldl f res l)
+  (if (null? l)
+      res
+      (foldl f (f (car l) res) (cdr l))))
+
+;; List functions
+(define (list . l) l)
+
+(define (length l)
+  (foldl (lambda (x, y) (+ 1 y)) 0 l))
+
+(define (reverse l) (foldl cons null l))
+
+(define (append . l)
+  (define (iter h l res)
+    (if (null? h)
+	(if (null? l)
+	    (reverse res)
+	    (iter (car l) (cdr l) res))
+	(iter (cdr h) l (cons (car h) res))))
+  (if (null? l)
+      null
+      (iter (car l) (cdr l) null)))
+
+;; High order functions
+(define (foldr f res l) (foldl f res (reverse l)))
