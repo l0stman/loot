@@ -1,7 +1,11 @@
 CFLAGS = -g -Wall -ansi -pedantic
 OBJS = main.o error.o reader.o loot.o exp.o parser.o type.o eval.o\
 env.o prim.o
-INSTDIR = ${HOME}/bin
+PREF = ${HOME}
+INSTDIR = $(PREF)/bin
+LIBDIR = $(PREF)/lib/loot
+LIBNAME = lib.lt
+LOOTRC = $(PREF)/.lootrc
 PROGNAME = loot
 
 $(PROGNAME) : $(OBJS)
@@ -13,7 +17,10 @@ $(PROGNAME) : $(OBJS)
 
 install:
 	install -d $(INSTDIR)
-	install -S -C $(PROGNAME) $(INSTDIR) 
+	install -S -C $(PROGNAME) $(INSTDIR)
+	install -d $(LIBDIR)
+	install -S -C $(LIBNAME) $(LIBDIR)
+	echo -n "$(LIBDIR)/$(LIBNAME)" > $(LOOTRC)
 
 depend:
 	$(CC) -E -MM *.c > .depend

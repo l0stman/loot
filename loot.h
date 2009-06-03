@@ -14,7 +14,9 @@
 #include "error.h"
 
 #define INPR	"USER> "	/* input prompt */
-#define OUTPR	"--> "		/* output prompt */
+#define OUTPR	"--> "		/* output */
+#define PREFIX	"HOME"	
+#define LOOTRC	".lootrc"
 
 struct buf {	/* adjustable buffer */
   char *buf;
