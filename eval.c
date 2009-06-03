@@ -49,7 +49,7 @@ evdef(struct exp *ep, struct env *envp)
   char *var = NULL;
   struct exp *val = NULL;
    
-  if (!chknum(ep, 3))
+  if (isatom(car(cdr(ep))) && !chknum(ep, 3))
 	return NULL;
   if (bind(&var, &val, cdr(ep)) && (val = eval(val, envp)) != NULL) {
 	if (type(val) == PROC && procp(val)->label == NULL)
