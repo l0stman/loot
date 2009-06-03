@@ -8,10 +8,13 @@
   (or (null? x)
       (and (pair? x) (list? (cdr x)))))
 
+;; High order functions
 (define (foldl f res l)
   (if (null? l)
       res
       (foldl f (f (car l) res) (cdr l))))
+
+(define (foldr f res l) (foldl f res (reverse l)))
 
 ;; List functions
 (define (list . l) l)
@@ -31,6 +34,3 @@
   (if (null? l)
       null
       (iter (car l) (cdr l) null)))
-
-;; High order functions
-(define (foldr f res l) (foldl f res (reverse l)))

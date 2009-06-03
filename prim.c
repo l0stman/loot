@@ -18,6 +18,12 @@ struct proc proc_prod = { PRIM, "*", {prim_prod} };
 struct exp *prim_eq(struct exp *);
 struct proc proc_eq = { PRIM, "eq?", {prim_eq} };
 
+struct exp *prim_sym(struct exp *);
+struct proc proc_sym = { PRIM, "symbol?", {prim_sym} };
+
+struct exp *prim_pair(struct exp *);
+struct proc proc_pair = { PRIM, "pair?", {prim_pair} };
+
 struct exp *prim_cons(struct exp *);
 struct proc proc_cons = { PRIM, "cons", {prim_cons} };
 
@@ -40,7 +46,7 @@ struct proc *primlist[] = {
   /* pair */
   &proc_cons, &proc_car, &proc_cdr,
   /* test */
-  &proc_eq,
+  &proc_eq, &proc_sym, &proc_pair,
   /* misc */
   &proc_eval, &proc_load,
 };
@@ -139,6 +145,24 @@ prim_eq(struct exp *args)
   if (!chkargs("eq?", args, 2))
 	return NULL;
   return atom(iseq(car(args), car(cdr(args))) ? "#t": "#f");
+}
+
+/* Test if the expression is a symbol */
+struct exp *
+prim_sym(struct exp *args)
+{
+  if (!chkargs("symbol?", args, 1))
+	return NULL;
+  return atom(issym(car(args)) ? "#t": "#f");
+}
+
+/* Test if the expression is a pair */
+struct exp *
+prim_pair(struct exp *args)
+{
+  if (!chkargs("pair?", args, 1))
+	return NULL;
+  return atom(ispair(car(args)) ? "#t": "#f");
 }
 
 /* Return a pair of expression */
