@@ -4,20 +4,20 @@
 #include "eval.h"
 #include "type.h"
 
-static struct exp *evdef(struct exp *, struct env *);
-static struct exp *evvar(struct exp *, struct env *);
-static struct exp *evquote(struct exp *);
-static struct exp *evif(struct exp *, struct env *);
-static struct exp *evbegin(struct exp *, struct env *);
-static struct exp *evcond(struct exp *, struct env *);
-static struct exp *evlambda(struct exp *, struct env *);
-static struct exp *evand(struct exp *, struct env *);
-static struct exp *evor(struct exp *, struct env *);
-static struct exp *evapply(struct exp *, struct env *);
+static exp_t *evdef(exp_t *, env_t *);
+static exp_t *evvar(exp_t *, env_t *);
+static exp_t *evquote(exp_t *);
+static exp_t *evif(exp_t *, env_t *);
+static exp_t *evbegin(exp_t *, env_t *);
+static exp_t *evcond(exp_t *, env_t *);
+static exp_t *evlambda(exp_t *, env_t *);
+static exp_t *evand(exp_t *, env_t *);
+static exp_t *evor(exp_t *, env_t *);
+static exp_t *evapply(exp_t *, env_t *);
 
 /* Evaluate the expression */
-struct exp *
-eval(struct exp *ep, struct env *envp)
+exp_t *
+eval(exp_t *ep, env_t *envp)
 {
   if (isself(ep))
 	return ep;
@@ -46,14 +46,14 @@ eval(struct exp *ep, struct env *envp)
 }
 
 /* Evaluate a define expression */
-static int bind(char **, struct exp **, struct exp *);
-static int chknum(struct exp *, int);
+static int bind(char **, exp_t **, exp_t *);
+static int chknum(exp_t *, int);
 
-static struct exp *
-evdef(struct exp *ep, struct env *envp)
+static exp_t *
+evdef(exp_t *ep, env_t *envp)
 {
   char *var = NULL;
-  struct exp *val = NULL;
+  exp_t *val = NULL;
    
   if (isatom(car(cdr(ep))) && !chknum(ep, 3))
 	return NULL;
@@ -67,9 +67,9 @@ evdef(struct exp *ep, struct env *envp)
 
 /* Bind a variable with a value */
 static int
-bind(char **varp, struct exp **valp, struct exp *lp)
+bind(char **varp, exp_t **valp, exp_t *lp)
 {
-  struct exp *ep;
+  exp_t *ep;
   
   if (ispair(ep = car(lp))) {	/* lambda shortcut */
 	if (!issym(car(ep))) {
@@ -91,9 +91,9 @@ bind(char **varp, struct exp **valp, struct exp *lp)
 
 /* Return true if the expression length is equal to n */
 static int
-chknum(struct exp *lp, int n)
+chknum(exp_t *lp, int n)
 {
-  struct exp *ep;
+  exp_t *ep;
   
   for(ep = lp; n && !isnull(ep); n--, ep = cdr(ep))
 	;
@@ -104,8 +104,8 @@ chknum(struct exp *lp, int n)
 }
 
 /* Return the value of a variable if any */
-static struct exp *
-evvar(struct exp *ep, struct env *envp)
+static exp_t *
+evvar(exp_t *ep, env_t *envp)
 {
   struct nlist *np;
 
@@ -115,17 +115,17 @@ evvar(struct exp *ep, struct env *envp)
 }
 
 /* Return the quoted expression */
-static struct exp *
-evquote(struct exp *ep)
+static exp_t *
+evquote(exp_t *ep)
 {
   return (chknum(ep, 2) ? car(cdr(ep)): NULL);
 }
 
 /* Evaluate an if expression */
-static struct exp *
-evif(struct exp *ep, struct env *envp)
+static exp_t *
+evif(exp_t *ep, env_t *envp)
 {
-  struct exp *b, *res;
+  exp_t *b, *res;
   
   if (!chknum(ep, 4))
 	return NULL;
@@ -137,10 +137,10 @@ evif(struct exp *ep, struct env *envp)
 }
 
 /* Evaluate a begin expression */
-static struct exp *
-evbegin(struct exp *ep, struct env *envp)
+static exp_t *
+evbegin(exp_t *ep, env_t *envp)
 {
-  struct exp *form = NULL;
+  exp_t *form = NULL;
 
   for (ep = cdr(ep); !isnull(ep); ep = cdr(ep))
 	form = eval(car(ep), envp);
@@ -148,11 +148,11 @@ evbegin(struct exp *ep, struct env *envp)
 }
 
 /* Evaluate a cond expression */
-static struct exp *
-evcond(struct exp *ep, struct env *envp)
+static exp_t *
+evcond(exp_t *ep, env_t *envp)
 {
-  struct exp *clause;
-  struct exp _else_ = { ATOM, {"else"} };
+  exp_t *clause;
+  exp_t _else_ = { ATOM, {"else"} };
 
   for (ep = cdr(ep); !isnull(ep); ep = cdr(ep)) {
 	if (!islist(car(ep)))
@@ -165,10 +165,10 @@ evcond(struct exp *ep, struct env *envp)
 }
 
 /* Evaluate an and expression */
-static struct exp *
-evand(struct exp *ep, struct env *envp)
+static exp_t *
+evand(exp_t *ep, env_t *envp)
 {
-  struct exp *res = (void *)&true;
+  exp_t *res = (void *)&true;
   
   for (ep = cdr(ep); !isnull(ep) && !iseq(&false, res); ep = cdr(ep))
 	if ((res = eval(car(ep), envp)) == NULL)
@@ -177,10 +177,10 @@ evand(struct exp *ep, struct env *envp)
 }
 
 /* Evaluate an or expression */
-static struct exp *
-evor(struct exp *ep, struct env *envp)
+static exp_t *
+evor(exp_t *ep, env_t *envp)
 {
-  struct exp *res = (void *)&false;
+  exp_t *res = (void *)&false;
 
   for (ep = cdr(ep); !isnull(ep) && iseq(&false, res); ep = cdr(ep))
 	if ((res = eval(car(ep), envp)) == NULL)
@@ -189,12 +189,12 @@ evor(struct exp *ep, struct env *envp)
 }
 
 /* Evaluate a lambda expression */
-static int chkpars(struct exp *);
+static int chkpars(exp_t *);
 
-static struct exp *
-evlambda(struct exp *lp, struct env *envp)
+static exp_t *
+evlambda(exp_t *lp, env_t *envp)
 {
-  struct exp *ep;
+  exp_t *ep;
    
   ep = cdr(lp);
   if (isnull(ep) || !chkpars(car(ep)) || isnull(cdr(ep)))
@@ -204,7 +204,7 @@ evlambda(struct exp *lp, struct env *envp)
 
 /* Verify if the expression represents function's parameters */
 static int
-chkpars(struct exp *ep)
+chkpars(exp_t *ep)
 {
   if (!ispair(ep))
 	return isatom(ep);
@@ -217,15 +217,15 @@ chkpars(struct exp *ep)
 }
 
 /* Eval a compound expression */
-static struct exp *evmap(struct exp *, struct env *);
+static exp_t *evmap(exp_t *, env_t *);
 
-static struct exp *
-evapply(struct exp *ep, struct env *envp)
+static exp_t *
+evapply(exp_t *ep, env_t *envp)
 {
-  struct exp *op;
-  struct exp *args;
-  struct exp *parp;
-  struct exp *blist;	/* binding list */
+  exp_t *op;
+  exp_t *args;
+  exp_t *parp;
+  exp_t *blist;	/* binding list */
 
   if (!isproc(op = eval(car(ep), envp)))
 	return everr("expression is not a procedure", car(ep));
@@ -251,10 +251,10 @@ evapply(struct exp *ep, struct env *envp)
 }
 
 /* Return a list of evaluated expressions */
-static struct exp *
-evmap(struct exp *lp, struct env *envp)
+static exp_t *
+evmap(exp_t *lp, env_t *envp)
 {
-  struct exp *ep, *res, *memp;
+  exp_t *ep, *res, *memp;
 
   for (memp = &null; !isnull(lp); lp = cdr(lp)) {
 	if ((ep = eval(car(lp), envp)) == NULL)	/* an error occured */

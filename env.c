@@ -29,7 +29,7 @@ find(char *s, struct frame *fp)
 
 /* lookup: look for s in the environment */
 struct nlist *
-lookup(char *s, struct env *ep)
+lookup(char *s, env_t *ep)
 {
   struct nlist *np;
 
@@ -41,7 +41,7 @@ lookup(char *s, struct env *ep)
 	
 /* install: put (name, defn) in the environment */
 struct nlist *
-install(char *name, struct exp *defn, struct env *ep)
+install(char *name, exp_t *defn, env_t *ep)
 {
   struct nlist *np;
   struct frame *fp;
@@ -100,10 +100,10 @@ newframe(void)
 }
 
 /* newenv: return a new environment */
-struct env *
+env_t *
 newenv(void)
 {
-  struct env *ep;
+  env_t *ep;
 
   ep = smalloc(sizeof(*ep));
   ep->fp = newframe();
@@ -112,11 +112,11 @@ newenv(void)
 }
 
 /* extenv: extend the environment with new bindings */
-struct env *
-extenv(struct exp *blist, struct env *envp)
+env_t *
+extenv(exp_t *blist, env_t *envp)
 {
-  struct env *ep;
-  struct exp *bind;
+  env_t *ep;
+  exp_t *bind;
 
   ep = newenv();
   ep->ep = envp;	/* enclosing environment */

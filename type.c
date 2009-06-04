@@ -4,7 +4,7 @@
 
 /* Test if the expression is a number */
 __inline__ int
-isnum(struct exp *ep)
+isnum(exp_t *ep)
 {
   char *cp;
 
@@ -22,14 +22,14 @@ isnum(struct exp *ep)
 
 /* Test if the expression is constant. */
 static __inline__ int
-iscst(struct exp *ep)
+iscst(exp_t *ep)
 {
   return iseq(ep, &false) || iseq(ep, &true);
 }
 
 /* Test if the expression is self-evaluating */
 int
-isself(struct exp *ep)
+isself(exp_t *ep)
 {
   return isnum(ep) || isstr(ep) || iscst(ep);
 }

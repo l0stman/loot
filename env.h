@@ -6,7 +6,7 @@
 struct nlist {	/* table entry */
   struct nlist *next;
   char *name;		/* defined name */
-  struct exp *defn;	/* replacement expression */
+  exp_t *defn;	/* replacement expression */
 };
 
 struct frame {	/* a frame is an array of pointers of nlist */
@@ -18,24 +18,25 @@ struct env {	/* an environment is a list of frames */
   struct frame *fp;	/* first frame of the environment */
   struct env *ep;	/* enclosing environment */
 };
+typedef struct env env_t;
 
 struct frame *newframe(void);
-struct nlist *lookup(char *, struct env *);
-struct nlist *install(char *, struct exp *, struct env *);
-struct env *newenv(void);
-struct env *extenv(struct exp *, struct env *);
+struct nlist *lookup(char *, env_t *);
+struct nlist *install(char *, exp_t *, env_t *);
+env_t *newenv(void);
+env_t *extenv(exp_t *, env_t *);
 void undef(char *, struct frame *);
 
 /* fframe: return the first frame in the environment */
 static __inline__ struct frame *
-fframe(struct env *ep)
+fframe(env_t *ep)
 {
   return ep->fp;
 }
 
 /* eenv: return the enclosing environment */
-static __inline__ struct env *
-eenv(struct env *ep)
+static __inline__ env_t *
+eenv(env_t *ep)
 {
   return ep->ep;
 }

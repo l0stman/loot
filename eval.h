@@ -1,12 +1,11 @@
 #ifndef EVAL_H
 #define EVAL_H
 
-struct exp *eval(struct exp *, struct env *);
-
+exp_t *eval(exp_t *, env_t *);
 
 /* Print the message and return a null pointer */
-static __inline__ struct exp *
-everr(char *msg, struct exp *ep)
+static __inline__ exp_t *
+everr(char *msg, exp_t *ep)
 {
   char *s;
   

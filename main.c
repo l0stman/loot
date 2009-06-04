@@ -4,11 +4,11 @@
 #include "prim.h"
 
 /* Initialize the global environment */
-static struct env *
+static env_t *
 initenv(void)
 {
-  struct env *envp;
-  struct proc **p;
+  env_t *envp;
+  proc_t **p;
   char buf[BUFSIZ], *pref;
   FILE *fp;
   int mode = inter;
@@ -39,7 +39,7 @@ initenv(void)
 int
 main(int argc, char *argv[])
 {
-  struct env *envp;
+  env_t *envp;
 	
   envp = initenv();
   if (--argc) {

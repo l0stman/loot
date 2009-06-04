@@ -16,18 +16,19 @@ struct exp {
 	struct proc *pp;	/* pointer to a procedure */
   } u;
 };
+typedef struct exp exp_t;
 
 #define car(ep)	pairp(ep)->car
 #define cdr(ep)	pairp(ep)->cdr
 
 struct cons {	/* pair */
-  struct exp *car;
-  struct exp *cdr;
+  exp_t *car;
+  exp_t *cdr;
 };
 
 struct func {	/* Represents a function */
-  struct exp *parp;	/* Parameters of the function */
-  struct exp *bodyp;	/* body of the function */
+  exp_t *parp;	/* Parameters of the function */
+  exp_t *bodyp;	/* body of the function */
   struct env *envp;		/* environment of the function */
 };
 
@@ -42,42 +43,43 @@ struct proc {	/* A procedure is a function or a primitive */
   enum ftype tp;	/* type of the procedure */
   char *label;		/* label of the procedure */
   union {
-	struct exp *(*primp)();	/* pointer to a primitive function */
+	exp_t *(*primp)();	/* pointer to a primitive function */
 	struct func *funcp;	/* pointer to an user-defined function */
   } u;
 };
+typedef struct proc proc_t;
 
-extern const struct exp false;
-extern const struct exp true;
-extern struct exp null;
+extern const exp_t false;
+extern const exp_t true;
+extern exp_t null;
 
-int iseq(const struct exp *, const struct exp *);
-int islist(const struct exp *);
-char *tostr(const struct exp *);
+int iseq(const exp_t *, const exp_t *);
+int islist(const exp_t *);
+char *tostr(const exp_t *);
 
 static __inline__ int
-isatom(const struct exp *ep)
+isatom(const exp_t *ep)
 {
   return (ep != NULL && type(ep) == ATOM);
 }
 
 static __inline__ int
-ispair(const struct exp *ep)
+ispair(const exp_t *ep)
 {
   return (ep != NULL && type(ep) == PAIR);
 }
 
 static __inline__ int
-isproc(const struct exp *ep)
+isproc(const exp_t *ep)
 {
   return (ep != NULL && type(ep) == PROC);
 }
 
 /* Return an atom whose symbol is s */
-static __inline__ struct exp *
+static __inline__ exp_t *
 atom(char *s)
 {
-  struct exp *ep;
+  exp_t *ep;
 
   ep = smalloc(sizeof(*ep));
   ep->tp = ATOM;
@@ -86,10 +88,10 @@ atom(char *s)
 }
 
 /* Return a pair of expression */
-static __inline__ struct exp *
-cons(struct exp *a, struct exp *b)
+static __inline__ exp_t *
+cons(exp_t *a, exp_t *b)
 {
-  struct exp *ep;
+  exp_t *ep;
 
   ep = smalloc(sizeof(*ep));
   ep->tp = PAIR;
@@ -100,11 +102,11 @@ cons(struct exp *a, struct exp *b)
 }
 
 /* Return a function */
-static __inline__ struct proc *
-func(struct exp *parp, struct exp *bodyp, struct env *envp)
+static __inline__ proc_t *
+func(exp_t *parp, exp_t *bodyp, struct env *envp)
 {
   struct func *fp;
-  struct proc *pp;
+  proc_t *pp;
 
   fp = smalloc(sizeof(*fp));
   fp->parp = parp;
@@ -119,10 +121,10 @@ func(struct exp *parp, struct exp *bodyp, struct env *envp)
 }
 
 /* Return an expression from a procedure */
-static __inline__ struct exp *
-proc(struct proc *pp)
+static __inline__ exp_t *
+proc(proc_t *pp)
 {
-  struct exp *ep;
+  exp_t *ep;
 
   ep = smalloc(sizeof(*ep));
   ep->tp = PROC;
@@ -132,7 +134,7 @@ proc(struct proc *pp)
 
 /* Test if the expression is null */
 static __inline__ int
-isnull(const struct exp *ep)
+isnull(const exp_t *ep)
 {
   return iseq(ep, &null);
 }

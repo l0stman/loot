@@ -1,12 +1,12 @@
 #ifndef TYPE_H
 #define TYPE_H
 
-int isnum(struct exp *);
-int isself(struct exp *);
+int isnum(exp_t *);
+int isself(exp_t *);
 
 /* Test if exp is a list whose first element is an atom of symbol tag. */
 static __inline__ int
-istag(struct exp *ep, char *tag)
+istag(exp_t *ep, char *tag)
 {
   return islist(ep) && isatom(car(ep)) &&
 	strcmp(tag, symp(car(ep))) == 0;
@@ -14,84 +14,84 @@ istag(struct exp *ep, char *tag)
 
 /* Test if the expression is a definition. */
 static __inline__ int
-isdef(struct exp *ep)
+isdef(exp_t *ep)
 {
   return istag(ep, "define");
 }
 
 /* Test if the expression is a symbol. */
 static __inline__ int
-issym(struct exp *ep)
+issym(exp_t *ep)
 {
   return isatom(ep) && symp(ep) != NULL && !isself(ep);
 }
 
 /* Test if the expression is a string. */
 static __inline__ int
-isstr(struct exp *ep)
+isstr(exp_t *ep)
 {
   return isatom(ep) && *symp(ep) == '"';
 }
 
 /* Test if the expression is a variable. */
 static __inline__ int
-isvar(struct exp *ep)
+isvar(exp_t *ep)
 {
   return issym(ep);
 }
 
 /* Test if the expression is a quote */
 static __inline__ int
-isquote(struct exp *ep)
+isquote(exp_t *ep)
 {
   return istag(ep, "quote");
 }
 
 /* Test if the expression is an if expression */
 static __inline__ int
-isif(struct exp *ep)
+isif(exp_t *ep)
 {
   return istag(ep, "if");
 }
 
 /* Test if the expression is a cond expression */
 static __inline__ int
-iscond(struct exp *ep)
+iscond(exp_t *ep)
 {
   return istag(ep, "cond");
 }
 
 /* Test if an expression is a boolean */
 static __inline__ int
-isbool(struct exp *ep)
+isbool(exp_t *ep)
 {
   return ep != NULL && (iseq(&true, ep) || iseq(&false, ep));
 }
 
 /* Test if an expression is a begin expression */
 static __inline__ int
-isbegin(struct exp *ep)
+isbegin(exp_t *ep)
 {
   return istag(ep, "begin");
 }
 
 /* Test if an expression is an and expression */
 static __inline__ int
-isand(struct exp *ep)
+isand(exp_t *ep)
 {
   return istag(ep, "and");
 }
 
 /* Test if an expression is an or expression */
 static __inline__ int
-isor(struct exp *ep)
+isor(exp_t *ep)
 {
   return istag(ep, "or");
 }
 
 /* Test if an expression is a lambda expression */
 static __inline__ int
-islambda(struct exp *ep)
+islambda(exp_t *ep)
 {
   return istag(ep, "lambda");
 }

@@ -4,7 +4,7 @@
 /* maximum number of digits (plus sign) for a 32-bits integer */
 #define MAXDIG	10	
 
-extern struct proc *primlist[];
+extern proc_t *primlist[];
 extern size_t psiz;
 
 int load(char *, struct env *);

@@ -1,15 +1,15 @@
 #include "loot.h"
 #include "exp.h"
 
-const struct exp false = { ATOM, {"#f"} };
-const struct exp true = { ATOM, {"#t"} };
-struct exp null = { ATOM, {"()"} };
+const exp_t false = { ATOM, {"#f"} };
+const exp_t true = { ATOM, {"#t"} };
+exp_t null = { ATOM, {"()"} };
 
 /* Return true if the two expressions have the same
  * symbols or if they occupy the same memory.
  */
 int
-iseq(const struct exp *a, const struct exp *b)
+iseq(const exp_t *a, const exp_t *b)
 {
   if (type(a) != type(b))
 	return 0;
@@ -20,14 +20,14 @@ iseq(const struct exp *a, const struct exp *b)
 
 /* Return a string representing an atom */
 static char *
-atmtostr(const struct exp *ep)
+atmtostr(const exp_t *ep)
 {
   return sstrdup(symp(ep));
 }
 
 /* Return a string representing a pair */
 static char *
-pairtostr(const struct exp *ep)
+pairtostr(const exp_t *ep)
 {
   struct buf *bp;
   char *s, *car, *cdr = NULL;
@@ -59,7 +59,7 @@ pairtostr(const struct exp *ep)
 /* Return a string representing a procedure */
 #define PROCSTR	"#<procedure"
 static char *
-proctostr(const struct exp *ep)
+proctostr(const exp_t *ep)
 {
   struct buf *bp;
   char *s;
@@ -78,7 +78,7 @@ proctostr(const struct exp *ep)
 	
 /* Return a string representing the expression */
 char *
-tostr(const struct exp *ep)
+tostr(const exp_t *ep)
 {
   if (isatom(ep))
 	return atmtostr(ep);
@@ -93,7 +93,7 @@ tostr(const struct exp *ep)
 
 /* Return true if the expression is a null-terminated pair */
 int
-islist(const struct exp *ep)
+islist(const exp_t *ep)
 {
   while (ispair(ep))
 	ep = cdr(ep);

@@ -1,5 +1,5 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-struct exp *parse(char *i, int);
+exp_t *parse(char *, int);
 #endif	/* !PARSER_H */
