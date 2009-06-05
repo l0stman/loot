@@ -13,6 +13,7 @@ static exp_t *evcond(exp_t *, env_t *);
 static exp_t *evlambda(exp_t *, env_t *);
 static exp_t *evand(exp_t *, env_t *);
 static exp_t *evor(exp_t *, env_t *);
+static exp_t *evlet(exp_t *, env_t *);
 static exp_t *evapply(exp_t *, env_t *);
 
 /* Evaluate the expression */
@@ -39,6 +40,8 @@ eval(exp_t *ep, env_t *envp)
 	return evand(ep, envp);
   else if (isor(ep))
 	return evor(ep, envp);
+  else if (islet(ep))
+	return evlet(ep, envp);
   else if (islist(ep))	/* application */
 	return evapply(ep, envp);
   else
@@ -214,6 +217,27 @@ chkpars(exp_t *ep)
 	  return 0;
 	}
   return 1;
+}
+
+/* Eval a let expression */
+static exp_t *
+evlet(exp_t *ep, env_t *envp)
+{
+  exp_t *lp, *plst, *vlst, *op;
+
+  if (isnull(cdr(ep)) || isnull(cdr(cdr(ep))))
+	return everr("syntax error", ep);
+  plst = vlst = &null;
+  for (lp = car(cdr(ep)); ispair(lp); lp = cdr(lp)) {
+	if (!islist(car(lp)) || !chknum(car(lp), 2))
+	  return everr("syntax error", ep);
+	plst = cons(car(car(lp)), plst);
+	vlst = cons(car(cdr(car(lp))), vlst);
+  }
+  if (!isnull(lp))
+	return everr("should be a list of bindings", lp);
+  op = cons(atom("lambda"), cons(plst, cdr(cdr(ep))));
+  return eval(cons(op, vlst), envp);
 }
 
 /* Eval a compound expression */

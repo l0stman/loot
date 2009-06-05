@@ -96,4 +96,10 @@ islambda(exp_t *ep)
   return istag(ep, "lambda");
 }
 
+/* Test if an expression is a let expression */
+static __inline__ int
+islet(exp_t *ep)
+{
+  return istag(ep, "let");
+}
 #endif /* !TYPE_H */
