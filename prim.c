@@ -7,52 +7,6 @@
 #include "eval.h"
 #include "parser.h"
 
-exp_t *prim_add(exp_t *);
-proc_t proc_add = { PRIM, "+", {prim_add} };
-
-exp_t *prim_sub(exp_t *);
-proc_t proc_sub = { PRIM, "-", {prim_sub} };
-
-exp_t *prim_prod(exp_t *);
-proc_t proc_prod = { PRIM, "*", {prim_prod} };
-
-exp_t *prim_eq(exp_t *);
-proc_t proc_eq = { PRIM, "eq?", {prim_eq} };
-
-exp_t *prim_sym(exp_t *);
-proc_t proc_sym = { PRIM, "symbol?", {prim_sym} };
-
-exp_t *prim_pair(exp_t *);
-proc_t proc_pair = { PRIM, "pair?", {prim_pair} };
-
-exp_t *prim_cons(exp_t *);
-proc_t proc_cons = { PRIM, "cons", {prim_cons} };
-
-exp_t *prim_car(exp_t *);
-proc_t proc_car = { PRIM, "car", {prim_car} };
-
-exp_t *prim_cdr(exp_t *);
-proc_t proc_cdr = { PRIM, "cdr", {prim_cdr} };
-
-exp_t *prim_eval(exp_t *, env_t *);
-proc_t proc_eval = { PRIM, "eval", {prim_eval} };
-
-exp_t *prim_load(exp_t *, env_t *);
-proc_t proc_load = { PRIM, "load", {prim_load} };
-
-/* List of primitive procedures */
-proc_t *primlist[] = {
-  /* arithmetic */
-  &proc_add, &proc_sub, &proc_prod,
-  /* pair */
-  &proc_cons, &proc_car, &proc_cdr,
-  /* test */
-  &proc_eq, &proc_sym, &proc_pair,
-  /* misc */
-  &proc_eval, &proc_load,
-};
-size_t psiz = sizeof(primlist)/sizeof(primlist[0]);
-
 /* Check if the primitive has the right number of arguments */
 static __inline__ int
 chkargs(char *name, exp_t *args, int n)

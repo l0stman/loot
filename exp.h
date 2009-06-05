@@ -120,6 +120,19 @@ func(exp_t *parp, exp_t *bodyp, struct env *envp)
   return pp;
 }
 
+/* Return a primitive */
+static __inline__ proc_t *
+prim(char *label, exp_t *(primp)())
+{
+  proc_t *pp;
+
+  pp = smalloc(sizeof(*pp));
+  pp->tp = PRIM;
+  pp->label = label;
+  pp->u.primp = primp;
+  return pp;
+}
+
 /* Return an expression from a procedure */
 static __inline__ exp_t *
 proc(proc_t *pp)
