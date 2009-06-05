@@ -17,6 +17,7 @@
 #define OUTPR	"--> "		/* output */
 #define PREFIX	"HOME"	
 #define LOOTRC	".lootrc"
+#define LIBNAM	"lib.lt"
 
 struct buf {	/* adjustable buffer */
   char *buf;

@@ -11,7 +11,7 @@ initenv(void)
   proc_t **p;
   char buf[BUFSIZ], *pref;
   FILE *fp;
-  int mode = inter;
+  int mode = inter, ret;
 
   envp = newenv();
   install("null", &null, envp);
@@ -19,20 +19,17 @@ initenv(void)
 	install((*p)->label, proc(*p), envp);
   
   /* load the library */
-  if ((pref = getenv(PREFIX)) == NULL) {
-	warnx("%s not defined, can't load library", PREFIX);
-	return envp;
-  }
-  snprintf(buf, BUFSIZ, "%s/%s", pref, LOOTRC);
-  if ((fp = fopen(buf, "r")) == NULL) {
-	warnx("Can't open %s", buf);
-	return envp;
-  }
-  if (fgets(buf, BUFSIZ, fp) != NULL) {
-	inter = 0;
-	load(buf, envp);
-	inter = mode;
-  }
+  if ((ret = (pref = getenv(PREFIX)) != NULL)) {
+	snprintf(buf, BUFSIZ, "%s/%s", pref, LOOTRC);
+	if ((ret = (fp = fopen(buf, "r")) != NULL))
+	  fgets(buf, BUFSIZ, fp);
+  } else
+	warnx("environment variable %s not defined", PREFIX);
+  if (!ret)
+	snprintf(buf, BUFSIZ, "%s", LIBNAM);
+  inter = 0;
+  load(buf, envp);
+  inter = mode;
   return envp;
 }
 
@@ -46,10 +43,10 @@ main(int argc, char *argv[])
 	inter = 0;	/* Non interactive mode */
 	while (argc--)
 	  if (load(*++argv, envp))
-		exit(1);
+		exit(EXIT_FAILURE);
   } else {
 	load(NULL, envp);
 	putchar('\n');
   }
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
