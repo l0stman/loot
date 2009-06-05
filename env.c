@@ -17,7 +17,7 @@ hash(char *s, size_t hashsize)
 
 /* find: look for s in frame */
 static struct nlist *
-find(char *s, struct frame *fp)
+find(char *s, frame_t *fp)
 {
   struct nlist *np;
 
@@ -44,7 +44,7 @@ struct nlist *
 install(char *name, exp_t *defn, env_t *ep)
 {
   struct nlist *np;
-  struct frame *fp;
+  frame_t *fp;
   unsigned hashval;
   
   fp = fframe(ep);
@@ -62,7 +62,7 @@ install(char *name, exp_t *defn, env_t *ep)
 
 /* undef: remove the entry corresponding to name in frame */
 void
-undef(char *s, struct frame *fp)
+undef(char *s, frame_t *fp)
 {
   struct nlist *np;
   struct nlist *prev;
@@ -88,10 +88,10 @@ undef(char *s, struct frame *fp)
 }
 
 /* newframe: return a new frame pointer */
-struct frame *
+frame_t *
 newframe(void)
 {
-  struct frame *fp;
+  frame_t *fp;
   
   fp = smalloc(sizeof(*fp));
   fp->bucket = smalloc(sizeof(*fp->bucket)*HASHSIZE);
@@ -125,4 +125,23 @@ extenv(exp_t *blist, env_t *envp)
 	install(symp(car(bind)), cdr(bind), ep);
   }
   return ep;
+}
+
+/* Dump the frame content to the standard output */
+void
+fdump(frame_t *fp)
+{
+  struct nlist *np;
+  char *s;
+  int i;
+
+  for (i = 0; i < fp->size; i++) {
+	if (fp->bucket[i]) {
+	  for (np = fp->bucket[i]; np; np = np->next) {
+		printf("%d: [%s, %s] ", i, np->name, s = tostr(np->defn));
+		free(s);
+	  }
+	  putchar('\n');
+	}
+  }
 }

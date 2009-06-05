@@ -9,26 +9,26 @@ struct nlist {	/* table entry */
   exp_t *defn;	/* replacement expression */
 };
 
-struct frame {	/* a frame is an array of pointers of nlist */
+typedef struct frame {	/* a frame is an array of pointers of nlist */
   struct nlist **bucket;
   size_t size;
-};
+} frame_t;
 
-struct env {	/* an environment is a list of frames */
-  struct frame *fp;	/* first frame of the environment */
+typedef struct env {	/* an environment is a list of frames */
+  frame_t *fp;	/* first frame of the environment */
   struct env *ep;	/* enclosing environment */
-};
-typedef struct env env_t;
+} env_t;
 
-struct frame *newframe(void);
+frame_t *newframe(void);
+void fdump(frame_t *);
 struct nlist *lookup(char *, env_t *);
 struct nlist *install(char *, exp_t *, env_t *);
 env_t *newenv(void);
 env_t *extenv(exp_t *, env_t *);
-void undef(char *, struct frame *);
+void undef(char *, frame_t *);
 
 /* fframe: return the first frame in the environment */
-static __inline__ struct frame *
+static __inline__ frame_t *
 fframe(env_t *ep)
 {
   return ep->fp;
