@@ -252,7 +252,7 @@ evapply(exp_t *ep, env_t *envp)
   exp_t *blist;	/* binding list */
 
   if (!isproc(op = eval(car(ep), envp)))
-	return everr("expression is not a procedure", car(ep));
+	return (op ? everr("expression is not a procedure", car(ep)): NULL);
   if ((args = evmap(cdr(ep), envp)) == NULL)
 	return NULL;
   if (procp(op)->tp == PRIM)	/* primitive */
