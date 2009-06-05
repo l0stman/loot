@@ -29,6 +29,7 @@ struct buf *binit(void);
 
 extern int inter;
 void *smalloc(size_t);
+void *scalloc(size_t, size_t);
 void *srealloc(void *, size_t);
 char *sstrdup(char *);
 char *sstrndup(char *, size_t);

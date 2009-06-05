@@ -94,7 +94,7 @@ newframe(void)
   frame_t *fp;
   
   fp = smalloc(sizeof(*fp));
-  fp->bucket = smalloc(sizeof(*fp->bucket)*HASHSIZE);
+  fp->bucket = calloc(HASHSIZE, sizeof(*fp->bucket));
   fp->size = HASHSIZE;
   return fp;
 }

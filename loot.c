@@ -13,6 +13,17 @@ smalloc(size_t size)
   return vp;
 }
 
+/* Safe calloc */
+void *
+scalloc(size_t num, size_t size)
+{
+  void *vp;
+
+  if ((vp = calloc(num, size)) == NULL)
+	err_sys("Not enough memory");
+  return vp;
+}
+
 /* Safe realloc */
 void *
 srealloc(void *ptr, size_t size)
