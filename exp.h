@@ -57,26 +57,26 @@ int iseq(const exp_t *, const exp_t *);
 int islist(const exp_t *);
 char *tostr(const exp_t *);
 
-static __inline__ int
+static inline int
 isatom(const exp_t *ep)
 {
   return (ep != NULL && type(ep) == ATOM);
 }
 
-static __inline__ int
+static inline int
 ispair(const exp_t *ep)
 {
   return (ep != NULL && type(ep) == PAIR);
 }
 
-static __inline__ int
+static inline int
 isproc(const exp_t *ep)
 {
   return (ep != NULL && type(ep) == PROC);
 }
 
 /* Return an atom whose symbol is s */
-static __inline__ exp_t *
+static inline exp_t *
 atom(char *s)
 {
   exp_t *ep;
@@ -88,7 +88,7 @@ atom(char *s)
 }
 
 /* Return a pair of expression */
-static __inline__ exp_t *
+static inline exp_t *
 cons(exp_t *a, exp_t *b)
 {
   exp_t *ep;
@@ -102,7 +102,7 @@ cons(exp_t *a, exp_t *b)
 }
 
 /* Return a function */
-static __inline__ proc_t *
+static inline proc_t *
 func(exp_t *parp, exp_t *bodyp, struct env *envp)
 {
   struct func *fp;
@@ -121,7 +121,7 @@ func(exp_t *parp, exp_t *bodyp, struct env *envp)
 }
 
 /* Return a primitive */
-static __inline__ proc_t *
+static inline proc_t *
 prim(char *label, exp_t *(primp)())
 {
   proc_t *pp;
@@ -134,7 +134,7 @@ prim(char *label, exp_t *(primp)())
 }
 
 /* Return an expression from a procedure */
-static __inline__ exp_t *
+static inline exp_t *
 proc(proc_t *pp)
 {
   exp_t *ep;
@@ -146,7 +146,7 @@ proc(proc_t *pp)
 }
 
 /* Test if the expression is null */
-static __inline__ int
+static inline int
 isnull(const exp_t *ep)
 {
   return iseq(ep, &null);

@@ -1,12 +1,12 @@
-CFLAGS = -g -Wall -ansi -pedantic
-OBJS = main.o error.o reader.o loot.o exp.o parser.o type.o eval.o\
+CFLAGS=	-g -Wall -ansi -pedantic
+OBJS=	main.o error.o reader.o loot.o exp.o parser.o type.o eval.o\
 env.o prim.o
-PREF = ${HOME}
-INSTDIR = $(PREF)/bin
-LIBDIR = $(PREF)/lib/loot
-LIBNAME = lib.lt
-LOOTRC = $(PREF)/.lootrc
-PROGNAME = loot
+PREF=	${HOME}
+INSTDIR= $(PREF)/bin
+LIBDIR=	$(PREF)/lib/loot
+LIBNAME= lib.lt
+LOOTRC=	$(PREF)/.lootrc
+PROGNAME= loot
 
 $(PROGNAME) : $(OBJS)
 	$(CC) $(CFLAGS) -o $(.TARGET) $(.ALLSRC)

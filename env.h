@@ -28,14 +28,14 @@ env_t *extenv(exp_t *, env_t *);
 void undef(char *, frame_t *);
 
 /* fframe: return the first frame in the environment */
-static __inline__ frame_t *
+static inline frame_t *
 fframe(env_t *ep)
 {
   return ep->fp;
 }
 
 /* eenv: return the enclosing environment */
-static __inline__ env_t *
+static inline env_t *
 eenv(env_t *ep)
 {
   return ep->ep;

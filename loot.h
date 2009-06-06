@@ -1,9 +1,13 @@
 #ifndef LOOT_H
 #define LOOT_H
 
-#ifndef __GNUC__
-#define __inline__ inline
-#endif
+#ifndef HAS_INLINE
+#ifdef __GNUC__
+#define	inline	__inline__
+#else	/* !__GNUC__ */
+#define inline
+#endif	/* __GNUC__ */
+#endif	/* !HAS_INLINE */
 
 #include <ctype.h>
 #include <err.h>
@@ -34,14 +38,14 @@ void *srealloc(void *, size_t);
 char *sstrdup(char *);
 char *sstrndup(char *, size_t);
 
-static __inline__ int
+static inline int
 issep(c)
 {
   return (isspace(c) || c == '(' || c == ';' || c == ')' ||
 		  c == '"' || c == '\'' || c == '.');
 }
 
-static __inline__ int
+static inline int
 isstop(char a, char b)
 {
   return a == '"' ? b == '"': issep(b);
@@ -50,7 +54,7 @@ isstop(char a, char b)
 /*
  * Write the character c in the adjustable buffer.
  */
-static __inline__ void
+static inline void
 bputc(int c, struct buf *bp)
 {
   if (bp->len == BUFSIZ*bp->size)
@@ -61,7 +65,7 @@ bputc(int c, struct buf *bp)
 /*
  * Free the buf structure.
  */
-static __inline__ void
+static inline void
 bfree(struct buf *bp)
 {
   free(bp->buf);

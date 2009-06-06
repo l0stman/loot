@@ -4,7 +4,7 @@
 static int line = 1;
 
 /* skip spaces in the input stream. */
-static __inline__ void
+static inline void
 skip_spa(FILE *fp)
 {
   register int c;
@@ -16,7 +16,7 @@ skip_spa(FILE *fp)
 }
 
 /* skip the current line in the input stream. */
-static __inline__ void
+static inline void
 skip_line(FILE *fp)
 {
   register int c;

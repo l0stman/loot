@@ -8,7 +8,7 @@
 #include "parser.h"
 
 /* Check if the primitive has the right number of arguments */
-static __inline__ int
+static inline int
 chkargs(char *name, exp_t *args, int n)
 {
   for (; n && !isnull(args); n--, args = cdr(args))
@@ -165,7 +165,7 @@ prim_eval(exp_t *args, env_t *envp)
 }
 
 /* Print the expression to the standard outupt */
-static __inline__ void
+static inline void
 print(exp_t *ep)
 {
   char *s;

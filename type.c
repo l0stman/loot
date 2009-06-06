@@ -3,7 +3,7 @@
 #include "type.h"
 
 /* Test if the expression is a number */
-__inline__ int
+inline int
 isnum(exp_t *ep)
 {
   char *cp;
@@ -21,7 +21,7 @@ isnum(exp_t *ep)
 }
 
 /* Test if the expression is constant. */
-static __inline__ int
+static inline int
 iscst(exp_t *ep)
 {
   return iseq(ep, &false) || iseq(ep, &true);

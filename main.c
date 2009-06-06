@@ -3,7 +3,7 @@
 #include "env.h"
 #include "prim.h"
 
-#define PSIZ	sizeof(plst)/sizeof(plst[0])
+#define PSIZ	(sizeof(plst)/sizeof(plst[0]))
 
 /* List of primitive procedures */
 static struct {
@@ -33,7 +33,7 @@ int
 main(int argc, char *argv[])
 {
   env_t *envp;
-	
+  
   envp = initenv();
   if (--argc) {
 	inter = 0;	/* Non interactive mode */
