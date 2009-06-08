@@ -1,4 +1,4 @@
-CFLAGS=	-g -Wall -ansi -pedantic
+CFLAGS=	-ggdb3 -Wall -ansi -pedantic
 OBJS=	main.o error.o reader.o loot.o exp.o parser.o type.o eval.o\
 env.o prim.o
 PREF=	${HOME}
