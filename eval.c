@@ -154,17 +154,23 @@ evbegin(exp_t *ep, env_t *envp)
 static exp_t *
 evcond(exp_t *ep, env_t *envp)
 {
-  exp_t *clause;
+  exp_t *clause, *b;
   exp_t _else_ = { ATOM, {"else"} };
 
   for (ep = cdr(ep); !isnull(ep); ep = cdr(ep)) {
 	if (!islist(car(ep)))
 	  return everr("should be a list", car(ep));
-	if (iseq(&_else_, car(clause = car(ep))) ||
-		!iseq(&false, eval(car(clause), envp)))
-	  return eval(cons(atom("begin"), cdr(clause)), envp);
+	clause = car(ep);
+	if (iseq(&_else_, b = car(clause)))
+	  goto success;
+	if ((b = eval(b, envp)) == NULL)	/* an error occured */
+	  return NULL;
+	if (!iseq(&false, b))
+	  goto success;
   }
   return NULL;
+ success:
+  return eval(cons(atom("begin"), cdr(clause)), envp);
 }
 
 /* Evaluate an and expression */
