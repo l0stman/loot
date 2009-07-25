@@ -7,6 +7,28 @@
 #include "eval.h"
 #include "parser.h"
 
+/* inttostr: returns a string representing an integer */
+const char *
+inttostr(long n)
+{
+  static char buf[MAXDIG+1];
+  char *s = buf + sizeof(buf);
+  unsigned long m;
+  
+  if (n == LONG_MIN)
+	m = LONG_MAX + 1UL;
+  else if (n < 0)
+	m = -n;
+  else
+	m = n;
+  do
+	*--s = m%10 + '0';
+  while ((m /= 10) > 0);
+  if (n < 0)
+	*--s = '-';
+  return s;
+}
+
 /* Check if the primitive has the right number of arguments */
 static inline int
 chkargs(char *name, exp_t *args, int n)
@@ -35,12 +57,9 @@ foldl(exp_t *(*f)(), exp_t *init, exp_t *lst)
 static exp_t *
 add(exp_t *sum, exp_t *ep)
 {
-  char buf[MAXDIG+1];
-
   if (!isnum(ep))
 	return everr("+: not a number", ep);
-  snprintf(buf, MAXDIG+1, "%d", atoi(symp(sum))+atoi(symp(ep)));
-  return atom(buf);
+  return atom(apply(+, sum, ep));
 }
 
 /* Return the sum of the expressions */
@@ -54,12 +73,9 @@ prim_add(exp_t *args)
 static exp_t *
 sub(exp_t *sum, exp_t *ep)
 {
-  char buf[MAXDIG+1];
-
   if (!isnum(ep))
 	return everr("-: not a number", ep);
-  snprintf(buf, MAXDIG+1, "%d", atoi(symp(sum))-atoi(symp(ep)));
-  return atom(buf);
+  return atom(apply(-, sum, ep));
 }
 
 /* Return the cumulated substraction of the arguments */
@@ -78,12 +94,9 @@ prim_sub(exp_t *args)
 exp_t *
 prod(exp_t *prod, exp_t *ep)
 {
-  char buf[MAXDIG+1];
-
   if (!isnum(ep))
 	return everr("*: not a number", ep);
-  snprintf(buf, MAXDIG+1, "%d", atoi(symp(prod))*atoi(symp(ep)));
-  return atom(buf);
+  return atom(apply(*, prod, ep));
 }
 
 /* Return the product of the expressions */
@@ -211,7 +224,7 @@ prim_load(exp_t *args, env_t *envp)
 	return NULL;
   else if (!isstr(car(args)))
 	return everr("load: should be a string", car(args));
-  path = symp(car(args));
+  path = (char *)symp(car(args));
   /* dump the quotes around the path name */
   path = sstrndup(path+1, strlen(path+1)-1);
   

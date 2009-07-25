@@ -49,20 +49,20 @@ eval(exp_t *ep, env_t *envp)
 }
 
 /* Evaluate a define expression */
-static int bind(char **, exp_t **, exp_t *);
+static int bind(const char **, exp_t **, exp_t *);
 static int chknum(exp_t *, int);
 
 static exp_t *
 evdef(exp_t *ep, env_t *envp)
 {
-  char *var = NULL;
+  const char *var = NULL;
   exp_t *val = NULL;
    
   if (isatom(car(cdr(ep))) && !chknum(ep, 3))
 	return NULL;
   if (bind(&var, &val, cdr(ep)) && (val = eval(val, envp)) != NULL) {
-	if (type(val) == PROC && procp(val)->label == NULL)
-	  val->u.pp->label = sstrdup(var);	/* label anonymous procedure */
+	if (type(val) == PROC && label(val) == NULL)
+	  label(val) = sstrdup(var);	/* label anonymous procedure */
 	install(var, val, envp);
   }
   return NULL;
@@ -70,7 +70,7 @@ evdef(exp_t *ep, env_t *envp)
 
 /* Bind a variable with a value */
 static int
-bind(char **varp, exp_t **valp, exp_t *lp)
+bind(const char **varp, exp_t **valp, exp_t *lp)
 {
   exp_t *ep;
   

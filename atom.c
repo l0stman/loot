@@ -55,6 +55,16 @@ static unsigned long scatter[] = {
 1884137923, 53392249, 1735424165, 1602280572
 };
 
+/* strtoatm: returns an atom pointer representing the string */
+const char *strtoatm(const char *s)
+{
+  assert(s);
+  return natom(s, strlen(s));
+}
+
+/* natom: returns an atom pointer representing the sequence
+ * of bytes s of length len.
+ */
 const char *natom(const char *s, int len) {
   unsigned long h;
   int i;

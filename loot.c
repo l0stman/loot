@@ -37,7 +37,7 @@ srealloc(void *ptr, size_t size)
 
 /* Safe strdup */
 char *
-sstrdup(char *s)
+sstrdup(const char *s)
 {
   char *d;
 
@@ -48,7 +48,7 @@ sstrdup(char *s)
 
 /* Safe strndup */
 char *
-sstrndup(char *s, size_t n)
+sstrndup(const char *s, size_t n)
 {
   char *d;
 

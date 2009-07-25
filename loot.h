@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <err.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,9 +26,6 @@
 #define LIBNAM	"lib.lt"
 #define NELEMS(x)	((sizeof (x))/(sizeof ((x)[0])))
 
-/* maximum number of digits (plus sign) for a 128-bits integer */
-#define MAXDIG	39
-
 struct buf {	/* adjustable buffer */
   char *buf;
   int	len;	/* length of characters written in buf */
@@ -40,8 +38,8 @@ extern int inter;
 void *smalloc(size_t);
 void *scalloc(size_t, size_t);
 void *srealloc(void *, size_t);
-char *sstrdup(char *);
-char *sstrndup(char *, size_t);
+char *sstrdup(const char *);
+char *sstrndup(const char *, size_t);
 
 static inline int
 issep(c)

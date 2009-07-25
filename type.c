@@ -6,7 +6,7 @@
 inline int
 isnum(exp_t *ep)
 {
-  char *cp;
+  char const *cp;
 
   if (!isatom(ep))
 	return 0;

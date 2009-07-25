@@ -13,8 +13,6 @@ iseq(const exp_t *a, const exp_t *b)
 {
   if (type(a) != type(b))
 	return 0;
-  else if (isatom(a))
-	return (strcmp(symp(a), symp(b)) == 0);
   return (void *)symp(a) == (void *)symp(b);
 }
 

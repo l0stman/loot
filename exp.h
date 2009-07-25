@@ -9,11 +9,12 @@ enum type { ATOM, PAIR, PROC };
 #define symp(ep)	(ep)->u.sp
 #define pairp(ep)	(ep)->u.cp
 #define procp(ep)	(ep)->u.pp
+#define label(ep)	(ep)->u.pp->label
 
 typedef struct exp {
   enum type tp;	/* type of the expression */
   union {
-	char *sp;			/* pointer to the symbol of an atom */
+	const char *sp;		/* pointer to the symbol of an atom */
 	struct cons *cp;	/* pointer to a pair */
 	struct proc *pp;	/* pointer to a procedure */
   } u;
@@ -77,13 +78,13 @@ isproc(const exp_t *ep)
 
 /* Return an atom whose symbol is s */
 static inline exp_t *
-atom(char *s)
+atom(const char *s)
 {
   exp_t *ep;
 
   ep = smalloc(sizeof(*ep));
   ep->tp = ATOM;
-  ep->u.sp = sstrdup(s);
+  ep->u.sp = strtoatm(s);
   return ep;
 }
 

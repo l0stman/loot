@@ -1,5 +1,6 @@
 #include "loot.h"
 #include "exp.h"
+#include "atom.h"
 #include "parser.h"
 
 static exp_t *parse_atm(char *, int);
@@ -20,7 +21,7 @@ parse_atm(char *s, int len)
 
   ep = smalloc(sizeof(*ep));
   ep->tp = ATOM;
-  ep->u.sp = sstrndup(s, len);
+  ep->u.sp = natom(s, len);
   return ep;
 }
 

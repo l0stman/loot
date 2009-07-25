@@ -21,8 +21,8 @@ typedef struct env {	/* an environment is a list of frames */
 
 frame_t *newframe(void);
 void fdump(frame_t *);
-struct nlist *lookup(char *, env_t *);
-struct nlist *install(char *, exp_t *, env_t *);
+struct nlist *lookup(const char *, env_t *);
+struct nlist *install(const char *, exp_t *, env_t *);
 env_t *newenv(void);
 env_t *extenv(exp_t *, env_t *);
 void undef(char *, frame_t *);

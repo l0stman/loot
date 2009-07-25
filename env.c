@@ -6,7 +6,7 @@
 
 /* hash: form hash value for string s */
 static unsigned
-hash(char *s, size_t hashsize)
+hash(const char *s, size_t hashsize)
 {
   unsigned hashval;
 
@@ -17,7 +17,7 @@ hash(char *s, size_t hashsize)
 
 /* find: look for s in frame */
 static struct nlist *
-find(char *s, frame_t *fp)
+find(const char *s, frame_t *fp)
 {
   struct nlist *np;
 
@@ -29,7 +29,7 @@ find(char *s, frame_t *fp)
 
 /* lookup: look for s in the environment */
 struct nlist *
-lookup(char *s, env_t *ep)
+lookup(const char *s, env_t *ep)
 {
   struct nlist *np;
 
@@ -41,7 +41,7 @@ lookup(char *s, env_t *ep)
 	
 /* install: put (name, defn) in the environment */
 struct nlist *
-install(char *name, exp_t *defn, env_t *ep)
+install(const char *name, exp_t *defn, env_t *ep)
 {
   struct nlist *np;
   frame_t *fp;
