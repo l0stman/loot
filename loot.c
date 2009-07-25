@@ -61,10 +61,10 @@ sstrndup(const char *s, size_t n)
 /*
  * Return a pointer to a buf structure.
  */
-struct buf *
+buf_t *
 binit(void)
 {
-  struct buf *bp;
+  buf_t *bp;
 
   bp = smalloc(sizeof(*bp));
   bp->buf = smalloc(BUFSIZ);
@@ -77,7 +77,7 @@ binit(void)
  * Write len bytes from s into bp.
  */
 void
-bwrite(struct buf *bp, char *s, int len)
+bwrite(buf_t *bp, char *s, int len)
 {
   while (bp->len+len > BUFSIZ*bp->size)
 	bp->buf = srealloc(bp->buf, BUFSIZ * ++(bp->size));

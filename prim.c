@@ -192,7 +192,7 @@ int
 load(char *path, env_t *envp)
 {
   FILE *fp;
-  struct buf *bp;
+  buf_t *bp;
   exp_t *ep;
   
   if (path != NULL) {

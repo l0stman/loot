@@ -52,11 +52,11 @@ skip(FILE *fp)
  * Write the result into a buffer.
  */
 
-static struct buf *read_atm(FILE *, int);
-static struct buf *read_pair(FILE *);
-static struct buf *read_quote(FILE *);
+static buf_t *read_atm(FILE *, int);
+static buf_t *read_pair(FILE *);
+static buf_t *read_quote(FILE *);
 
-struct buf *
+buf_t *
 read(FILE *fp)
 {
   int c;
@@ -85,11 +85,11 @@ read(FILE *fp)
 }
 
 /* Read a pair from fp and write to buf. */
-static struct buf *
+static buf_t *
 read_pair(FILE *fp)
 {
   int c, ln, pn;
-  struct buf *bp, *q;
+  buf_t *bp, *q;
   
   pn = 1;		/* number of open parenthesis */
   ln = line;
@@ -132,11 +132,11 @@ read_pair(FILE *fp)
 }
 
 /* Read an atom from fp and write to buf. */
-static struct buf *
+static buf_t *
 read_atm(FILE *fp, int ch)
 {
   int ln = line, c = ch;
-  struct buf *bp;
+  buf_t *bp;
   
   bp = binit();
   do {
@@ -153,10 +153,10 @@ read_atm(FILE *fp, int ch)
 }
 
 /* Transform 'exp to (quote exp). */
-static struct buf *
+static buf_t *
 read_quote(FILE *fp)
 {
-  struct buf *bp, *res;
+  buf_t *bp, *res;
   char *s = "(quote";
   int mode = inter;
 

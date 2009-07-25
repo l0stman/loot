@@ -26,13 +26,13 @@
 #define LIBNAM	"lib.lt"
 #define NELEMS(x)	((sizeof (x))/(sizeof ((x)[0])))
 
-struct buf {	/* adjustable buffer */
+typedef struct buf {	/* adjustable buffer */
   char *buf;
   int	len;	/* length of characters written in buf */
   size_t size;	/* the size of buf is size*BUFSIZ */
-};
-void bwrite(struct buf *, char *, int);
-struct buf *binit(void);
+} buf_t;
+void bwrite(buf_t *, char *, int);
+buf_t *binit(void);
 
 extern int inter;
 extern void *smalloc(size_t);
@@ -58,7 +58,7 @@ isstop(char a, char b)
  * Write the character c in the adjustable buffer.
  */
 static inline void
-bputc(int c, struct buf *bp)
+bputc(int c, buf_t *bp)
 {
   if (bp->len == BUFSIZ*bp->size)
 	bp->buf = srealloc(bp->buf, BUFSIZ * ++(bp->size));
@@ -69,7 +69,7 @@ bputc(int c, struct buf *bp)
  * Free the buf structure.
  */
 static inline void
-bfree(struct buf *bp)
+bfree(buf_t *bp)
 {
   free(bp->buf);
   free(bp);

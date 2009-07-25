@@ -27,7 +27,7 @@ atmtostr(const exp_t *ep)
 static char *
 pairtostr(const exp_t *ep)
 {
-  struct buf *bp;
+  buf_t *bp;
   char *s, *car, *cdr = NULL;
 
   bp = binit();
@@ -59,7 +59,7 @@ pairtostr(const exp_t *ep)
 static char *
 proctostr(const exp_t *ep)
 {
-  struct buf *bp;
+  buf_t *bp;
   char *s;
 
   bp = binit();
