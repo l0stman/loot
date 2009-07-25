@@ -9,6 +9,7 @@
 #endif	/* __GNUC__ */
 #endif	/* !HAS_INLINE */
 
+#include <assert.h>
 #include <ctype.h>
 #include <err.h>
 #include <stdio.h>
@@ -22,6 +23,10 @@
 #define PREFIX	"HOME"	
 #define LOOTRC	".lootrc"
 #define LIBNAM	"lib.lt"
+#define NELEMS(x)	((sizeof (x))/(sizeof ((x)[0])))
+
+/* maximum number of digits (plus sign) for a 128-bits integer */
+#define MAXDIG	39
 
 struct buf {	/* adjustable buffer */
   char *buf;
