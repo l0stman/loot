@@ -11,9 +11,7 @@ exp_t null = { ATOM, {"()"} };
 int
 iseq(const exp_t *a, const exp_t *b)
 {
-  if (type(a) != type(b))
-	return 0;
-  return (void *)symp(a) == (void *)symp(b);
+  return symp(a) == symp(b);
 }
 
 /* Return a string representing an atom */
