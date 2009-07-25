@@ -1,6 +1,6 @@
 CFLAGS=	-ggdb3 -Wall -ansi -pedantic
 OBJS=	main.o error.o reader.o loot.o exp.o parser.o type.o eval.o\
-env.o prim.o
+env.o prim.o atom.o
 PREF=	${HOME}
 INSTDIR= $(PREF)/bin
 LIBDIR=	$(PREF)/lib/loot

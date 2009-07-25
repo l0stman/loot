@@ -1,9 +1,6 @@
 #ifndef PRIM_H
 #define PRIM_H
 
-/* maximum number of digits (plus sign) for a 32-bits integer */
-#define MAXDIG	10
-
 exp_t *prim_add(exp_t *);
 exp_t *prim_sub(exp_t *);
 exp_t *prim_prod(exp_t *);

@@ -3,8 +3,6 @@
 #include "env.h"
 #include "prim.h"
 
-#define PSIZ	(sizeof(plst)/sizeof(plst[0]))
-
 /* List of primitive procedures */
 static struct {
   char *n;
@@ -57,7 +55,7 @@ initenv(void)
   int mode = inter, ret, i;
 
   envp = newenv();
-  for (i = 0; i < PSIZ; i++)
+  for (i = 0; i < NELEMS(plst); i++)
 	install(plst[i].n, proc(prim(plst[i].n, plst[i].pp)), envp);
   
   /* load the library */

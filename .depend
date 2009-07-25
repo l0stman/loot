@@ -1,11 +1,12 @@
-env.o: env.c loot.h error.h exp.h env.h
+atom.o: atom.c loot.h error.h atom.h
+env.o: env.c loot.h error.h exp.h atom.h env.h
 error.o: error.c error.h
-eval.o: eval.c loot.h error.h exp.h env.h eval.h type.h
-exp.o: exp.c loot.h error.h exp.h
+eval.o: eval.c loot.h error.h exp.h atom.h env.h eval.h type.h
+exp.o: exp.c loot.h error.h exp.h atom.h
 loot.o: loot.c loot.h error.h
-main.o: main.c loot.h error.h exp.h env.h prim.h
-parser.o: parser.c loot.h error.h exp.h parser.h
-prim.o: prim.c loot.h error.h exp.h type.h prim.h reader.h env.h eval.h \
-  parser.h
+main.o: main.c loot.h error.h exp.h atom.h env.h prim.h
+parser.o: parser.c loot.h error.h exp.h atom.h parser.h
+prim.o: prim.c loot.h error.h exp.h atom.h type.h prim.h reader.h env.h \
+  eval.h parser.h
 reader.o: reader.c loot.h error.h reader.h
-type.o: type.c loot.h error.h exp.h type.h
+type.o: type.c loot.h error.h exp.h atom.h type.h

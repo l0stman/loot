@@ -1,6 +1,8 @@
 #ifndef EXP_H
 #define EXP_H
 
+#include "atom.h"
+
 enum type { ATOM, PAIR, PROC };
 
 #define type(ep)	(ep)->tp
@@ -8,15 +10,14 @@ enum type { ATOM, PAIR, PROC };
 #define pairp(ep)	(ep)->u.cp
 #define procp(ep)	(ep)->u.pp
 
-struct exp {
+typedef struct exp {
   enum type tp;	/* type of the expression */
   union {
 	char *sp;			/* pointer to the symbol of an atom */
 	struct cons *cp;	/* pointer to a pair */
 	struct proc *pp;	/* pointer to a procedure */
   } u;
-};
-typedef struct exp exp_t;
+} exp_t;
 
 #define car(ep)	pairp(ep)->car
 #define cdr(ep)	pairp(ep)->cdr
@@ -39,15 +40,14 @@ struct func {	/* Represents a function */
 #define fenv(ep)	funcp(ep)->envp
 
 enum ftype { FUNC, PRIM };
-struct proc {	/* A procedure is a function or a primitive */
+typedef struct proc {	/* A procedure is a function or a primitive */
   enum ftype tp;	/* type of the procedure */
   char *label;		/* label of the procedure */
   union {
 	exp_t *(*primp)();	/* pointer to a primitive function */
 	struct func *funcp;	/* pointer to an user-defined function */
   } u;
-};
-typedef struct proc proc_t;
+} proc_t;
 
 extern const exp_t false;
 extern const exp_t true;
