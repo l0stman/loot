@@ -5,7 +5,7 @@ extern exp_t *eval(exp_t *, env_t *);
 
 /* Print the message and return a null pointer */
 static inline exp_t *
-everr(char *msg, exp_t *ep)
+everr(const char *msg, const exp_t *ep)
 {
   char *s;
   

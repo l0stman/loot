@@ -81,6 +81,6 @@ bwrite(buf_t *bp, char *s, int len)
 {
   while (bp->len+len > BUFSIZ*bp->size)
 	bp->buf = srealloc(bp->buf, BUFSIZ * ++(bp->size));
-  strncpy(bp->buf+bp->len, s, len);
+  memcpy(bp->buf+bp->len, s, len);
   bp->len += len;
 }

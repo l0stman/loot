@@ -42,8 +42,8 @@ struct func {	/* Represents a function */
 
 enum ftype { FUNC, PRIM };
 typedef struct proc {	/* A procedure is a function or a primitive */
-  enum ftype tp;	/* type of the procedure */
-  char *label;		/* label of the procedure */
+  enum ftype tp;		/* type of the procedure */
+  const char *label;	/* label of the procedure */
   union {
 	exp_t *(*primp)();	/* pointer to a primitive function */
 	struct func *funcp;	/* pointer to an user-defined function */

@@ -62,7 +62,7 @@ evdef(exp_t *ep, env_t *envp)
 	return NULL;
   if (bind(&var, &val, cdr(ep)) && (val = eval(val, envp)) != NULL) {
 	if (type(val) == PROC && label(val) == NULL)
-	  label(val) = sstrdup(var);	/* label anonymous procedure */
+	  label(val) = strtoatm(var);	/* label anonymous procedure */
 	install(var, val, envp);
   }
   return NULL;
