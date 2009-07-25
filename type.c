@@ -24,7 +24,7 @@ isnum(exp_t *ep)
 static inline int
 iscst(exp_t *ep)
 {
-  return iseq(ep, &false) || iseq(ep, &true);
+  return iseq(ep, false) || iseq(ep, true);
 }
 
 /* Test if the expression is self-evaluating */

@@ -33,6 +33,7 @@ initenv(void)
   int mode = inter, ret;
 
   envp = newenv();
+  instcst(envp);
   instprim(envp);
   
   /* load the library */

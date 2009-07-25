@@ -65,7 +65,7 @@ iscond(exp_t *ep)
 static inline int
 isbool(exp_t *ep)
 {
-  return ep != NULL && (iseq(&true, ep) || iseq(&false, ep));
+  return ep != NULL && (iseq(true, ep) || iseq(false, ep));
 }
 
 /* Test if an expression is a begin expression */

@@ -1,9 +1,32 @@
 #include "loot.h"
 #include "exp.h"
+#include "env.h"
 
-const exp_t false = { ATOM, {"#f"} };
-const exp_t true = { ATOM, {"#t"} };
-exp_t null = { ATOM, {"()"} };
+exp_t *false;
+exp_t *true;
+exp_t *null;
+
+static struct {
+  exp_t **ep;
+  const char *name;
+} cst[] = {
+  {&false, "#f"},
+  {&true, "#t"},
+  {&null, "()"}
+};
+
+/* Initiate the variables and install the constants in the
+   environment */
+void
+instcst(struct env *envp)
+{
+  int i;
+
+  for (i = 0; i < NELEMS(cst); i++) {
+	*cst[i].ep = atom(cst[i].name);
+	install(cst[i].name, *cst[i].ep, envp);
+  }
+}
 
 /* Return true if the two expressions have the same
  * symbols or if they occupy the same memory.

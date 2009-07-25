@@ -35,7 +35,7 @@ parse_pair(char *s, int len)
   int n;
   
   if (*s == ')')
-	return &null;
+	return null;
   n = carlen(s);
   car = parse(s, n);
   if (*(s+n) == ' ')

@@ -1,7 +1,4 @@
 ;;; Library for loot
-;; Constants
-(define null '())
-
 ;; Test function
 (define (null? x) (eq? x null))
 

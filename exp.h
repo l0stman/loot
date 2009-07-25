@@ -50,13 +50,14 @@ typedef struct proc {	/* A procedure is a function or a primitive */
   } u;
 } proc_t;
 
-extern const exp_t false;
-extern const exp_t true;
-extern exp_t null;
+extern exp_t *false;
+extern exp_t *true;
+extern exp_t *null;
 
 extern int iseq(const exp_t *, const exp_t *);
 extern int islist(const exp_t *);
 extern char *tostr(const exp_t *);
+extern void instcst(struct env *);
 
 static inline int
 isatom(const exp_t *ep)
@@ -150,6 +151,6 @@ proc(proc_t *pp)
 static inline int
 isnull(const exp_t *ep)
 {
-  return iseq(ep, &null);
+  return iseq(ep, null);
 }
 #endif /* !EXP_H */

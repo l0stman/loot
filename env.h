@@ -3,12 +3,6 @@
 
 #define HASHSIZE	101
 
-struct nlist {	/* table entry */
-  struct nlist *next;
-  char *name;		/* defined name */
-  exp_t *defn;	/* replacement expression */
-};
-
 typedef struct frame {	/* a frame is an array of pointers of nlist */
   struct nlist **bucket;
   size_t size;
@@ -18,6 +12,12 @@ typedef struct env {	/* an environment is a list of frames */
   frame_t *fp;	/* first frame of the environment */
   struct env *ep;	/* enclosing environment */
 } env_t;
+
+struct nlist {	/* table entry */
+  struct nlist *next;
+  char *name;		/* defined name */
+  exp_t *defn;	/* replacement expression */
+};
 
 extern frame_t *newframe(void);
 extern void fdump(frame_t *);

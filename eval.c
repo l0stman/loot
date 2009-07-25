@@ -135,7 +135,7 @@ evif(exp_t *ep, env_t *envp)
   ep = cdr(ep);
   if ((b = eval(car(ep), envp)) == NULL)
 	return NULL;
-  res = (iseq(&false, b) ? car(cdr(cdr(ep))): car(cdr(ep)));
+  res = (iseq(false, b) ? car(cdr(cdr(ep))): car(cdr(ep)));
   return eval(res, envp);
 }
 
@@ -155,17 +155,17 @@ static exp_t *
 evcond(exp_t *ep, env_t *envp)
 {
   exp_t *clause, *b;
-  exp_t _else_ = { ATOM, {"else"} };
+  exp_t *_else_ = atom("else");
 
   for (ep = cdr(ep); !isnull(ep); ep = cdr(ep)) {
 	if (!islist(car(ep)))
 	  return everr("should be a list", car(ep));
 	clause = car(ep);
-	if (iseq(&_else_, b = car(clause)))
+	if (iseq(_else_, b = car(clause)))
 	  goto success;
 	if ((b = eval(b, envp)) == NULL)	/* an error occured */
 	  return NULL;
-	if (!iseq(&false, b))
+	if (!iseq(false, b))
 	  goto success;
   }
   return NULL;
@@ -179,7 +179,7 @@ evand(exp_t *ep, env_t *envp)
 {
   exp_t *res = (void *)&true;
   
-  for (ep = cdr(ep); !isnull(ep) && !iseq(&false, res); ep = cdr(ep))
+  for (ep = cdr(ep); !isnull(ep) && !iseq(false, res); ep = cdr(ep))
 	if ((res = eval(car(ep), envp)) == NULL)
 	  return NULL;
   return res;
@@ -191,7 +191,7 @@ evor(exp_t *ep, env_t *envp)
 {
   exp_t *res = (void *)&false;
 
-  for (ep = cdr(ep); !isnull(ep) && iseq(&false, res); ep = cdr(ep))
+  for (ep = cdr(ep); !isnull(ep) && iseq(false, res); ep = cdr(ep))
 	if ((res = eval(car(ep), envp)) == NULL)
 	  return NULL;
   return res;
@@ -233,7 +233,7 @@ evlet(exp_t *ep, env_t *envp)
 
   if (isnull(cdr(ep)) || isnull(cdr(cdr(ep))))
 	return everr("syntax error", ep);
-  plst = vlst = &null;
+  plst = vlst = null;
   for (lp = car(cdr(ep)); ispair(lp); lp = cdr(lp)) {
 	if (!islist(car(lp)) || !chknum(car(lp), 2))
 	  return everr("syntax error", ep);
@@ -265,7 +265,7 @@ evapply(exp_t *ep, env_t *envp)
 	return primp(op)(args, envp);
   
   /* function */
-  for (parp = fpar(op), blist = &null ; !isatom(parp);
+  for (parp = fpar(op), blist = null ; !isatom(parp);
 	   parp = cdr(parp), args = cdr(args)) {
 	if (isnull(args))
 	  return everr("too few arguments provided to", car(ep));
@@ -286,13 +286,13 @@ evmap(exp_t *lp, env_t *envp)
 {
   exp_t *ep, *res, *memp;
 
-  for (memp = &null; !isnull(lp); lp = cdr(lp)) {
+  for (memp = null; !isnull(lp); lp = cdr(lp)) {
 	if ((ep = eval(car(lp), envp)) == NULL)	/* an error occured */
 	  return NULL;
 	memp = cons(ep, memp);
   }
   /* reverse the list */
-  for (res = &null; !isnull(memp); memp = cdr(memp))
+  for (res = null; !isnull(memp); memp = cdr(memp))
 	res = cons(car(memp), res);
   return res;
 }

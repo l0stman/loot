@@ -163,7 +163,7 @@ static exp_t *
 prim_sub(exp_t *args)
 {
   if (isnull(args))
-	return everr("- : need at least one argument, given", &null);
+	return everr("- : need at least one argument, given", null);
   else if (!isnum(car(args)))
 	return everr("- : not a number", car(args));
   else
