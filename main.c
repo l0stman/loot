@@ -3,28 +3,6 @@
 #include "env.h"
 #include "prim.h"
 
-/* List of primitive procedures */
-static struct {
-  char *n;
-  exp_t *(*pp)();
-} plst[] = {
-  /* arimthmetic */
-  {"+", prim_add},
-  {"-", prim_sub},
-  {"*", prim_prod},
-  /* pair */
-  {"cons", prim_cons},
-  {"car", prim_car},
-  {"cdr", prim_cdr},
-  /* test */
-  {"eq?", prim_eq},
-  {"symbol?", prim_sym},
-  {"pair?", prim_pair},
-  /* misc */
-  {"eval", prim_eval},
-  {"load", prim_load},
-};
-
 static env_t *initenv(void);
 
 int
@@ -52,11 +30,10 @@ initenv(void)
   env_t *envp;
   char buf[BUFSIZ], *pref;
   FILE *fp;
-  int mode = inter, ret, i;
+  int mode = inter, ret;
 
   envp = newenv();
-  for (i = 0; i < NELEMS(plst); i++)
-	install(plst[i].n, proc(prim(plst[i].n, plst[i].pp)), envp);
+  instprim(envp);
   
   /* load the library */
   if ((ret = (pref = getenv(PREFIX)) != NULL)) {

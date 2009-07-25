@@ -7,6 +7,86 @@
 #include "eval.h"
 #include "parser.h"
 
+static exp_t *prim_add(exp_t *);
+static exp_t *prim_sub(exp_t *);
+static exp_t *prim_prod(exp_t *);
+static exp_t *prim_eq(exp_t *);
+static exp_t *prim_sym(exp_t *);
+static exp_t *prim_pair(exp_t *);
+static exp_t *prim_cons(exp_t *);
+static exp_t *prim_car(exp_t *);
+static exp_t *prim_cdr(exp_t *);
+static exp_t *prim_eval(exp_t *, struct env *);
+static exp_t *prim_load(exp_t *, struct env *);
+
+/* List of primitive procedures */
+static struct {
+  char *n;
+  exp_t *(*pp)();
+} plst[] = {
+  /* arimthmetic */
+  {"+", prim_add},
+  {"-", prim_sub},
+  {"*", prim_prod},
+  /* pair */
+  {"cons", prim_cons},
+  {"car", prim_car},
+  {"cdr", prim_cdr},
+  /* test */
+  {"eq?", prim_eq},
+  {"symbol?", prim_sym},
+  {"pair?", prim_pair},
+  /* misc */
+  {"eval", prim_eval},
+  {"load", prim_load},
+};
+
+/* Install the primitive procedures in the environment */
+void
+instprim(env_t *envp)
+{
+  int i;
+
+  for (i = 0; i < NELEMS(plst); i++)
+	install(plst[i].n, proc(prim(plst[i].n, plst[i].pp)), envp);
+}
+
+/* Print the expression to the standard outupt */
+static inline void
+print(exp_t *ep)
+{
+  char *s;
+
+  printf("%s %s\n", OUTPR, s = tostr(ep));
+  free(s);
+}
+
+/* Evaluate all the expressions in the file */
+int
+load(char *path, env_t *envp)
+{
+  FILE *fp;
+  buf_t *bp;
+  exp_t *ep;
+  
+  if (path != NULL) {
+	if ((fp = fopen(path, "r")) == NULL) {
+	  warn("Can't open file %s", path);
+	  return 1;
+	}
+  } else
+	fp = stdin;
+	  
+  while ((bp = read(fp)) != NULL) {
+	ep = eval(parse(bp->buf, bp->len), envp);
+	if (inter && ep != NULL)
+	  print(ep);
+	bfree(bp);
+  }
+  fclose(fp);
+  return 0;
+}
+
 /* inttostr: returns a string representing an integer */
 static const char *
 inttostr(long n)
@@ -63,7 +143,7 @@ add(exp_t *sum, exp_t *ep)
 }
 
 /* Return the sum of the expressions */
-exp_t *
+static exp_t *
 prim_add(exp_t *args)
 {
   return foldl(add, atom("0"), args);
@@ -79,7 +159,7 @@ sub(exp_t *sum, exp_t *ep)
 }
 
 /* Return the cumulated substraction of the arguments */
-exp_t *
+static exp_t *
 prim_sub(exp_t *args)
 {
   if (isnull(args))
@@ -91,7 +171,7 @@ prim_sub(exp_t *args)
 }
 
 /* Return the product of two expressions */
-exp_t *
+static exp_t *
 prod(exp_t *prod, exp_t *ep)
 {
   if (!isnum(ep))
@@ -100,14 +180,14 @@ prod(exp_t *prod, exp_t *ep)
 }
 
 /* Return the product of the expressions */
-exp_t *
+static exp_t *
 prim_prod(exp_t *args)
 {
   return foldl(prod, atom("1"), args);
 }
 
 /* Test if two expressions occupy the same physical memory */
-exp_t *
+static exp_t *
 prim_eq(exp_t *args)
 {
   if (!chkargs("eq?", args, 2))
@@ -116,7 +196,7 @@ prim_eq(exp_t *args)
 }
 
 /* Test if the expression is a symbol */
-exp_t *
+static exp_t *
 prim_sym(exp_t *args)
 {
   if (!chkargs("symbol?", args, 1))
@@ -125,7 +205,7 @@ prim_sym(exp_t *args)
 }
 
 /* Test if the expression is a pair */
-exp_t *
+static exp_t *
 prim_pair(exp_t *args)
 {
   if (!chkargs("pair?", args, 1))
@@ -134,7 +214,7 @@ prim_pair(exp_t *args)
 }
 
 /* Return a pair of expression */
-exp_t *
+static exp_t *
 prim_cons(exp_t *args)
 {
   if (!chkargs("cons", args, 2))
@@ -143,7 +223,7 @@ prim_cons(exp_t *args)
 }
 
 /* Return the first element of a pair */
-exp_t *
+static exp_t *
 prim_car(exp_t *args)
 {
   if (!chkargs("car", args, 1))
@@ -156,7 +236,7 @@ prim_car(exp_t *args)
 }
 
 /* Return the second element of a pair */
-exp_t *
+static exp_t *
 prim_cdr(exp_t *args)
 {
   if (!chkargs("cdr", args, 1))
@@ -169,7 +249,7 @@ prim_cdr(exp_t *args)
 }
 
 /* Eval the expression */
-exp_t *
+static exp_t *
 prim_eval(exp_t *args, env_t *envp)
 {
   if (!chkargs("eval", args, 1))
@@ -177,44 +257,9 @@ prim_eval(exp_t *args, env_t *envp)
   return eval(car(args), envp);
 }
 
-/* Print the expression to the standard outupt */
-static inline void
-print(exp_t *ep)
-{
-  char *s;
-
-  printf("%s %s\n", OUTPR, s = tostr(ep));
-  free(s);
-}
-
-/* Evaluate all the expressions in the file */
-int
-load(char *path, env_t *envp)
-{
-  FILE *fp;
-  buf_t *bp;
-  exp_t *ep;
-  
-  if (path != NULL) {
-	if ((fp = fopen(path, "r")) == NULL) {
-	  warn("Can't open file %s", path);
-	  return 1;
-	}
-  } else
-	fp = stdin;
-	  
-  while ((bp = read(fp)) != NULL) {
-	ep = eval(parse(bp->buf, bp->len), envp);
-	if (inter && ep != NULL)
-	  print(ep);
-	bfree(bp);
-  }
-  fclose(fp);
-  return 0;
-}
 
 /* Evaluate the expressions inside the file pointed by ep */
-exp_t *
+static exp_t *
 prim_load(exp_t *args, env_t *envp)
 {
   char *path;
