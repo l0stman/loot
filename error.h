@@ -3,7 +3,7 @@
 
 #define MAXLINE	100	/* Maximum length of an error message. */
 
-void err_quit(const char *, ...);
-void err_sys(const char *, ...);
+extern void err_quit(const char *, ...);
+extern void err_sys(const char *, ...);
 
 #endif /* !ERROR_H */

@@ -19,13 +19,13 @@ typedef struct env {	/* an environment is a list of frames */
   struct env *ep;	/* enclosing environment */
 } env_t;
 
-frame_t *newframe(void);
-void fdump(frame_t *);
-struct nlist *lookup(const char *, env_t *);
-struct nlist *install(const char *, exp_t *, env_t *);
-env_t *newenv(void);
-env_t *extenv(exp_t *, env_t *);
-void undef(char *, frame_t *);
+extern frame_t *newframe(void);
+extern void fdump(frame_t *);
+extern struct nlist *lookup(const char *, env_t *);
+extern struct nlist *install(const char *, exp_t *, env_t *);
+extern env_t *newenv(void);
+extern env_t *extenv(exp_t *, env_t *);
+extern void undef(char *, frame_t *);
 
 /* fframe: return the first frame in the environment */
 static inline frame_t *

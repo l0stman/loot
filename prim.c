@@ -8,7 +8,7 @@
 #include "parser.h"
 
 /* inttostr: returns a string representing an integer */
-const char *
+static const char *
 inttostr(long n)
 {
   static char buf[MAXDIG+1];

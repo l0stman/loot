@@ -1,8 +1,8 @@
 #ifndef TYPE_H
 #define TYPE_H
 
-int isnum(exp_t *);
-int isself(exp_t *);
+extern int isnum(exp_t *);
+extern int isself(exp_t *);
 
 /* Test if exp is a list whose first element is an atom of symbol tag. */
 static inline int

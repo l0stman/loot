@@ -54,9 +54,9 @@ extern const exp_t false;
 extern const exp_t true;
 extern exp_t null;
 
-int iseq(const exp_t *, const exp_t *);
-int islist(const exp_t *);
-char *tostr(const exp_t *);
+extern int iseq(const exp_t *, const exp_t *);
+extern int islist(const exp_t *);
+extern char *tostr(const exp_t *);
 
 static inline int
 isatom(const exp_t *ep)
