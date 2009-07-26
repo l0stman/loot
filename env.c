@@ -50,8 +50,7 @@ install(const char *name, exp_t *defn, env_t *ep)
   fp = fframe(ep);
   if ((np = find(name, fp)) == NULL) {	/* not found */
 	np = smalloc(sizeof(*np));
-	if (np == NULL || (np->name = sstrdup(name)) == NULL)
-	  return NULL;
+	np->name = strtoatm(name);
 	hashval = hash(name, fp->size);
 	np->next = fp->bucket[hashval];
 	fp->bucket[hashval] = np;
@@ -78,7 +77,6 @@ undef(char *s, frame_t *fp)
 		fp->bucket[hashval] = np->next;
 	  else
 		prev->next = np->next;
-	  free(np->name);
 	  free(np);
 	  return;
 	}

@@ -15,8 +15,8 @@ typedef struct env {	/* an environment is a list of frames */
 
 struct nlist {	/* table entry */
   struct nlist *next;
-  char *name;		/* defined name */
-  exp_t *defn;	/* replacement expression */
+  const char *name;		/* defined name */
+  exp_t *defn;			/* replacement expression */
 };
 
 extern frame_t *newframe(void);
