@@ -44,8 +44,8 @@ extern char *sstrndup(const char *, size_t);
 static inline int
 issep(c)
 {
-  return (isspace(c) || c == '(' || c == ';' || c == ')' ||
-		  c == '"' || c == '\'' || c == '.');
+  return (isspace(c) || c == '(' || c == ';' ||
+		  c == ')' || c == '"' || c == '\'');
 }
 
 static inline int
