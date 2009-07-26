@@ -28,7 +28,7 @@
 
 /* maximum number of digits (plus sign) for a 128-bits integer */
 #define MAXDIG	39
-
+#define FMAXDIG	2*MAXDIG
 typedef struct buf {	/* adjustable buffer */
   char *buf;
   int	len;	/* length of characters written in buf */

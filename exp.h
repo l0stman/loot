@@ -10,7 +10,7 @@ enum type { ATOM, PAIR, PROC, FLOAT };
 #define pairp(ep)	(ep)->u.cp
 #define procp(ep)	(ep)->u.pp
 #define label(ep)	(ep)->u.pp->label
-#define real(ep)	(ep)->u.f
+#define value(ep)	(ep)->u.f
 
 typedef struct exp {
   enum type tp;	/* type of the expression */
@@ -162,8 +162,8 @@ nfloat(double e)
   exp_t *ep;
 
   ep = smalloc(sizeof(*ep));
-  ep->tp = FLOAT;
-  ep->u.f = e;
+  type(ep) = FLOAT;
+  value(ep) = e;
   return ep;
 }
 

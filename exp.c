@@ -94,7 +94,17 @@ proctostr(const exp_t *ep)
   free(bp);
   return s;
 }
-	
+
+/* Return a string representing a float */
+static char *
+ftostr(const exp_t *ep)
+{
+  char *buf = smalloc(FMAXDIG);
+
+  snprintf(buf, FMAXDIG, "%g", value(ep));
+  return buf;
+}
+
 /* Return a string representing the expression */
 char *
 tostr(const exp_t *ep)
@@ -105,6 +115,8 @@ tostr(const exp_t *ep)
 	return pairtostr(ep);
   else if (isproc(ep))
 	return proctostr(ep);
+  else if (isfloat(ep))
+	return ftostr(ep);
   else
 	err_quit("tostr: unknown expression");
   return NULL;
