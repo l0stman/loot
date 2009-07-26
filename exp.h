@@ -10,7 +10,7 @@ enum type { ATOM, PAIR, PROC, FLOAT };
 #define pairp(ep)	(ep)->u.cp
 #define procp(ep)	(ep)->u.pp
 #define label(ep)	(ep)->u.pp->label
-#define float(ep)	(ep)->u.f
+#define real(ep)	(ep)->u.f
 
 typedef struct exp {
   enum type tp;	/* type of the expression */
@@ -77,6 +77,12 @@ static inline int
 isproc(const exp_t *ep)
 {
   return (ep != NULL && type(ep) == PROC);
+}
+
+static inline int
+isfloat(const exp_t *ep)
+{
+  return (ep != NULL && type(ep) == FLOAT);
 }
 
 /* Return an atom whose symbol is s */
@@ -146,6 +152,18 @@ proc(proc_t *pp)
   ep = smalloc(sizeof(*ep));
   ep->tp = PROC;
   ep->u.pp = pp;
+  return ep;
+}
+
+/* Return an expression representing a float */
+static inline exp_t *
+nfloat(double e)
+{
+  exp_t *ep;
+
+  ep = smalloc(sizeof(*ep));
+  ep->tp = FLOAT;
+  ep->u.f = e;
   return ep;
 }
 

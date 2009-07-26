@@ -1,6 +1,7 @@
 #include "loot.h"
 #include "exp.h"
 #include "atom.h"
+#include "type.h"
 #include "parser.h"
 
 static exp_t *parse_atm(char *, int);
@@ -13,15 +14,19 @@ parse(char *s, int len)
   return (*s == '(' ? parse_pair(s+1, len-1): parse_atm(s, len));
 }
 
-/* Parse an atom expression */
+/* Parse a non-pair expression */
 static exp_t *
 parse_atm(char *s, int len)
 {
   exp_t *ep;
 
-  ep = smalloc(sizeof(*ep));
-  ep->tp = ATOM;
-  ep->u.sp = natom(s, len);
+  if (isfloatstr(s, len))
+	ep = nfloat(atof(s));
+  else {
+	ep = smalloc(sizeof(*ep));
+	ep->tp = ATOM;
+	ep->u.sp = natom(s, len);
+  }
   return ep;
 }
 

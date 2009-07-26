@@ -53,7 +53,8 @@ isfloatstr(const char *s, int len)
 int
 isnum(exp_t *ep)
 {
-  return isfloatstr(symp(ep), strlen(symp(ep)));
+  return (isfloat(ep) ||
+		  (isatom(ep) && isintstr(symp(ep), strlen(symp(ep)))));
 }
 
 /* Test if the expression is constant. */
