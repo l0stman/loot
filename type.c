@@ -18,16 +18,16 @@ intlen(const char *s, int len)
   return cp-s;
 }
 
-/* Test if the expression is an integer */
+/* Test if the string is an integer */
 int
-isint(const char *s, int len)
+isintstr(const char *s, int len)
 {
   return intlen(s, len) == len;
 }
 
-/* Test if the expression is a decimal number of a float */
+/* Test if the string is a float */
 int
-isfloat(const char *s, int len)
+isfloatstr(const char *s, int len)
 {
   int offset;
 
@@ -53,7 +53,7 @@ isfloat(const char *s, int len)
 int
 isnum(exp_t *ep)
 {
-  return isint(symp(ep), strlen(symp(ep)));
+  return isfloatstr(symp(ep), strlen(symp(ep)));
 }
 
 /* Test if the expression is constant. */

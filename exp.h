@@ -10,6 +10,7 @@ enum type { ATOM, PAIR, PROC, FLOAT };
 #define pairp(ep)	(ep)->u.cp
 #define procp(ep)	(ep)->u.pp
 #define label(ep)	(ep)->u.pp->label
+#define float(ep)	(ep)->u.f
 
 typedef struct exp {
   enum type tp;	/* type of the expression */
@@ -17,6 +18,7 @@ typedef struct exp {
 	const char *sp;		/* pointer to the symbol of an atom */
 	struct cons *cp;	/* pointer to a pair */
 	struct proc *pp;	/* pointer to a procedure */
+	double f;			/* representing a float */
   } u;
 } exp_t;
 

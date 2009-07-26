@@ -1,8 +1,8 @@
 #ifndef TYPE_H
 #define TYPE_H
 
-extern int isint(const char *, int);
-extern int isfloat(const char *, int);
+extern int isintstr(const char *, int);
+extern int isfloatstr(const char *, int);
 extern int isnum(exp_t *);
 extern int isself(exp_t *);
 
