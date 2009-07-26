@@ -39,7 +39,7 @@ isfloatstr(const char *s, int len)
 	if (!isdigit(*(s+1)) ||
 		(offset = intlen(++s, --len)) == 0 ||
 		(*(s+offset) != 'e' && *(s+offset) != 'E'))
-	  return (offset && *(s+offset) == '\0' ? 1 : 0);
+	  return (offset && offset == len ? 1 : 0);
 	s += offset, len -= offset;
   case 'e':
   case 'E':
