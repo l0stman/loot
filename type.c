@@ -2,24 +2,50 @@
 #include "exp.h"
 #include "type.h"
 
-/* Test if the expression is an integer */
-int
-isint(const char *s, int len, int *p)
+/* Returns the length of suffix of s representing an integer. */
+static int
+intlen(const char *s, int len)
 {
   const char *cp;
   
   if (*(cp = s) == '+' || *cp == '-') {
 	if (len == 1)
-	  goto fail;
+	  return 0;
 	cp++;
   }
   for (; cp-s < len && isdigit(*cp); cp++)
 	;
-  if (cp-s == len)
-	return 1;
- fail:
-  if (p)
-	*p = cp-s;
+  return cp-s;
+}
+
+/* Test if the expression is an integer */
+int
+isint(const char *s, int len)
+{
+  return intlen(s, len) == len;
+}
+
+/* Test if the expression is a decimal number of a float */
+int
+isfloat(const char *s, int len)
+{
+  int offset;
+
+  if ((offset = intlen(s, len)) == 0)
+	return 0;
+  s += offset, len -= offset;
+  switch (*s) {
+  case '.':
+	if (!isdigit(*(s+1)) ||
+		(offset = intlen(++s, --len)) == 0 ||
+		(*(s+offset) != 'e' && *(s+offset) != 'E'))
+	  return (offset && *(s+offset) == '\0' ? 1 : 0);
+	s += offset, len -= offset;
+  case 'e':
+  case 'E':
+	return (--len && (intlen(++s, len) == len) ? 1 : 0);
+  break;
+  }
   return 0;
 }
 
@@ -27,7 +53,7 @@ isint(const char *s, int len, int *p)
 int
 isnum(exp_t *ep)
 {
-  return isint(symp(ep), strlen(symp(ep)), NULL);
+  return isint(symp(ep), strlen(symp(ep)));
 }
 
 /* Test if the expression is constant. */

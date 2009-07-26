@@ -3,7 +3,7 @@
 
 #include "atom.h"
 
-enum type { ATOM, PAIR, PROC };
+enum type { ATOM, PAIR, PROC, FLOAT };
 
 #define type(ep)	(ep)->tp
 #define symp(ep)	(ep)->u.sp
