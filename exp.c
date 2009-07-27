@@ -28,9 +28,7 @@ instcst(struct env *envp)
   }
 }
 
-/* Return true if the two expressions have the same
- * symbols or if they occupy the same memory.
- */
+/* Return true if the two expressions occupy the same memory.*/
 int
 iseq(const exp_t *a, const exp_t *b)
 {
@@ -101,7 +99,7 @@ ftostr(const exp_t *ep)
 {
   char *buf = smalloc(FMAXDIG);
 
-  snprintf(buf, FMAXDIG, "%g", value(ep));
+  snprintf(buf, FMAXDIG, "%g", fvalue(ep));
   return buf;
 }
 

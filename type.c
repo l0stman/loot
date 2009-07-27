@@ -2,7 +2,7 @@
 #include "exp.h"
 #include "type.h"
 
-/* Returns the length of suffix of s representing an integer. */
+/* Returns the length of the prefix of s representing an integer. */
 static int
 intlen(const char *s, int len)
 {
