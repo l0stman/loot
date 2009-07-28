@@ -1,4 +1,7 @@
 ;;; Library for loot
+;; Constants
+(define null '())
+
 ;; Test function
 (define (null? x) (eq? x null))
 
@@ -7,6 +10,12 @@
 (define (list? x)
   (or (null? x)
       (and (pair? x) (list? (cdr x)))))
+
+(define (<= x y)
+  (or (= x y) (< x y)))
+
+(define (>= x y)
+  (or (= x y) (> x y)))
 
 ;; High order functions
 (define (foldl f res l)

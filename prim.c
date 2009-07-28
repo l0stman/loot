@@ -13,6 +13,9 @@ static exp_t *prim_prod(exp_t *);
 static exp_t *prim_eq(exp_t *);
 static exp_t *prim_sym(exp_t *);
 static exp_t *prim_pair(exp_t *);
+static exp_t *prim_numeq(exp_t *);
+static exp_t *prim_lt(exp_t *);
+static exp_t *prim_gt(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
@@ -36,6 +39,9 @@ static struct {
   {"eq?", prim_eq},
   {"symbol?", prim_sym},
   {"pair?", prim_pair},
+  {"=", prim_numeq},
+  {"<", prim_lt},
+  {">", prim_gt},
   /* misc */
   {"eval", prim_eval},
   {"load", prim_load},
@@ -213,6 +219,30 @@ prim_pair(exp_t *args)
   return atom(ispair(car(args)) ? "#t": "#f");
 }
 
+/* Test if two numbers are equals */
+static exp_t *
+prim_numeq(exp_t *args)
+{
+  CHECK(=, args);
+  return compare(==, car(args), car(cdr(args)));
+}
+
+/* Test if the first argument is less than the second one */
+static exp_t *
+prim_lt(exp_t *args)
+{
+  CHECK(<, args);
+  return compare(<, car(args), car(cdr(args)));
+}
+
+/* Test if the first argument is greater than the second one */
+static exp_t *
+prim_gt(exp_t *args)
+{
+  CHECK(>, args);
+  return compare(>, car(args), car(cdr(args)));
+}
+
 /* Return a pair of expression */
 static exp_t *
 prim_cons(exp_t *args)
@@ -279,3 +309,4 @@ prim_load(exp_t *args, env_t *envp)
   free(path);
   return NULL;
 }
+			  
