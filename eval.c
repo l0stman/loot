@@ -177,7 +177,7 @@ evcond(exp_t *ep, env_t *envp)
 static exp_t *
 evand(exp_t *ep, env_t *envp)
 {
-  exp_t *res = (void *)&true;
+  exp_t *res = true;
   
   for (ep = cdr(ep); !isnull(ep) && !iseq(false, res); ep = cdr(ep))
 	if ((res = eval(car(ep), envp)) == NULL)
@@ -189,7 +189,7 @@ evand(exp_t *ep, env_t *envp)
 static exp_t *
 evor(exp_t *ep, env_t *envp)
 {
-  exp_t *res = (void *)&false;
+  exp_t *res = false;
 
   for (ep = cdr(ep); !isnull(ep) && iseq(false, res); ep = cdr(ep))
 	if ((res = eval(car(ep), envp)) == NULL)
