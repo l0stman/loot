@@ -3,8 +3,21 @@
 
 extern int isintstr(const char *, int);
 extern int isfloatstr(const char *, int);
-extern int isnum(exp_t *);
 extern int isself(exp_t *);
+
+/* Test if an expression is an integer */
+static inline int
+isint(exp_t *ep)
+{
+  return (isatom(ep) && isintstr(symp(ep), strlen(symp(ep))));
+}
+
+/* Test if the expression is a number */
+static inline int
+isnum(exp_t *ep)
+{
+  return (isfloat(ep) || isint(ep));
+}
 
 /* Test if exp is a list whose first element is an atom of symbol tag. */
 static inline int

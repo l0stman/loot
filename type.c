@@ -49,14 +49,6 @@ isfloatstr(const char *s, int len)
   return 0;
 }
 
-/* Test if the expression is a number */
-int
-isnum(exp_t *ep)
-{
-  return (isfloat(ep) ||
-		  (isatom(ep) && isintstr(symp(ep), strlen(symp(ep)))));
-}
-
 /* Test if the expression is constant. */
 static inline int
 iscst(exp_t *ep)
