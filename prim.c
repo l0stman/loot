@@ -139,7 +139,7 @@ add(exp_t *sum, exp_t *ep)
 {
   if (!isnum(ep))
 	return everr("+: not a number", ep);
-  return atom(apply(+, sum, ep));
+  return APPLY(+, sum, ep);
 }
 
 /* Return the sum of the expressions */
@@ -155,7 +155,7 @@ sub(exp_t *sum, exp_t *ep)
 {
   if (!isnum(ep))
 	return everr("-: not a number", ep);
-  return atom(apply(-, sum, ep));
+  return APPLY(-, sum, ep);
 }
 
 /* Return the cumulated substraction of the arguments */
@@ -176,7 +176,7 @@ prod(exp_t *prod, exp_t *ep)
 {
   if (!isnum(ep))
 	return everr("*: not a number", ep);
-  return atom(apply(*, prod, ep));
+  return APPLY(*, prod, ep);
 }
 
 /* Return the product of the expressions */
