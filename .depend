@@ -3,7 +3,6 @@ env.o: env.c loot.h error.h exp.h atom.h env.h
 error.o: error.c error.h
 eval.o: eval.c loot.h error.h exp.h atom.h env.h eval.h type.h
 exp.o: exp.c loot.h error.h exp.h atom.h env.h
-fuck.o: fuck.c
 loot.o: loot.c loot.h error.h
 main.o: main.c loot.h error.h exp.h atom.h env.h prim.h
 parser.o: parser.c loot.h error.h exp.h atom.h type.h parser.h

@@ -198,7 +198,7 @@ prim_eq(exp_t *args)
 {
   if (!chkargs("eq?", args, 2))
 	return NULL;
-  return atom(iseq(car(args), car(cdr(args))) ? "#t": "#f");
+  return iseq(car(args), car(cdr(args))) ? true : false;
 }
 
 /* Test if the expression is a symbol */
@@ -207,7 +207,7 @@ prim_sym(exp_t *args)
 {
   if (!chkargs("symbol?", args, 1))
 	return NULL;
-  return atom(issym(car(args)) ? "#t": "#f");
+  return issym(car(args)) ? true : false;
 }
 
 /* Test if the expression is a pair */
@@ -216,7 +216,7 @@ prim_pair(exp_t *args)
 {
   if (!chkargs("pair?", args, 1))
 	return NULL;
-  return atom(ispair(car(args)) ? "#t": "#f");
+  return ispair(car(args)) ? true : false;
 }
 
 /* Test if two numbers are equals */
@@ -309,4 +309,3 @@ prim_load(exp_t *args, env_t *envp)
   free(path);
   return NULL;
 }
-			  
