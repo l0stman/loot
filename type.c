@@ -31,7 +31,7 @@ isfloatstr(const char *s, int len)
 {
   int offset;
 
-  if ((offset = intlen(s, len)) == 0)
+  if ((offset = intlen(s, len)) == 0 && *s != '.')
 	return 0;
   s += offset, len -= offset, offset = 0;
   switch (*s) {
