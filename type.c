@@ -13,8 +13,8 @@ intlen(const char *s, int len)
 	  return 0;
 	cp++;
   }
-  for (; cp-s < len && isdigit(*cp); cp++)
-	;
+  while (cp-s < len && isdigit(*cp))
+	cp++;
   return cp-s;
 }
 
@@ -33,10 +33,11 @@ isfloatstr(const char *s, int len)
 
   if ((offset = intlen(s, len)) == 0)
 	return 0;
-  s += offset, len -= offset;
+  s += offset, len -= offset, offset = 0;
   switch (*s) {
   case '.':
-	if (!isdigit(*(s+1)) ||
+	if (*(s+1) == '+' ||
+		*(s+1) == '-' ||
 		(offset = intlen(++s, --len)) == 0 ||
 		(*(s+offset) != 'e' && *(s+offset) != 'E'))
 	  return (offset && offset == len ? 1 : 0);

@@ -19,10 +19,13 @@ static exp_t *
 parse_atm(char *s, int len)
 {
   exp_t *ep;
+  char *p;
 
-  if (isfloatstr(s, len))
-	ep = nfloat(atof(s));
-  else {
+  if (isfloatstr(s, len)) {
+	p = sstrndup(s, len);
+	ep = nfloat(atof(p));
+	free(p);
+  } else {
 	ep = smalloc(sizeof(*ep));
 	ep->tp = ATOM;
 	ep->u.sp = natom(s, len);
