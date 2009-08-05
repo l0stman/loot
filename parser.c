@@ -37,22 +37,36 @@ parse_atm(char *s, int len)
 static int carlen(char *);
 
 static exp_t *
-parse_pair(char *s, int len)
+parse_pair(char *s, int size)
 {
   exp_t *car, *cdr;
+  int len = size;
+  char *cp = s;
   int n;
   
-  if (*s == ')')
+  if (*cp == ')')
 	return null;
-  n = carlen(s);
-  car = parse(s, n);
-  if (*(s+n) == ' ')
+  n = carlen(cp);
+  if (*cp == '.' && n == 1)
+	goto fail;
+  car = parse(cp, n);
+  if (*(cp+n) == ' ')
 	n++;
-  s += n, len -= n;
-  if (*s == '.' && *(s+1+carlen(s+1)) != ')')
-	err_quit("Illegal use of .");
-  cdr = (*s == '.' ? parse(s+1, len-2): parse_pair(s, len));
+  cp += n, len -= n;
+  if (*cp == '.' && *(cp+1) == ' ') {	/* dotted-pair notation */
+	cp += 2, len -= 3;
+	if (*cp == ')' || *(cp+carlen(cp)) != ')')
+	  goto fail;
+	cdr = parse(cp, len);
+  } else {
+	if (*cp == '.' && *(cp+1) == ')')
+	  goto fail;
+	cdr = parse_pair(cp, len);
+  }
   return cons(car, cdr);
+ fail:
+  warnx("Illegal use of . -- (%.*s", size, s);
+  return NULL;
 }
 
 /*
