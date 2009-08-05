@@ -1,0 +1,3 @@
+* replace atof by an appropriate function
+* Implement rational numbers
+* Prevent memory leaks
