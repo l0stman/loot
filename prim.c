@@ -16,6 +16,7 @@ static exp_t *prim_pair(exp_t *);
 static exp_t *prim_numeq(exp_t *);
 static exp_t *prim_lt(exp_t *);
 static exp_t *prim_gt(exp_t *);
+static exp_t *prim_isnum(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
@@ -42,6 +43,7 @@ static struct {
   {"=", prim_numeq},
   {"<", prim_lt},
   {">", prim_gt},
+  {"number?", prim_isnum},
   /* misc */
   {"eval", prim_eval},
   {"load", prim_load},
@@ -241,6 +243,15 @@ prim_gt(exp_t *args)
 {
   CHECK(>, args);
   return compare(>, car(args), car(cdr(args)));
+}
+
+/* Test if the argument is a number */
+static exp_t *
+prim_isnum(exp_t *args)
+{
+  if (!chkargs("number?", args, 1))
+	return NULL;
+  return isnum(car(args)) ? true: false;
 }
 
 /* Return a pair of expression */

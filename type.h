@@ -16,7 +16,7 @@ isint(exp_t *ep)
 static inline int
 isnum(exp_t *ep)
 {
-  return (isfloat(ep) || isint(ep));
+  return (isint(ep) || isfloat(ep));
 }
 
 /* Test if exp is a list whose first element is an atom of symbol tag. */

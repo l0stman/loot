@@ -17,6 +17,22 @@
 (define (>= x y)
   (or (= x y) (> x y)))
 
+(define (not x)
+  (if x #f #t))
+
+(define (equal? a b)
+  (cond ((number? a) (and (number? b) (= a b)))
+        ((not (pair? a)) (eq? a b))
+        (else (and (pair? b)
+                   (equal? (car a) (car b))
+                   (equal? (cdr a) (cdr b))))))
+
+;; Search the sublist containing item in x
+(define (memq item x)
+  (cond ((null? x) #f)
+        ((eq? item (car x)) x)
+        (else (memq item (cdr x)))))
+
 ;; High order functions
 (define (foldl f res l)
   (if (null? l)
