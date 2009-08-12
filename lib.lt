@@ -33,13 +33,38 @@
         ((eq? item (car x)) x)
         (else (memq item (cdr x)))))
 
+;; Access functions
+(define (compose . procs)
+  (lambda (x)
+    (define (iter res lst)
+      (if (null? lst)
+          res
+          (iter ((car lst) res) (cdr lst))))
+    (iter x (reverse procs))))
+
+(define caar (compose car car))
+(define cadr (compose car cdr))
+(define cdar (compose cdr car))
+(define cddr (compose cdr cdr))
+
 ;; High order functions
-(define (foldl f res l)
+(define (foldr f res l)
   (if (null? l)
       res
-      (foldl f (f (car l) res) (cdr l))))
+      (foldr f (f (car l) res) (cdr l))))
 
-(define (foldr f res l) (foldl f res (reverse l)))
+(define (foldr f res l)
+  (if (null? l)
+      res
+      (foldl f (f res (car l)) (cdr l))))
+
+(define (map proc lst)
+  (define (iter res lst)
+    (if (null? lst)
+        (reverse res)
+        (iter (cons (proc (car lst)) res)
+              (cdr lst))))
+  (iter '() lst))
 
 ;; List functions
 (define (list . l) l)

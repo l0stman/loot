@@ -20,7 +20,6 @@ static exp_t *prim_isnum(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
-static exp_t *prim_eval(exp_t *, struct env *);
 static exp_t *prim_load(exp_t *, struct env *);
 
 /* List of primitive procedures */
@@ -45,7 +44,6 @@ static struct {
   {">", prim_gt},
   {"number?", prim_isnum},
   /* misc */
-  {"eval", prim_eval},
   {"load", prim_load},
 };
 
@@ -270,7 +268,7 @@ prim_car(exp_t *args)
   if (!chkargs("car", args, 1))
 	return NULL;
   if (!ispair(car(args))) {
-	warnx("car: the argument isn't a pair");
+	everr("car: the argument isn't a pair", car(args));
 	return NULL;
   }
   return car(car(args));
@@ -283,21 +281,11 @@ prim_cdr(exp_t *args)
   if (!chkargs("cdr", args, 1))
 	return NULL;
   if (!ispair(car(args))) {
-	warnx("cdr: the argument isn't a pair");
+	everr("cdr: the argument isn't a pair", car(args));
 	return NULL;
   }
   return cdr(car(args));
 }
-
-/* Eval the expression */
-static exp_t *
-prim_eval(exp_t *args, env_t *envp)
-{
-  if (!chkargs("eval", args, 1))
-	return NULL;
-  return eval(car(args), envp);
-}
-
 
 /* Evaluate the expressions inside the file pointed by ep */
 static exp_t *
