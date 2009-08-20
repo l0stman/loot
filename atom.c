@@ -62,6 +62,28 @@ const char *strtoatm(const char *s)
   return natom(s, strlen(s));
 }
 
+/* inttoatm: returns an atom representing an integer */
+const char *
+inttoatm(long n)
+{
+  char buf[MAXDIG+1];
+  char *s = buf + sizeof(buf);
+  unsigned long m;
+  
+  if (n == LONG_MIN)
+	m = LONG_MAX + 1UL;
+  else if (n < 0)
+	m = -n;
+  else
+	m = n;
+  do
+	*--s = m%10 + '0';
+  while ((m /= 10) > 0);
+  if (n < 0)
+	*--s = '-';
+  return strtoatm(s);
+}
+
 /* natom: returns an atom pointer representing the sequence
  * of bytes s of length len.
  */
