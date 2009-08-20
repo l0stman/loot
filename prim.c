@@ -20,7 +20,7 @@ static exp_t *prim_isnum(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
-static exp_t *prim_load(exp_t *, struct env *);
+static exp_t *prim_load(exp_t *, env_t *);
 
 /* List of primitive procedures */
 static struct {

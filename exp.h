@@ -3,7 +3,7 @@
 
 #include "atom.h"
 
-enum type { ATOM, PAIR, PROC, FLOAT };
+enum type { ATOM, PAIR, PROC, FLOAT, RAT };
 
 #define type(ep)	(ep)->tp
 #define symp(ep)	(ep)->u.sp
@@ -11,6 +11,7 @@ enum type { ATOM, PAIR, PROC, FLOAT };
 #define procp(ep)	(ep)->u.pp
 #define label(ep)	(ep)->u.pp->label
 #define fvalue(ep)	(ep)->u.f
+#define ratp(ep)	(ep)->u.rp
 
 typedef struct exp {
   enum type tp;	/* type of the expression */
@@ -19,6 +20,7 @@ typedef struct exp {
 	struct cons *cp;	/* pointer to a pair */
 	struct proc *pp;	/* pointer to a procedure */
 	double f;			/* representing a float */
+	struct rat *rp;		/* pointer to a rational */
   } u;
 } exp_t;
 
@@ -51,6 +53,14 @@ typedef struct proc {	/* A procedure is a function or a primitive */
 	struct func *funcp;	/* pointer to an user-defined function */
   } u;
 } proc_t;
+
+#define num(ep)	ratp(ep)->num
+#define den(ep)	ratp(ep)->den
+
+typedef struct rat {			/* represents a rational */
+  long			num;			/* numerator */
+  unsigned long den;			/*  denominator */
+} rat_t;
 
 extern exp_t *false;
 extern exp_t *true;
@@ -172,5 +182,22 @@ static inline int
 isnull(const exp_t *ep)
 {
   return iseq(ep, null);
+}
+
+/* Built a new rational number */
+static inline exp_t *
+nrat(long num, long den)
+{
+  exp_t *ep;
+  int sign;
+
+  ep = smalloc(sizeof(*ep));
+  type(ep) = RAT;  
+  ratp(ep) = smalloc(sizeof(*ratp(ep)));
+  sign = (den < 0 ? -1 : 1);
+  num(ep) = sign * num;
+  den(ep) = sign * den;
+
+  return ep;
 }
 #endif /* !EXP_H */
