@@ -58,8 +58,8 @@ typedef struct proc {	/* A procedure is a function or a primitive */
 #define den(ep)	ratp(ep)->den
 
 typedef struct rat {			/* represents a rational */
-  long			num;			/* numerator */
-  unsigned long den;			/*  denominator */
+  const char	*num;			/* numerator */
+  const char	*den;			/*  denominator */
 } rat_t;
 
 extern exp_t *false;
@@ -195,8 +195,8 @@ nrat(long num, long den)
   type(ep) = RAT;  
   ratp(ep) = smalloc(sizeof(*ratp(ep)));
   sign = (den < 0 ? -1 : 1);
-  num(ep) = sign * num;
-  den(ep) = sign * den;
+  num(ep) = inttoatm(sign * num);
+  den(ep) = inttoatm(sign * den);
 
   return ep;
 }
