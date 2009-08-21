@@ -5,7 +5,7 @@
 ;; Test function
 (define (null? x) (eq? x null))
 
-(define (zero? x) (eq? x 0))
+(define (zero? x) (= x 0))
 
 (define (list? x)
   (or (null? x)

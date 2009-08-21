@@ -132,12 +132,11 @@ add(exp_t *a1, exp_t *a2)
 
   if (isfloat(a1) || isfloat(a2))
 	res = nfloat(VALUE(a1) + VALUE(a2));
-  else  if (israt(a1) || israt(a2)) {
+  else {
 	n1 = NUMER(a1), n2 = NUMER(a2);
 	d1 = DENOM(a1), d2 = DENOM(a2);
 	res = nrat(n1*d2 + n2*d1, d1 * d2);
-  } else
-	res = atom(inttoatm(atoint(a1) + atoint(a2)));
+  } 
   return res;
 }
 
@@ -160,12 +159,11 @@ sub(exp_t *a1, exp_t *a2)
 
   if (isfloat(a1) || isfloat(a2))
 	res = nfloat(VALUE(a1) - VALUE(a2));
-  else  if (israt(a1) || israt(a2)) {
+  else {
 	n1 = NUMER(a1), n2 = NUMER(a2);
 	d1 = DENOM(a1), d2 = DENOM(a2);
 	res = nrat(n1*d2 - n2*d1, d1 * d2);
-  } else
-	res = atom(inttoatm(atoint(a1) - atoint(a2)));
+  } 
   return res;
 }
 
@@ -190,10 +188,8 @@ prod(exp_t *a1, exp_t *a2)
 
   if (isfloat(a1) || isfloat(a2))
 	res = nfloat(VALUE(a1) * VALUE(a2));
-  else if (israt(a1) || israt(a2))
+  else 
 	res = nrat(NUMER(a1) * NUMER(a2), DENOM(a1) * DENOM(a2));
-  else
-	res = atom(inttoatm(atoint(a1) * atoint(a2)));
   return res;
 }
 
