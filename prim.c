@@ -10,6 +10,7 @@
 static exp_t *prim_add(exp_t *);
 static exp_t *prim_sub(exp_t *);
 static exp_t *prim_prod(exp_t *);
+static exp_t *prim_div(exp_t *);
 static exp_t *prim_eq(exp_t *);
 static exp_t *prim_sym(exp_t *);
 static exp_t *prim_pair(exp_t *);
@@ -31,6 +32,7 @@ static struct {
   {"+", prim_add},
   {"-", prim_sub},
   {"*", prim_prod},
+  {"/", prim_div},
   /* pair */
   {"cons", prim_cons},
   {"car", prim_car},
@@ -105,7 +107,8 @@ chkargs(char *name, exp_t *args, int n)
   return 0;
 }
 
-/* Apply f to the elements of lst to built a result */
+/* Return the accumulation of the expression combined with the
+   procedure f */
 static exp_t *
 foldl(exp_t *(*f)(), exp_t *init, exp_t *lst)
 {
@@ -201,6 +204,36 @@ prim_prod(exp_t *args)
   return foldl(prod, atom("1"), args);
 }
 
+/* Return the division of two expressions */
+static exp_t *
+divs(exp_t *a1, exp_t *a2)
+{
+  exp_t *res;
+
+  CHKNUM(a1, "/");
+  CHKNUM(a2, "/");
+
+  if (VALUE(a2) == 0)
+	return everr("/: argument is divided by zero -- ", a1);
+  if (isfloat(a1) || isfloat(a2))
+	res = nfloat(VALUE(a1) / VALUE(a2));
+  else
+	res = nrat(NUMER(a1) * DENOM(a2), NUMER(a2) * DENOM(a1));
+  return res;
+}
+
+/* Return the division of the expressions */
+static exp_t *
+prim_div(exp_t *args)
+{
+  if (isnull(args))
+	return everr("/: need at least one argument -- given", null);
+  else if(isnull(cdr(args)))
+	return divs(atom("1"), car(args));
+  else
+	return foldl(divs, car(args), cdr(args));
+}
+  
 /* Test if two expressions occupy the same physical memory */
 static exp_t *
 prim_eq(exp_t *args)
