@@ -190,11 +190,20 @@ prim_sub(exp_t *args)
 
 /* Return the product of two expressions */
 static exp_t *
-prod(exp_t *prod, exp_t *ep)
+prod(exp_t *a1, exp_t *a2)
 {
-  if (!isnum(ep))
-	return everr("*: not a number", ep);
-  return APPLY(*, prod, ep);
+  exp_t *res;
+
+  CHKNUM(a1, "*");
+  CHKNUM(a2, "*");
+
+  if (isfloat(a1) || isfloat(a2))
+	res = nfloat(VALUE(a1) * VALUE(a2));
+  else if (israt(a1) || israt(a2))
+	res = nrat(NUMER(a1) * NUMER(a2), DENOM(a1) * DENOM(a2));
+  else
+	res = atom(inttoatm(atoint(a1) * atoint(a2)));
+  return res;
 }
 
 /* Return the product of the expressions */

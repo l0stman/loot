@@ -3,7 +3,10 @@
 
 #define toint(s)	strtol((s), NULL, 10)
 #define atoint(s)	toint(symp(s))
-#define VALUE(x)	(isint(x) ? toint(symp(x)): fvalue(x))
+#define rvalue(r)	((1.0 * toint(num(r))) / toint(den(r)))
+#define VALUE(x)	(isint(x) ? atoint(x):					\
+					 (israt(x) ? rvalue(x) : fvalue(x)))
+
 #define compare(op, x, y)	(VALUE(x) op VALUE(y) ? true: false)
 
 /* Check if the expression is a number */
