@@ -1,9 +1,20 @@
 #ifndef PRIM_H
 #define PRIM_H
 
-#define toint(s)	strtol((symp(s)), NULL, 10)
-#define VALUE(x)	(isint(x) ? toint(x): fvalue(x))
+#define toint(s)	strtol((s), NULL, 10)
+#define atoint(s)	toint(symp(s))
+#define VALUE(x)	(isint(x) ? toint(symp(x)): fvalue(x))
 #define compare(op, x, y)	(VALUE(x) op VALUE(y) ? true: false)
+
+/* Check if the expression is a number */
+#define CHKNUM(x, name) {						\
+	if (!isnum(x))								\
+	  return everr(name": not a number", x);	\
+  } while (0)
+
+/* Returns the numerator and denominator of a rational or an integer */
+#define NUMER(x)	(israt(x) ? toint(num(x)) : atoint(x))
+#define DENOM(x)	(israt(x) ? toint(den(x)) : 1)
 
 #define APPLY(op, x, y)							\
   ((type(x) != type(y))							\

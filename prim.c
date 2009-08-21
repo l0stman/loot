@@ -131,21 +131,33 @@ chkargs(char *name, exp_t *args, int n)
 static exp_t *
 foldl(exp_t *(*f)(), exp_t *init, exp_t *lst)
 {
-  exp_t *ep;
+  exp_t *acc;
 
-  for (ep = init; !isnull(lst); lst = cdr(lst))
-	if ((ep = f(ep, car(lst))) == NULL)
+  for (acc = init; !isnull(lst); lst = cdr(lst))
+	if ((acc = f(car(lst), acc)) == NULL)
 	  return NULL;
-  return ep;
+  return acc;
 }
 
 /* Return the sum of two expressions */
 static exp_t *
-add(exp_t *sum, exp_t *ep)
+add(exp_t *a1, exp_t *a2)
 {
-  if (!isnum(ep))
-	return everr("+: not a number", ep);
-  return APPLY(+, sum, ep);
+  long n1, n2, d1, d2;
+  exp_t *res;
+  
+  CHKNUM(a1, "+");
+  CHKNUM(a2, "+");
+
+  if (isfloat(a1) || isfloat(a2))
+	res = nfloat(VALUE(a1) + VALUE(a2));
+  else  if (israt(a1) || israt(a2)) {
+	n1 = NUMER(a1), n2 = NUMER(a2);
+	d1 = DENOM(a1), d2 = DENOM(a2);
+	res = nrat(n1*d2 + n2*d1, d1 * d2);
+  } else
+	res = atom(inttoatm(atoint(a1) + atoint(a2)));
+  return res;
 }
 
 /* Return the sum of the expressions */
