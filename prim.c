@@ -93,28 +93,6 @@ load(char *path, env_t *envp)
   return 0;
 }
 
-/* inttostr: returns a string representing an integer */
-static const char *
-inttostr(long n)
-{
-  static char buf[MAXDIG+1];
-  char *s = buf + sizeof(buf);
-  unsigned long m;
-  
-  if (n == LONG_MIN)
-	m = LONG_MAX + 1UL;
-  else if (n < 0)
-	m = -n;
-  else
-	m = n;
-  do
-	*--s = m%10 + '0';
-  while ((m /= 10) > 0);
-  if (n < 0)
-	*--s = '-';
-  return s;
-}
-
 /* Check if the primitive has the right number of arguments */
 static inline int
 chkargs(char *name, exp_t *args, int n)
@@ -134,7 +112,7 @@ foldl(exp_t *(*f)(), exp_t *init, exp_t *lst)
   exp_t *acc;
 
   for (acc = init; !isnull(lst); lst = cdr(lst))
-	if ((acc = f(car(lst), acc)) == NULL)
+	if ((acc = f(acc, car(lst))) == NULL)
 	  return NULL;
   return acc;
 }
@@ -169,11 +147,23 @@ prim_add(exp_t *args)
 
 /* Return the difference of two expressions */
 static exp_t *
-sub(exp_t *sum, exp_t *ep)
+sub(exp_t *a1, exp_t *a2)
 {
-  if (!isnum(ep))
-	return everr("-: not a number", ep);
-  return APPLY(-, sum, ep);
+  long n1, n2, d1, d2;
+  exp_t *res;
+  
+  CHKNUM(a1, "-");
+  CHKNUM(a2, "-");
+
+  if (isfloat(a1) || isfloat(a2))
+	res = nfloat(VALUE(a1) - VALUE(a2));
+  else  if (israt(a1) || israt(a2)) {
+	n1 = NUMER(a1), n2 = NUMER(a2);
+	d1 = DENOM(a1), d2 = DENOM(a2);
+	res = nrat(n1*d2 - n2*d1, d1 * d2);
+  } else
+	res = atom(inttoatm(atoint(a1) - atoint(a2)));
+  return res;
 }
 
 /* Return the cumulated substraction of the arguments */
@@ -182,8 +172,6 @@ prim_sub(exp_t *args)
 {
   if (isnull(args))
 	return everr("- : need at least one argument, given", null);
-  else if (!isnum(car(args)))
-	return everr("- : not a number", car(args));
   else
 	return foldl(sub, car(args), cdr(args));
 }
@@ -244,7 +232,7 @@ prim_pair(exp_t *args)
 static exp_t *
 prim_numeq(exp_t *args)
 {
-  CHECK(=, args);
+  CHKCMP(args, "=");
   return compare(==, car(args), car(cdr(args)));
 }
 
@@ -252,7 +240,7 @@ prim_numeq(exp_t *args)
 static exp_t *
 prim_lt(exp_t *args)
 {
-  CHECK(<, args);
+  CHKCMP(args, "<");
   return compare(<, car(args), car(cdr(args)));
 }
 
@@ -260,7 +248,7 @@ prim_lt(exp_t *args)
 static exp_t *
 prim_gt(exp_t *args)
 {
-  CHECK(>, args);
+  CHKCMP(args, ">");
   return compare(>, car(args), car(cdr(args)));
 }
 

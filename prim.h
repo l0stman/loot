@@ -19,17 +19,12 @@
 #define NUMER(x)	(israt(x) ? toint(num(x)) : atoint(x))
 #define DENOM(x)	(israt(x) ? toint(den(x)) : 1)
 
-#define APPLY(op, x, y)							\
-  ((type(x) != type(y))							\
-   || isfloat(x) ?								\
-   nfloat(VALUE(x) op VALUE(y)) :				\
-   atom(inttostr(VALUE(x) op VALUE(y))))
-
-#define CHECK(op, args)	do {											\
-	if (!chkargs(#op, args, 2))											\
+/* Check the arguments for a comparison */
+#define CHKCMP(args, name)	do {										\
+	if (!chkargs(name, args, 2))										\
 	  return NULL;														\
-	if (!isnum(car(args)) || !isnum(car(cdr(args))))					\
-	  return everr(#op": arguments should be numbers, given -- ", args); \
+	CHKNUM(car(args), name);											\
+	CHKNUM(car(cdr(args)), name);										\
   } while (0)
 
 extern int load(char *, struct env *);
