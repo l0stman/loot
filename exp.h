@@ -190,19 +190,46 @@ isnull(const exp_t *ep)
   return iseq(ep, null);
 }
 
+#define SIGN(x)	((x) < 0 ? -1 : 1)
+#define ABS(x)	((x) == LONG_MIN ? LONG_MAX + 1UL :	((x) < 0 ? -x : x))	
+
+static inline unsigned long
+gcd(unsigned long m, unsigned long n)
+{
+  unsigned long r;
+
+  do {
+	r = m - (m/n) * n;
+	m = n;
+	n = r;
+  } while (n);
+
+  return m;
+}
+
 /* Built a new rational number */
 static inline exp_t *
 nrat(long num, long den)
 {
   exp_t *ep;
-  int sign;
+  unsigned long d, g;
 
+  assert(den != 0);
+  if (num == 0)
+	return atom("0");
+
+  d = ABS(den);
+  g = gcd(ABS(num), d);
+  num = SIGN(den) * num/(long)g;
+  d /= g;
+
+  if (d == 1)
+	return atom(inttoatm(num));
   ep = smalloc(sizeof(*ep));
-  type(ep) = RAT;  
+  type(ep) = RAT;
   ratp(ep) = smalloc(sizeof(*ratp(ep)));
-  sign = (den < 0 ? -1 : 1);
-  num(ep) = inttoatm(sign * num);
-  den(ep) = inttoatm(sign * den);
+  num(ep) = inttoatm(num);
+  den(ep) = inttoatm(d);
 
   return ep;
 }
