@@ -34,7 +34,7 @@ isratstr(const char *s, int len)
   if ((offset = intlen(s, len)) == 0 || *(s+offset) != '/')
 	return 0;
   s += (offset+1), len -= (offset+1);
-  return (*s == '+' || *s == '-' ? 0 : intlen(s, len) == len);
+  return (*s != '+' && *s != '-' ? intlen(s, len) == len : 0);
 }
 
 /* Test if the string is a float */
