@@ -28,7 +28,7 @@ parse_atm(char *s, int len)
 	ep = nfloat(atof(p));
   else if (isratstr(s, len)) {
 	n = strtol(p, endp, 10);
-	d = strtol(p, NULL, 10);
+	d = strtol(++*endp, NULL, 10);
 	ep = nrat(n, d);
   } else
 	ep = atom(p);

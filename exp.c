@@ -103,6 +103,16 @@ ftostr(const exp_t *ep)
   return buf;
 }
 
+/* Return a string representing a rational */
+static char *
+rtostr(const exp_t *ep)
+{
+  char *buf = smalloc(strlen(num(ep))+strlen(num(ep))+2);
+
+  sprintf(buf, "%s/%s", num(ep), den(ep));
+  return buf;
+}
+
 /* Return a string representing the expression */
 char *
 tostr(const exp_t *ep)
@@ -115,6 +125,8 @@ tostr(const exp_t *ep)
 	return proctostr(ep);
   else if (isfloat(ep))
 	return ftostr(ep);
+  else if (israt(ep))
+	return rtostr(ep);
   else
 	err_quit("tostr: unknown expression");
   return NULL;

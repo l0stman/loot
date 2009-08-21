@@ -69,7 +69,8 @@ inttoatm(long n)
   char buf[MAXDIG+1];
   char *s = buf + sizeof(buf);
   unsigned long m;
-  
+
+  *--s = '\0';
   if (n == LONG_MIN)
 	m = LONG_MAX + 1UL;
   else if (n < 0)
