@@ -95,6 +95,12 @@ isfloat(const exp_t *ep)
   return (ep != NULL && type(ep) == FLOAT);
 }
 
+static inline int
+israt(const exp_t *ep)
+{
+  return (ep != NULL  && type(ep) == RAT);
+}
+
 /* Return an atom whose symbol is s */
 static inline exp_t *
 atom(const char *s)

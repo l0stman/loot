@@ -3,6 +3,7 @@
 
 extern int isintstr(const char *, int);
 extern int isfloatstr(const char *, int);
+extern int isratstr(const char *, int);
 extern int isself(exp_t *);
 
 /* Test if an expression is an integer */
@@ -16,7 +17,7 @@ isint(exp_t *ep)
 static inline int
 isnum(exp_t *ep)
 {
-  return (isint(ep) || isfloat(ep));
+  return (isint(ep) || israt(ep) || isfloat(ep));
 }
 
 /* Test if exp is a list whose first element is an atom of symbol tag. */

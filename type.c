@@ -25,6 +25,18 @@ isintstr(const char *s, int len)
   return intlen(s, len) == len;
 }
 
+/* Test if the string is a rational */
+int
+isratstr(const char *s, int len)
+{
+  int offset;
+
+  if ((offset = intlen(s, len)) == 0 || *(s+offset) != '/')
+	return 0;
+  s += (offset+1), len -= (offset+1);
+  return (*s == '+' || *s == '-' ? 0 : intlen(s, len) == len);
+}
+
 /* Test if the string is a float */
 int
 isfloatstr(const char *s, int len)
