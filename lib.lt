@@ -47,16 +47,39 @@
 (define cdar (compose cdr car))
 (define cddr (compose cdr cdr))
 
-;; High order functions
-(define (foldr f res l)
-  (if (null? l)
-      res
-      (foldr f (f (car l) res) (cdr l))))
+(define caaar (compose car car car))
+(define caadr (compose car car cdr))
+(define cadar (compose car cdr car))
+(define caddr (compose car cdr cdr))
+(define cdaar (compose cdr car car))
+(define cdadr (compose cdr car cdr))
+(define cddar (compose cdr cdr car))
+(define cdddr (compose cdr cdr cdr))
 
-(define (foldr f res l)
+(define caaaar (car car car car))
+(define caaadr (car car car cdr))
+(define caadar (car car cdr car))
+(define caaddr (car car cdr cdr))
+(define cadaar (car cdr car car))
+(define cadadr (car cdr car cdr))
+(define caddar (car cdr cdr car))
+(define cadddr (car cdr cdr cdr))
+(define cdaaar (cdr car car car))
+(define cdaadr (cdr car car cdr))
+(define cdadar (cdr car cdr car))
+(define cdaddr (cdr car cdr cdr))
+(define cddaar (cdr cdr car car))
+(define cddadr (cdr cdr car cdr))
+(define cdddar (cdr cdr cdr car))
+(define cddddr (cdr cdr cdr cdr))
+
+;; High order functions
+(define (foldl f res l)
   (if (null? l)
       res
-      (foldl f (f res (car l)) (cdr l))))
+      (foldl f (f (car l) res) (cdr l))))
+
+(define (foldr f res l) (foldl f res (reverse l)))
 
 (define (map proc lst)
   (define (iter res lst)
