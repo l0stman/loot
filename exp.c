@@ -99,7 +99,7 @@ ftostr(const exp_t *ep)
 {
   char *buf = smalloc(FMAXDIG);
 
-  snprintf(buf, FMAXDIG, "%g", fvalue(ep));
+  snprintf(buf, FMAXDIG, "%e", fvalue(ep));
   return buf;
 }
 
