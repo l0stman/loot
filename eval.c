@@ -14,7 +14,7 @@ static exp_t *evlambda(exp_t *, env_t *);
 static exp_t *evand(exp_t *, env_t *);
 static exp_t *evor(exp_t *, env_t *);
 static exp_t *evlet(exp_t *, env_t *);
-static exp_t *evapply(exp_t *, env_t *);
+static exp_t *evmap(exp_t *, env_t *);
 
 /* Evaluate the expression */
 exp_t *
@@ -43,7 +43,7 @@ eval(exp_t *ep, env_t *envp)
   else if (islet(ep))
 	return evlet(ep, envp);
   else if (islist(ep))	/* application */
-	return evapply(ep, envp);
+	return apply(eval(car(ep), envp), evmap(cdr(ep), envp), envp);
   else
 	return everr("unknown expression", ep);
 }
@@ -246,21 +246,17 @@ evlet(exp_t *ep, env_t *envp)
   return eval(cons(op, vlst), envp);
 }
 
-/* Eval a compound expression */
-static exp_t *evmap(exp_t *, env_t *);
-
-static exp_t *
-evapply(exp_t *ep, env_t *envp)
+/* Apply a procedure to its arguments */
+exp_t *
+apply(exp_t *op, exp_t* args, env_t *envp)
 {
-  exp_t *op;
-  exp_t *args;
   exp_t *parp;
   exp_t *blist;	/* binding list */
 
-  if (!isproc(op = eval(car(ep), envp)))
-	return (op ? everr("expression is not a procedure", car(ep)): NULL);
-  if ((args = evmap(cdr(ep), envp)) == NULL)
+  if (op == NULL || args == NULL)
 	return NULL;
+  if (!isproc(op))
+	return everr("expression is not a procedure", op);
   if (procp(op)->tp == PRIM)	/* primitive */
 	return primp(op)(args, envp);
   
@@ -268,12 +264,12 @@ evapply(exp_t *ep, env_t *envp)
   for (parp = fpar(op), blist = null ; !isatom(parp);
 	   parp = cdr(parp), args = cdr(args)) {
 	if (isnull(args))
-	  return everr("too few arguments provided to", car(ep));
+	  return everr("too few arguments provided to", op);
 	blist = cons(cons(car(parp), car(args)), blist);
   }
   if (isnull(parp)) {
 	if (!isnull(args))
-	  return everr("too many arguments provided to", car(ep));
+	  return everr("too many arguments provided to", op);
   }
   else	/* variable length arguments */
 	blist = cons(cons(parp, args), blist);

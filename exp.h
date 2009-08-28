@@ -187,7 +187,7 @@ nfloat(double e)
 static inline int
 isnull(const exp_t *ep)
 {
-  return iseq(ep, null);
+  return ep != NULL && iseq(ep, null);
 }
 
 #define SIGN(x)	((x) < 0 ? -1 : 1)

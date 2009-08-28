@@ -21,6 +21,7 @@ static exp_t *prim_isnum(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
+static exp_t *prim_apply(exp_t *, env_t *);
 static exp_t *prim_load(exp_t *, env_t *);
 
 /* List of primitive procedures */
@@ -46,6 +47,7 @@ static struct {
   {">", prim_gt},
   {"number?", prim_isnum},
   /* misc */
+  {"apply", prim_apply},
   {"load", prim_load},
 };
 
@@ -325,6 +327,25 @@ prim_cdr(exp_t *args)
   return cdr(car(args));
 }
 
+/* Apply a procedure expression to a list of expressions */
+static exp_t *
+prim_apply(exp_t *args, env_t *envp)
+{
+  exp_t *op;
+  exp_t *lst;
+  
+  if (isnull(args) || isnull(cdr(args)))
+	return everr("apply: expects at least 2 arguments, given -- ", args);
+  op = car(args);
+  for (lst = null, args = cdr(args); !isnull(cdr(args)); args = cdr(args))
+	lst = cons(car(args), lst);
+  if (!islist(car(args)))
+	return everr("apply: should be a proper list -- ", car(args));
+  for (args = car(args); !isnull(lst); lst = cdr(lst))
+	args = cons(car(lst), args);
+  return apply(op, args, envp);
+}
+  
 /* Evaluate the expressions inside the file pointed by ep */
 static exp_t *
 prim_load(exp_t *args, env_t *envp)
