@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "loot.h"
 #include "exp.h"
 #include "type.h"
@@ -23,6 +25,13 @@ static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
 static exp_t *prim_apply(exp_t *, env_t *);
 static exp_t *prim_load(exp_t *, env_t *);
+static exp_t *prim_sin(exp_t *);
+static exp_t *prim_cos(exp_t *);
+static exp_t *prim_tan(exp_t *);
+static exp_t *prim_atan(exp_t *);
+static exp_t *prim_log(exp_t *);
+static exp_t *prim_exp(exp_t *);
+static exp_t *prim_pow(exp_t *);
 
 /* List of primitive procedures */
 static struct {
@@ -46,6 +55,14 @@ static struct {
   {"<", prim_lt},
   {">", prim_gt},
   {"number?", prim_isnum},
+  /* math */
+  {"sin", prim_sin},
+  {"cos", prim_cos},
+  {"tan", prim_tan},
+  {"atan", prim_atan},
+  {"log", prim_log},
+  {"exp", prim_exp},
+  {"expt", prim_pow},
   /* misc */
   {"apply", prim_apply},
   {"load", prim_load},
@@ -101,11 +118,15 @@ load(char *path, env_t *envp)
 static inline int
 chkargs(char *name, exp_t *args, int n)
 {
-  for (; n && !isnull(args); n--, args = cdr(args))
-	;
-  if (n == 0 && isnull(args))
+  static char msg[BUFSIZ];
+  exp_t *ep = args;
+  
+  while (n && !isnull(ep))
+	n--, ep = cdr(ep);
+  if (n == 0 && isnull(ep))
 	return 1;
-  warnx("%s: wrong number of arguments", name);
+  snprintf(msg, BUFSIZ, "%s : wrong number of arguments", name);
+  everr(msg, args);
   return 0;
 }
 
@@ -366,4 +387,67 @@ prim_load(exp_t *args, env_t *envp)
   inter = mode;
   free(path);
   return NULL;
+}
+
+/* Return the sine of the expression */
+static exp_t *
+prim_sin(exp_t *args)
+{
+  CALL(sin, args);
+}
+
+/* Return the cosine of the expression */
+static exp_t *
+prim_cos(exp_t *args)
+{
+  CALL(cos, args);
+}
+
+/* Return the tangent of the expression */
+static exp_t *
+prim_tan(exp_t *args)
+{
+  CALL(tan, args);
+}
+
+/* Return the arc tangent of the expression */
+static exp_t *
+prim_atan(exp_t *args)
+{
+  CALL(atan, args);
+}
+
+/* Return the natural logarithm of the expression */
+static exp_t *
+prim_log(exp_t *args)
+{
+  double v;
+  
+  if (!chkargs("log", args, 1))
+	return NULL;
+  else if (!isnum(car(args)) || (v = VALUE(car(args))) <= 0)
+	return everr("log : not a positive number", car(args));
+  else
+	return nfloat(log(v));
+}
+
+/* Return the base e exponential of the expression */
+static exp_t *
+prim_exp(exp_t *args)
+{
+  CALL(exp, args);
+}
+
+/* Return the value of the first argument to the exponent of the
+   second one */
+static exp_t *
+prim_pow(exp_t *args)
+{
+  if (!chkargs("expt", args, 2))
+	return NULL;
+  CHKNUM(car(args), "expt");
+  CHKNUM(car(cdr(args)), "expt");
+
+  return nfloat(pow(VALUE(car(args)),
+					VALUE(car(cdr(args)))));
 }

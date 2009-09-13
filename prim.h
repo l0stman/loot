@@ -10,9 +10,9 @@
 #define compare(op, x, y)	(VALUE(x) op VALUE(y) ? true: false)
 
 /* Check if the expression is a number */
-#define CHKNUM(x, name) {						\
+#define CHKNUM(x, name)	do {					\
 	if (!isnum(x))								\
-	  return everr(name": not a number", x);	\
+	  return everr(name": not a number", (x));	\
   } while (0)
 
 /* Returns the numerator and denominator of a rational or an integer */
@@ -27,6 +27,14 @@
 	CHKNUM(car(cdr(args)), name);										\
   } while (0)
 
+/* Call the procedure to a list of one argument */
+#define CALL(proc, args)	do {				\
+  if (!chkargs(#proc, args, 1))					\
+	return NULL;								\
+  CHKNUM(car(args), #proc);						\
+  return nfloat(proc(VALUE(car(args))));		\
+  } while (0)
+  
 extern int load(char *, struct env *);
 extern void instprim(struct env *);
 

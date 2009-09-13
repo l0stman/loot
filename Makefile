@@ -1,4 +1,5 @@
 CFLAGS=	-ggdb3 -Wall -ansi -pedantic
+LDFLAGS= -lm
 OBJS=	main.o error.o reader.o loot.o exp.o parser.o type.o eval.o\
 env.o prim.o atom.o
 PREF=	${HOME}
@@ -9,7 +10,7 @@ LOOTRC=	$(PREF)/.lootrc
 PROGNAME= loot
 
 $(PROGNAME) : $(OBJS)
-	$(CC) $(CFLAGS) -o $(.TARGET) $(.ALLSRC)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(.TARGET) $(.ALLSRC)
 
 .SUFFIXES : .o .c
 .c.o :
