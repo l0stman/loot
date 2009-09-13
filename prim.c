@@ -443,11 +443,39 @@ prim_exp(exp_t *args)
 static exp_t *
 prim_pow(exp_t *args)
 {
+  exp_t *res, *b;
+  long e;
+  unsigned long u;
+	
   if (!chkargs("expt", args, 2))
 	return NULL;
   CHKNUM(car(args), "expt");
   CHKNUM(car(cdr(args)), "expt");
 
-  return nfloat(pow(VALUE(car(args)),
+  res = car(cdr(args));
+  if (isint(res)) {
+	e = VALUE(res);
+	if (e == LONG_MIN) 
+	  u = LONG_MAX + 1UL;
+	else if (e < 0)
+	  u = -e;
+	else
+	  u = e;
+	res = atom("1");
+	b = car(args);
+	while (u) {
+	  if (u & 1) {
+		res = prod(res, b);
+		u--;
+	  }	else {
+		b = prod(b, b);
+		u /= 2;
+	  }
+	}
+	if (e < 0)
+	  res = divs(atom("1"), res);
+  } else
+	res = nfloat(pow(VALUE(car(args)),
 					VALUE(car(cdr(args)))));
+  return res;
 }
