@@ -328,11 +328,10 @@ prim_car(exp_t *args)
 {
   if (!chkargs("car", args, 1))
 	return NULL;
-  if (!ispair(car(args))) {
-	everr("car: the argument isn't a pair", car(args));
-	return NULL;
-  }
-  return car(car(args));
+  if (!ispair(car(args)))
+	return everr("car: the argument isn't a pair", car(args));
+  else
+	return car(car(args));
 }
 
 /* Return the second element of a pair */
@@ -341,11 +340,10 @@ prim_cdr(exp_t *args)
 {
   if (!chkargs("cdr", args, 1))
 	return NULL;
-  if (!ispair(car(args))) {
-	everr("cdr: the argument isn't a pair", car(args));
-	return NULL;
-  }
-  return cdr(car(args));
+  if (!ispair(car(args)))
+	return everr("cdr: the argument isn't a pair", car(args));
+  else
+	return cdr(car(args));
 }
 
 /* Apply a procedure expression to a list of expressions */
@@ -476,6 +474,6 @@ prim_pow(exp_t *args)
 	  res = divs(atom("1"), res);
   } else
 	res = nfloat(pow(VALUE(car(args)),
-					VALUE(car(cdr(args)))));
+					 VALUE(car(cdr(args)))));
   return res;
 }
