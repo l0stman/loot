@@ -118,4 +118,11 @@ islet(exp_t *ep)
 {
   return istag(ep, "let");
 }
+
+/* Test if an expression is a set! expression */
+static inline int
+isset(exp_t *ep)
+{
+  return istag(ep, "set!");
+}
 #endif /* !TYPE_H */

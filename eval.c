@@ -15,6 +15,7 @@ static exp_t *evand(exp_t *, env_t *);
 static exp_t *evor(exp_t *, env_t *);
 static exp_t *evlet(exp_t *, env_t *);
 static exp_t *evmap(exp_t *, env_t *);
+static exp_t *evset(exp_t *, env_t *);
 
 /* Evaluate the expression */
 exp_t *
@@ -42,16 +43,19 @@ eval(exp_t *ep, env_t *envp)
 	return evor(ep, envp);
   else if (islet(ep))
 	return evlet(ep, envp);
+  else if (isset(ep))
+	return evset(ep, envp);
   else if (islist(ep))	/* application */
 	return apply(eval(car(ep), envp), evmap(cdr(ep), envp), envp);
   else
 	return everr("unknown expression", ep);
 }
 
-/* Evaluate a define expression */
+
 static int bind(const char **, exp_t **, exp_t *);
 static int chknum(exp_t *, int);
 
+/* Evaluate a define expression */
 static exp_t *
 evdef(exp_t *ep, env_t *envp)
 {
@@ -104,6 +108,26 @@ chknum(exp_t *lp, int n)
 	return 1;
   everr("wrong number of expressions", lp);
   return 0;
+}
+
+/* Evaluate a set! expression */
+static exp_t *
+evset(exp_t *ep, env_t *envp)
+{
+  exp_t *var;
+  exp_t *val;
+  struct nlist *np;
+
+  if (!chknum(ep, 3))
+	return NULL;
+  if (!issym(var = car(cdr(ep))))
+	return everr("should be a symbol", var);
+  if (!(np = lookup(symp(var), envp)))
+	return everr("unbound variable", var);
+  if (!(val = eval(car(cdr(cdr(ep))), envp)))
+	return NULL;
+  np->defn = val;
+  return NULL;
 }
 
 /* Return the value of a variable if any */
