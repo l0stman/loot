@@ -125,4 +125,18 @@ isset(exp_t *ep)
 {
   return istag(ep, "set!");
 }
+
+/* Test if an expression is a set-car! expression */
+static inline int
+issetcar(exp_t *ep)
+{
+  return istag(ep, "set-car!");
+}
+
+/* Test if an expression is a set-cdr! expression */
+static inline int
+issetcdr(exp_t *ep)
+{
+  return istag(ep, "set-cdr!");
+}
 #endif /* !TYPE_H */
