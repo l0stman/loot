@@ -16,6 +16,8 @@ static exp_t *evor(exp_t *, env_t *);
 static exp_t *evlet(exp_t *, env_t *);
 static exp_t *evmap(exp_t *, env_t *);
 static exp_t *evset(exp_t *, env_t *);
+static exp_t *evsetcar(exp_t *, env_t *);
+static exp_t *evsetcdr(exp_t *, env_t *);
 
 /* Evaluate the expression */
 exp_t *
@@ -45,6 +47,10 @@ eval(exp_t *ep, env_t *envp)
 	return evlet(ep, envp);
   else if (isset(ep))
 	return evset(ep, envp);
+  else if (issetcar(ep))
+	return evsetcar(ep, envp);
+  else if (issetcdr(ep))
+	return evsetcdr(ep, envp);
   else if (islist(ep))	/* application */
 	return apply(eval(car(ep), envp), evmap(cdr(ep), envp), envp);
   else
@@ -110,9 +116,12 @@ chknum(exp_t *lp, int n)
   return 0;
 }
 
-/* Evaluate a set! expression */
+
+/* Set an expression to a new value. */
+enum place { ALL, CAR, CDR };
+
 static exp_t *
-evset(exp_t *ep, env_t *envp)
+set(exp_t *ep, env_t *envp, enum place place)
 {
   exp_t *var;
   exp_t *val;
@@ -126,8 +135,37 @@ evset(exp_t *ep, env_t *envp)
 	return everr("unbound variable", var);
   if (!(val = eval(car(cdr(cdr(ep))), envp)))
 	return NULL;
-  np->defn = val;
+  if (place == CAR || place == CDR) {
+	if (!ispair(np->defn))
+	  return everr("should be a pair", var);
+	else if (place == CAR)
+	  car(np->defn) = val;
+	else
+	  cdr(np->defn) = val;
+  } else
+	np->defn = val;
   return NULL;
+}
+
+/* Evaluate a set! expression */
+static exp_t *
+evset(exp_t *ep, env_t *envp)
+{
+  return set(ep, envp, ALL);
+}
+
+/* Evaluate a set-car! expression */
+static exp_t *
+evsetcar(exp_t *ep, env_t *envp)
+{
+  return set(ep, envp, CAR);
+}
+
+/* Evaluate a set-cdr! expression */
+static exp_t *
+evsetcdr(exp_t *ep, env_t *envp)
+{
+  return set(ep, envp, CDR);
 }
 
 /* Return the value of a variable if any */
