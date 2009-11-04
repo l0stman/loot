@@ -17,7 +17,7 @@ err_quit(const char *fmt, ...)
 
   va_start(ap, fmt);
   vsnprintf(buf, MAXLINE, fmt, ap);
-  errx(EXIT_FAILURE, buf);
+  errx(EXIT_FAILURE, "%s", buf);
   va_end(ap);
 }
 
@@ -33,6 +33,6 @@ err_sys(const char *fmt, ...)
 
   va_start(ap, fmt);
   vsnprintf(buf, MAXLINE, fmt, ap);
-  err(EXIT_FAILURE, buf);
+  err(EXIT_FAILURE, "%s", buf);
   va_end(ap);
 }

@@ -46,7 +46,7 @@ extern char *sstrdup(const char *);
 extern char *sstrndup(const char *, size_t);
 
 static inline int
-issep(c)
+issep(int c)
 {
   return (isspace(c) || c == '(' || c == ';' ||
 		  c == ')' || c == '"' || c == '\'');
