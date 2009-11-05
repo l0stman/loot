@@ -57,7 +57,6 @@ eval(exp_t *ep, env_t *envp)
 	return everr("unknown expression", ep);
 }
 
-
 static int bind(const char **, exp_t **, exp_t *);
 static int chknum(exp_t *, int);
 
@@ -116,7 +115,7 @@ chknum(exp_t *lp, int n)
   return 0;
 }
 
-/* Evaluate a set! expression */
+/* Evaluate a set! expression. */
 static exp_t *
 evset(exp_t *ep, env_t *envp)
 {
@@ -128,14 +127,14 @@ evset(exp_t *ep, env_t *envp)
 	return NULL;
   if (!issym(var = car(cdr(ep))))
 	return everr("should be a symbol", var);
-  if (!(np = lookup(symp(var), envp)))
-	return everr("unbound variable", var);
   if (!(val = eval(car(cdr(cdr(ep))), envp)))
 	return NULL;
+  if (!(np = lookup(symp(var), envp)))
+	return everr("unbound variable", var);
   np->defn = val;
   return NULL;
 }
-
+  
 /* Set an expression to a new value. */
 enum place { CAR, CDR };
 
@@ -144,7 +143,6 @@ set(exp_t *ep, env_t *envp, enum place place)
 {
   exp_t *var;
   exp_t *val;
-  struct nlist *np;
 
   if (!chknum(ep, 3))
 	return NULL;
