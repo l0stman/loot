@@ -97,6 +97,15 @@
 
 (define (reverse l) (foldl cons null l))
 
+(define (nreverse l)
+  (define (loop h t)
+    (if (null? h)
+        t
+        (let ((tmp (cdr h)))
+          (set-cdr! h t)
+          (loop tmp h))))
+  (loop l '()))
+
 (define (append . l)
   (define (iter h l res)
     (if (null? h)
