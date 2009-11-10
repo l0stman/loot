@@ -1,1 +1,2 @@
 * Prevent memory leaks
+* Implement infinite precision arithmetic.
