@@ -33,14 +33,18 @@
         ((eq? item (car x)) x)
         (else (memq item (cdr x)))))
 
+(define (assoc key alist)
+  (cond ((null? alist) #f)
+        ((equal? key (caar alist)) (car alist))
+        (else (assoc key (cdr alist)))))
+
 ;; Access functions
 (define (compose . procs)
-  (lambda (x)
-    (define (iter res lst)
-      (if (null? lst)
-          res
-          (iter ((car lst) res) (cdr lst))))
-    (iter x (reverse procs))))
+  (define (iter res lst)
+    (if (null? lst)
+        res
+        (iter ((car lst) res) (cdr lst))))
+  (lambda (x) (iter x (reverse procs))))
 
 (define caar (compose car car))
 (define cadr (compose car cdr))
