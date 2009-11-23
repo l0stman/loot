@@ -120,3 +120,8 @@
   (if (null? l)
       null
       (iter (car l) (cdr l) null)))
+
+(define (abs x)
+  (if (number? x)
+      (if (< x 0) (- x) x)
+      (error "ABS -- not a number" x)))

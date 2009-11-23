@@ -196,6 +196,8 @@ prim_sub(exp_t *args)
 {
   if (isnull(args))
 	return everr("- : need at least one argument, given", null);
+  else if (isnull(cdr(args)))
+	return sub(atom("0"), car(args));
   else
 	return foldl(sub, car(args), cdr(args));
 }
