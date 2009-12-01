@@ -24,9 +24,9 @@ parse_atm(char *s, int len)
   long n, d;
 
   p = sstrndup(s, len);
-  if (isfloatstr(s, len))
+  if (isfloatstr(p, len))
 	ep = nfloat(atof(p));
-  else if (isratstr(s, len)) {
+  else if (isratstr(p, len)) {
 	n = strtol(p, endp, 10);
 	d = strtol(++*endp, NULL, 10);
 	ep = nrat(n, d);
