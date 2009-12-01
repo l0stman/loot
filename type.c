@@ -73,5 +73,5 @@ iscst(exp_t *ep)
 int
 isself(exp_t *ep)
 {
-  return isnum(ep) || isstr(ep) || iscst(ep);
+  return ep == NULL || isnum(ep) || isstr(ep) || iscst(ep);
 }
