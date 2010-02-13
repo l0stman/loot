@@ -1,0 +1,307 @@
+
+atom.c,260
+static struct atom 6,105
+  struct atom *next;next7,126
+  int len;8,147
+  char *str;str9,158
+} *buckets[buckets10,171
+static unsigned long scatter[scatter12,190
+const char *strtoatm(strtoatm59,3232
+inttoatm(67,3385
+const char *natom(natom91,3770
+
+atom.h,20
+#define ATOM_H2,15
+
+env.c,137
+hash(9,133
+find(20,346
+lookup(32,623
+install(44,884
+void63,1317
+newframe(90,1790
+newenv(102,1994
+extenv(114,2171
+fdump(130,2484
+
+env.h,383
+#define ENV_H2,14
+#define HASHSIZE	4,29
+typedef struct frame 6,51
+  struct nlist **bucket;bucket7,121
+  size_t size;8,146
+} frame_t;9,161
+typedef struct env 11,173
+  frame_t *fp;fp12,235
+  struct env *ep;ep13,287
+} env_t;14,333
+struct nlist 16,343
+  struct nlist *next;next17,376
+  const char *name;name18,398
+  exp_t *defn;defn19,438
+fframe(32,851
+eenv(39,958
+
+error.c,33
+err_quit(13,186
+err_sys(29,449
+
+error.h,43
+#define ERROR_H2,16
+#define MAXLINE	4,33
+
+eval.c,407
+eval(24,677
+evdef(65,1658
+bind(82,2074
+chknum(106,2583
+evset(117,2811
+enum place 136,3221
+enum place { CAR,136,3221
+enum place { CAR, CDR 136,3221
+set(139,3262
+evsetcar(160,3679
+evsetcdr(167,3798
+evvar(174,3924
+evquote(185,4133
+evif(192,4251
+evbegin(207,4548
+evcond(218,4748
+evand(241,5273
+evor(253,5520
+evlambda(267,5797
+chkpars(279,6105
+evlet(293,6340
+apply(314,6937
+evmap(344,7765
+
+eval.h,33
+#define EVAL_H2,15
+everr(8,189
+
+exp.c,319
+exp_t *false;false5,53
+exp_t *true;true6,67
+exp_t *null;null7,80
+  exp_t **ep;ep10,110
+  const char *name;name11,124
+} cst[cst12,144
+instcst(21,293
+iseq(33,518
+atmtostr(40,646
+pairtostr(47,761
+#define PROCSTR	77,1346
+proctostr(79,1390
+ftostr(98,1710
+rtostr(108,1890
+tostr(118,2092
+islist(137,2466
+
+exp.h,1577
+#define EXP_H2,14
+enum type 6,48
+enum type { ATOM,6,48
+enum type { ATOM, PAIR,6,48
+enum type { ATOM, PAIR, PROC,6,48
+enum type { ATOM, PAIR, PROC, FLOAT,6,48
+enum type { ATOM, PAIR, PROC, FLOAT, RAT 6,48
+#define type(8,93
+#define symp(9,119
+#define pairp(10,147
+#define procp(11,176
+#define label(12,205
+#define fvalue(13,241
+#define ratp(14,270
+typedef struct exp 16,299
+  enum type tp;17,320
+	const char *sp;sp19,375
+	struct cons *cp;cp20,432
+	struct proc *pp;pp21,474
+	double f;22,521
+	struct rat *rp;rp23,561
+  } u;24,607
+} exp_t;25,614
+#define car(27,624
+#define cdr(28,655
+struct cons 30,687
+  exp_t *car;car31,712
+  exp_t *cdr;cdr32,726
+struct func 35,744
+  exp_t *parp;parp36,786
+  exp_t *bodyp;bodyp37,834
+  struct env *envp;envp38,877
+#define primp(41,936
+#define funcp(42,973
+#define fpar(43,1010
+#define fbody(44,1043
+#define fenv(45,1078
+enum ftype 47,1112
+enum ftype { FUNC,47,1112
+enum ftype { FUNC, PRIM 47,1112
+typedef struct proc 48,1139
+  enum ftype tp;49,1208
+  const char *label;label50,1254
+	exp_t *(*primp)primp52,1314
+	struct func *funcp;funcp53,1372
+  } u;54,1435
+} proc_t;55,1442
+#define num(57,1453
+#define den(58,1483
+typedef struct rat 60,1514
+  const char	*num;num61,1565
+  const char	*den;den62,1602
+} rat_t;63,1642
+isatom(75,1884
+ispair(81,1974
+isproc(87,2064
+isfloat(93,2154
+israt(99,2246
+atom(106,2378
+cons(118,2558
+func(132,2791
+prim(151,3144
+proc(164,3369
+nfloat(176,3551
+isnull(188,3722
+#define SIGN(193,3790
+#define ABS(194,3825
+gcd(197,3926
+nrat(212,4116
+
+loot.c,126
+int inter 3,19
+smalloc(7,84
+scalloc(18,227
+srealloc(29,388
+sstrdup(40,549
+sstrndup(51,671
+binit(65,846
+bwrite(80,1026
+
+loot.h,412
+#define LOOT_H2,15
+#define	inline	6,66
+#define inline8,114
+#define INPR	22,333
+#define OUTPR	23,374
+#define PREFIX	24,409
+#define LOOTRC	25,432
+#define LIBNAM	26,457
+#define NELEMS(27,481
+#define MAXDIG	30,599
+#define FMAXDIG	31,617
+typedef struct buf 33,643
+  char *buf;buf34,688
+  int	len;35,701
+  size_t size;36,754
+} buf_t;37,806
+issep(49,1096
+isstop(56,1220
+bputc(65,1365
+bfree(76,1560
+
+main.c,28
+main(9,105
+initenv(28,425
+
+parser.c,67
+parse(12,213
+parse_atm(19,357
+parse_pair(43,750
+carlen(80,1472
+
+parser.h,22
+#define PARSER_H2,17
+
+prim.c,652
+  char *n;n38,1003
+  exp_t *(*pp)pp39,1014
+} plst[plst40,1032
+instprim(73,1677
+print(83,1882
+load(93,2021
+chkargs(119,2480
+foldl(136,2854
+add(148,3093
+prim_add(168,3461
+sub(175,3588
+prim_sub(195,3973
+prod(207,4255
+prim_prod(223,4553
+divs(230,4680
+prim_div(248,5057
+prim_eq(260,5361
+prim_sym(269,5546
+prim_pair(278,5719
+prim_numeq(287,5890
+prim_lt(295,6065
+prim_gt(303,6239
+prim_isnum(311,6388
+prim_cons(320,6557
+prim_car(329,6730
+prim_cdr(341,6977
+prim_apply(353,7242
+prim_load(372,7833
+prim_sin(394,8329
+prim_cos(401,8432
+prim_tan(408,8536
+prim_atan(415,8644
+prim_log(422,8760
+prim_exp(436,9066
+prim_pow(444,9209
+
+prim.h,239
+#define PRIM_H2,15
+#define toint(4,31
+#define atoint(5,70
+#define rvalue(6,103
+#define VALUE(7,161
+#define compare(10,250
+#define CHKNUM(13,356
+#define NUMER(19,549
+#define DENOM(20,605
+#define CHKCMP(23,697
+#define CALL(31,958
+
+reader.c,141
+static int line 4,39
+skip_spa(8,119
+skip_line(20,321
+skip(32,492
+read(60,960
+read_pair(89,1406
+read_atm(136,2186
+read_quote(157,2576
+
+reader.h,22
+#define READER_H2,17
+
+type.c,98
+intlen(7,134
+isintstr(23,372
+isratstr(30,485
+isfloatstr(42,750
+iscst(67,1301
+isself(74,1433
+
+type.h,318
+#define TYPE_H2,15
+isint(11,242
+isnum(18,386
+istag(25,550
+isdef(33,723
+issym(40,835
+isstr(47,973
+isvar(54,1098
+isquote(61,1198
+isif(68,1318
+iscond(75,1433
+isbool(82,1543
+isbegin(89,1694
+isand(96,1814
+isor(103,1929
+islambda(110,2045
+islet(117,2166
+isset(124,2282
+issetcar(131,2403
+issetcdr(138,2531

@@ -1,2 +1,3 @@
 * Prevent memory leaks
 * Implement infinite precision arithmetic.
+* Refactor using list operations: reverse, etc...
