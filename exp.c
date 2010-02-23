@@ -132,11 +132,29 @@ tostr(const exp_t *ep)
         return NULL;
 }
 
-/* Return true if the expression is a null-terminated pair */
-int
-islist(const exp_t *ep)
+/* Built a new rational number */
+exp_t *
+nrat(long num, long den)
 {
-        while (ispair(ep))
-                ep = cdr(ep);
-        return isnull(ep);
+        exp_t *ep;
+        unsigned long d, g;
+
+        assert(den != 0);
+        if (num == 0)
+                return atom("0");
+
+        d = ABS(den);
+        g = gcd(ABS(num), d);
+        num = SIGN(den) * num/(long)g;
+        d /= g;
+
+        if (d == 1)
+                return atom(inttoatm(num));
+        ep = smalloc(sizeof(*ep));
+        type(ep) = RAT;
+        ratp(ep) = smalloc(sizeof(*ratp(ep)));
+        num(ep) = inttoatm(num);
+        den(ep) = inttoatm(d);
+
+        return ep;
 }

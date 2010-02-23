@@ -235,7 +235,7 @@ divs(exp_t *a1, exp_t *a2)
         CHKNUM(a2, "/");
 
         if (VALUE(a2) == 0)
-                return everr("/: argument is divided by zero -- ", a1);
+                return everr("/: argument is divided by zero", a1);
         if (isfloat(a1) || isfloat(a2))
                 res = nfloat(VALUE(a1) / VALUE(a2));
         else

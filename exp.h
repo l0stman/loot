@@ -67,9 +67,9 @@ extern exp_t *true;
 extern exp_t *null;
 
 extern int iseq(const exp_t *, const exp_t *);
-extern int islist(const exp_t *);
 extern char *tostr(const exp_t *);
 extern void instcst(struct env *);
+extern exp_t *nrat(long, long);
 
 static inline int
 isatom(const exp_t *ep)
@@ -207,30 +207,13 @@ gcd(unsigned long m, unsigned long n)
         return m;
 }
 
-/* Built a new rational number */
-static inline exp_t *
-nrat(long num, long den)
+/* Return true if the expression is a null-terminated pair */
+static inline int
+islist(const exp_t *ep)
 {
-        exp_t *ep;
-        unsigned long d, g;
-
-        assert(den != 0);
-        if (num == 0)
-                return atom("0");
-
-        d = ABS(den);
-        g = gcd(ABS(num), d);
-        num = SIGN(den) * num/(long)g;
-        d /= g;
-
-        if (d == 1)
-                return atom(inttoatm(num));
-        ep = smalloc(sizeof(*ep));
-        type(ep) = RAT;
-        ratp(ep) = smalloc(sizeof(*ratp(ep)));
-        num(ep) = inttoatm(num);
-        den(ep) = inttoatm(d);
-
-        return ep;
+        while (ispair(ep))
+                ep = cdr(ep);
+        return isnull(ep);
 }
+
 #endif /* !EXP_H */
