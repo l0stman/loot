@@ -352,6 +352,6 @@ evmap(exp_t *lp, env_t *envp)
                         return NULL;
                 res = cons(arg, res);
         }
-        return reverse(res);
+        return nreverse(res);
 }
 

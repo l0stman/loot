@@ -226,4 +226,18 @@ reverse(const exp_t *lp)
                 res = cons(car(lp), res);
         return res;
 }
+
+/* Reverse a list destructively */
+static inline exp_t *
+nreverse(exp_t *lp)
+{
+        exp_t *tail, *rest;
+
+        for (tail = null; !isnull(lp); lp = rest) {
+                rest = cdr(lp);
+                cdr(lp) = tail;
+                tail = lp;
+        }
+        return tail;
+}
 #endif /* !EXP_H */
