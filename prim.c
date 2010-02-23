@@ -352,19 +352,23 @@ prim_cdr(exp_t *args)
 static exp_t *
 prim_apply(exp_t *args, env_t *envp)
 {
-        exp_t *op;
-        exp_t *lst;
+        exp_t *op, *prev, *last;
 
         if (isnull(args) || isnull(cdr(args)))
-                return everr("apply: expects at least 2 arguments, given -- ",
+                return everr("apply: expects at least 2 arguments, given",
                              args);
         op = car(args);
-        for (lst = null, args = cdr(args); !isnull(cdr(args)); args = cdr(args))
-                lst = cons(car(args), lst);
-        if (!islist(car(args)))
-                return everr("apply: should be a proper list -- ", car(args));
-        for (args = car(args); !isnull(lst); lst = cdr(lst))
-                args = cons(car(lst), args);
+        if (!isnull(last = cdr(cdr(args)))) {
+                for (prev = cdr(args); !isnull(cdr(last)); last = cdr(last))
+                        prev = last;
+                cdr(prev) = car(last);
+                args = cdr(args);
+        } else {
+                last = cdr(args);
+                args = car(last);
+        }
+        if (!islist(car(last)))
+                return everr("apply: should be a proper list", car(last));
         return apply(op, args, envp);
 }
 
