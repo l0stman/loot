@@ -7,10 +7,10 @@ extern exp_t *apply(exp_t *, exp_t *, env_t *);
 static inline exp_t *
 everr(const char *msg, const exp_t *ep)
 {
-  char *s;
-  
-  warnx("%s: %s", msg, s = tostr(ep));
-  free(s);
-  return NULL;
+        char *s;
+
+        warnx("%s: %s", msg, s = tostr(ep));
+        free(s);
+        return NULL;
 }
 #endif /* !EVAL_H */

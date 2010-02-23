@@ -1,22 +1,22 @@
 #ifndef ENV_H
 #define ENV_H
 
-#define HASHSIZE	101
+#define HASHSIZE        101
 
-typedef struct frame {	/* a frame is an array of pointers of nlist */
-  struct nlist **bucket;
-  size_t size;
+typedef struct frame {  /* a frame is an array of pointers of nlist */
+        struct nlist **bucket;
+        size_t size;
 } frame_t;
 
-typedef struct env {	/* an environment is a list of frames */
-  frame_t *fp;	/* first frame of the environment */
-  struct env *ep;	/* enclosing environment */
+typedef struct env {    /* an environment is a list of frames */
+        frame_t *fp;  /* first frame of the environment */
+        struct env *ep;       /* enclosing environment */
 } env_t;
 
-struct nlist {	/* table entry */
-  struct nlist *next;
-  const char *name;		/* defined name */
-  exp_t *defn;			/* replacement expression */
+struct nlist {  /* table entry */
+        struct nlist *next;
+        const char *name;             /* defined name */
+        exp_t *defn;                  /* replacement expression */
 };
 
 extern frame_t *newframe(void);
@@ -31,13 +31,13 @@ extern void undef(char *, frame_t *);
 static inline frame_t *
 fframe(env_t *ep)
 {
-  return ep->fp;
+        return ep->fp;
 }
 
 /* eenv: return the enclosing environment */
 static inline env_t *
 eenv(env_t *ep)
 {
-  return ep->ep;
+        return ep->ep;
 }
 #endif /* !ENV_H */

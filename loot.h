@@ -3,11 +3,11 @@
 
 #ifndef HAS_INLINE
 #ifdef __GNUC__
-#define	inline	__inline__
-#else	/* !__GNUC__ */
+#define inline  __inline__
+#else   /* !__GNUC__ */
 #define inline
-#endif	/* __GNUC__ */
-#endif	/* !HAS_INLINE */
+#endif  /* __GNUC__ */
+#endif  /* !HAS_INLINE */
 
 #include <assert.h>
 #include <ctype.h>
@@ -19,21 +19,21 @@
 
 #include "error.h"
 
-#define INPR	"USER> "	/* input prompt */
-#define OUTPR	"--> "		/* output */
-#define PREFIX	"HOME"	
-#define LOOTRC	".lootrc"
-#define LIBNAM	"lib.lt"
-#define NELEMS(x)	((sizeof (x))/(sizeof ((x)[0])))
+#define INPR      "USER> "      /* input prompt */
+#define OUTPR     "--> "        /* output */
+#define PREFIX    "HOME"
+#define LOOTRC    ".lootrc"
+#define LIBNAM    "lib.lt"
+#define NELEMS(x) ((sizeof (x))/(sizeof ((x)[0])))
 
 /* maximum number of digits (plus sign) for a 128-bits integer */
-#define MAXDIG	39
-#define FMAXDIG	2*MAXDIG
+#define MAXDIG  39
+#define FMAXDIG 2*MAXDIG
 
-typedef struct buf {	/* adjustable buffer */
-  char *buf;
-  int	len;	/* length of characters written in buf */
-  size_t size;	/* the size of buf is size*BUFSIZ */
+typedef struct buf {            /* adjustable buffer */
+        char   *buf;
+        int     len;            /* length of characters written in buf */
+        size_t  size;           /* the size of buf is size*BUFSIZ */
 } buf_t;
 void bwrite(buf_t *, char *, int);
 buf_t *binit(void);
@@ -48,14 +48,14 @@ extern char *sstrndup(const char *, size_t);
 static inline int
 issep(int c)
 {
-  return (isspace(c) || c == '(' || c == ';' ||
-		  c == ')' || c == '"' || c == '\'');
+        return (isspace(c) || c == '(' || c == ';' ||
+                c == ')' || c == '"' || c == '\'');
 }
 
 static inline int
 isstop(char a, char b)
 {
-  return a == '"' ? b == '"': issep(b);
+        return a == '"' ? b == '"': issep(b);
 }
 
 /*
@@ -64,9 +64,9 @@ isstop(char a, char b)
 static inline void
 bputc(int c, buf_t *bp)
 {
-  if (bp->len == BUFSIZ*bp->size)
-	bp->buf = srealloc(bp->buf, BUFSIZ * ++(bp->size));
-  bp->buf[bp->len++] = c;
+        if (bp->len == BUFSIZ*bp->size)
+                bp->buf = srealloc(bp->buf, BUFSIZ * ++(bp->size));
+        bp->buf[bp->len++] = c;
 }
 
 /*
@@ -75,8 +75,8 @@ bputc(int c, buf_t *bp)
 static inline void
 bfree(buf_t *bp)
 {
-  free(bp->buf);
-  free(bp);
+        free(bp->buf);
+        free(bp);
 }
 
 #endif /* !LOOT_H */
