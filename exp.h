@@ -216,4 +216,14 @@ islist(const exp_t *ep)
         return isnull(ep);
 }
 
+/* Reverse a list */
+static inline exp_t *
+reverse(const exp_t *lp)
+{
+        exp_t *res;
+
+        for (res = null; !isnull(lp); lp = cdr(lp))
+                res = cons(car(lp), res);
+        return res;
+}
 #endif /* !EXP_H */

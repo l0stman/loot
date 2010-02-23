@@ -345,15 +345,13 @@ apply(exp_t *op, exp_t* args, env_t *envp)
 static exp_t *
 evmap(exp_t *lp, env_t *envp)
 {
-        exp_t *ep, *res, *memp;
+        exp_t *arg, *res;
 
-        for (memp = null; !isnull(lp); lp = cdr(lp)) {
-                if ((ep = eval(car(lp), envp)) == NULL) /* an error occured */
+        for (res = null; !isnull(lp); lp = cdr(lp)) {
+                if ((arg = eval(car(lp), envp)) == NULL) /* an error occured */
                         return NULL;
-                memp = cons(ep, memp);
+                res = cons(arg, res);
         }
-        /* reverse the list */
-        for (res = null; !isnull(memp); memp = cdr(memp))
-                res = cons(car(memp), res);
-        return res;
+        return reverse(res);
 }
+
