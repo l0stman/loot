@@ -3,6 +3,7 @@
 
 extern exp_t *eval(exp_t *, env_t *);
 extern exp_t *apply(exp_t *, exp_t *, env_t *);
+
 /* Print the message and return a null pointer */
 static inline exp_t *
 everr(const char *msg, const exp_t *ep)

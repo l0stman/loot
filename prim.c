@@ -118,15 +118,16 @@ load(char *path, env_t *envp)
 static inline int
 chkargs(char *name, exp_t *args, int n)
 {
-        static char msg[BUFSIZ];
-        exp_t *ep = args;
+        char  *s = tostr(args);
+        exp_t *ep;
 
-        while (n && !isnull(ep))
-                n--, ep = cdr(ep);
-        if (n == 0 && isnull(ep))
+        for (ep = args; n-- && !isnull(ep); ep = cdr(ep))
+                ;
+        if (n == -1 && isnull(ep))
                 return 1;
-        snprintf(msg, BUFSIZ, "%s : wrong number of arguments", name);
-        everr(msg, args);
+        warnx("%s: wrong number of arguments -- %s", name, s);
+        free(s);
+
         return 0;
 }
 
