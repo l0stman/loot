@@ -118,14 +118,14 @@ load(char *path, env_t *envp)
 static inline int
 chkargs(char *name, exp_t *args, int n)
 {
-        char  *s = tostr(args);
+        char  *s;
         exp_t *ep;
 
         for (ep = args; n-- && !isnull(ep); ep = cdr(ep))
                 ;
         if (n == -1 && isnull(ep))
                 return 1;
-        warnx("%s: wrong number of arguments -- %s", name, s);
+        warnx("%s: wrong number of arguments -- %s", name, s = tostr(args));
         free(s);
 
         return 0;
