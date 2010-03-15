@@ -82,7 +82,7 @@ proctostr(const exp_t *ep)
         char *s;
 
         bp = binit();
-        bwrite(bp, PROCSTR, strlen(PROCSTR));
+        bwrite(bp, PROCSTR, sizeof(PROCSTR));
         if ((s = (char *)label(ep)) != NULL) {
                 bputc(':', bp);
                 bwrite(bp, s, strlen(s));
