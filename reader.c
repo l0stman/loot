@@ -156,16 +156,15 @@ read_atm(FILE *fp, int ch)
 static buf_t *
 read_quote(FILE *fp)
 {
-        buf_t *bp, *res;
-        char *s = "(quote";
         int mode = inter;
+        buf_t *bp, *res;
 
         inter = 0;    /* Passing in non-interactive mode */
         bp = read(fp);
         inter = mode; /* Restore the previous mode */
 
         res = binit();
-        bwrite(res, s, strlen(s));
+        bwrite(res, "(quote", 6);
         if (!issep(*bp->buf))
                 bputc(' ', res);
         bwrite(res, bp->buf, bp->len);
