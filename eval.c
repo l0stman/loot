@@ -208,11 +208,12 @@ evif(exp_t *ep, env_t *envp)
 static exp_t *
 evbegin(exp_t *ep, env_t *envp)
 {
-        exp_t *form = NULL;
+        exp_t *rv = NULL;
 
         for (ep = cdr(ep); !isnull(ep); ep = cdr(ep))
-                form = eval(car(ep), envp);
-        return form;
+                if ((rv = eval(car(ep), envp)) == NULL)
+                        break;  /* an error occurred */
+        return rv;
 }
 
 /* Evaluate a cond expression */
