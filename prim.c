@@ -359,7 +359,7 @@ prim_apply(exp_t *args, env_t *envp)
                 return everr("apply: expects at least 2 arguments, given",
                              args);
         op = car(args);
-        if (!isnull(last = cdr(cdr(args)))) {
+        if (!isnull(last = cddr(args))) {
                 for (prev = cdr(args); !isnull(cdr(last)); last = cdr(last))
                         prev = last;
                 cdr(prev) = car(last);
