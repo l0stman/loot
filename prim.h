@@ -24,7 +24,7 @@
                 if (!chkargs(name, args, 2))    \
                         return NULL;            \
                 CHKNUM(car(args), name);        \
-                CHKNUM(car(cdr(args)), name);   \
+                CHKNUM(cadr(args), name);   \
         } while (0)
 
 /* Call the procedure to a list of one argument */

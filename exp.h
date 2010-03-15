@@ -24,8 +24,15 @@ typedef struct exp {
         } u;
 } exp_t;
 
-#define car(ep) pairp(ep)->car
-#define cdr(ep) pairp(ep)->cdr
+#define car(ep)   pairp(ep)->car
+#define cdr(ep)   pairp(ep)->cdr
+#define caar(ep)  car(car(ep))
+#define cadr(ep)  car(cdr(ep))
+#define cdar(ep)  cdr(car(ep))
+#define cddr(ep)  cdr(cdr(ep))
+#define caddr(ep) car(cddr(ep))
+#define cadar(ep) car(cdar(ep))
+#define cdddr(ep) cdr(cddr(ep))
 
 struct cons {   /* pair */
         exp_t *car;

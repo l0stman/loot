@@ -67,7 +67,7 @@ evdef(exp_t *ep, env_t *envp)
         const char *var = NULL;
         exp_t *val = NULL;
 
-        if (isatom(car(cdr(ep))) && !chknum(ep, 3))
+        if (isatom(cadr(ep)) && !chknum(ep, 3))
                 return NULL;
         if (bind(&var, &val, cdr(ep)) && (val = eval(val, envp)) != NULL) {
                 if (type(val) == PROC && label(val) == NULL)
@@ -95,7 +95,7 @@ bind(const char **varp, exp_t **valp, exp_t *lp)
         }
         if (issym(ep)) {
                 *varp = symp(ep);
-                *valp = car(cdr(lp));
+                *valp = cadr(lp);
                 return 1;
         }
         everr("the expression couldn't be defined", car(lp));
@@ -124,9 +124,9 @@ evset(exp_t *ep, env_t *envp)
 
         if (!chknum(ep, 3))
                 return NULL;
-        if (!issym(var = car(cdr(ep))))
+        if (!issym(var = cadr(ep)))
                 return everr("should be a symbol", var);
-        if (!(val = eval(car(cdr(cdr(ep))), envp)))
+        if (!(val = eval(caddr(ep), envp)))
                 return NULL;
         if (!(np = lookup(symp(var), envp)))
                 return everr("unbound variable", var);
@@ -145,11 +145,11 @@ set(exp_t *ep, env_t *envp, enum place place)
 
         if (!chknum(ep, 3))
                 return NULL;
-        if (!(var = eval(car(cdr(ep)), envp)) ||
-            !(val = eval(car(cdr(cdr(ep))), envp)))
+        if (!(var = eval(cadr(ep), envp)) ||
+            !(val = eval(caddr(ep), envp)))
                 return NULL;
         if (!ispair(var))
-                return everr("should be a pair", car(cdr(ep)));
+                return everr("should be a pair", cadr(ep));
         else if (place == CAR)
                 car(var) = val;
         else
@@ -186,7 +186,7 @@ evvar(exp_t *ep, env_t *envp)
 static exp_t *
 evquote(exp_t *ep)
 {
-        return (chknum(ep, 2) ? car(cdr(ep)): NULL);
+        return (chknum(ep, 2) ? cadr(ep): NULL);
 }
 
 /* Evaluate an if expression */
@@ -200,7 +200,7 @@ evif(exp_t *ep, env_t *envp)
         ep = cdr(ep);
         if ((b = eval(car(ep), envp)) == NULL)
                 return NULL;
-        res = (iseq(false, b) ? car(cdr(cdr(ep))): car(cdr(ep)));
+        res = (iseq(false, b) ? caddr(ep): cadr(ep));
         return eval(res, envp);
 }
 
@@ -297,18 +297,18 @@ evlet(exp_t *ep, env_t *envp)
 {
         exp_t *lp, *plst, *vlst, *op;
 
-        if (isnull(cdr(ep)) || isnull(cdr(cdr(ep))))
+        if (isnull(cdr(ep)) || isnull(cddr(ep)))
                 return everr("syntax error", ep);
         plst = vlst = null;
-        for (lp = car(cdr(ep)); ispair(lp); lp = cdr(lp)) {
+        for (lp = cadr(ep); ispair(lp); lp = cdr(lp)) {
                 if (!islist(car(lp)) || !chknum(car(lp), 2))
                         return everr("syntax error", ep);
-                plst = cons(car(car(lp)), plst);
-                vlst = cons(car(cdr(car(lp))), vlst);
+                plst = cons(caar(lp), plst);
+                vlst = cons(cadar(lp), vlst);
         }
         if (!isnull(lp))
                 return everr("should be a list of bindings", lp);
-        op = cons(atom("lambda"), cons(plst, cdr(cdr(ep))));
+        op = cons(atom("lambda"), cons(plst, cddr(ep)));
         return eval(cons(op, vlst), envp);
 }
 

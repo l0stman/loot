@@ -262,7 +262,7 @@ prim_eq(exp_t *args)
 {
         if (!chkargs("eq?", args, 2))
                 return NULL;
-        return iseq(car(args), car(cdr(args))) ? true : false;
+        return iseq(car(args), cadr(args)) ? true : false;
 }
 
 /* Test if the expression is a symbol */
@@ -288,7 +288,7 @@ static exp_t *
 prim_numeq(exp_t *args)
 {
         CHKCMP(args, "=");
-        return compare(==, car(args), car(cdr(args)));
+        return compare(==, car(args), cadr(args));
 }
 
 /* Test if the first argument is less than the second one */
@@ -296,7 +296,7 @@ static exp_t *
 prim_lt(exp_t *args)
 {
         CHKCMP(args, "<");
-        return compare(<, car(args), car(cdr(args)));
+        return compare(<, car(args), cadr(args));
 }
 
 /* Test if the first argument is greater than the second one */
@@ -304,7 +304,7 @@ static exp_t *
 prim_gt(exp_t *args)
 {
         CHKCMP(args, ">");
-        return compare(>, car(args), car(cdr(args)));
+        return compare(>, car(args), cadr(args));
 }
 
 /* Test if the argument is a number */
@@ -322,7 +322,7 @@ prim_cons(exp_t *args)
 {
         if (!chkargs("cons", args, 2))
                 return NULL;
-        return cons(car(args), car(cdr(args)));
+        return cons(car(args), cadr(args));
 }
 
 /* Return the first element of a pair */
@@ -334,7 +334,7 @@ prim_car(exp_t *args)
         if (!ispair(car(args)))
                 return everr("car: the argument isn't a pair", car(args));
         else
-                return car(car(args));
+                return caar(args);
 }
 
 /* Return the second element of a pair */
@@ -346,7 +346,7 @@ prim_cdr(exp_t *args)
         if (!ispair(car(args)))
                 return everr("cdr: the argument isn't a pair", car(args));
         else
-                return cdr(car(args));
+                return cdar(args);
 }
 
 /* Apply a procedure expression to a list of expressions */
@@ -456,9 +456,9 @@ prim_pow(exp_t *args)
         if (!chkargs("expt", args, 2))
                 return NULL;
         CHKNUM(car(args), "expt");
-        CHKNUM(car(cdr(args)), "expt");
+        CHKNUM(cadr(args), "expt");
 
-        res = car(cdr(args));
+        res = cadr(args);
         if (isint(res)) {
                 e = VALUE(res);
                 if (e == LONG_MIN)
@@ -482,6 +482,6 @@ prim_pow(exp_t *args)
                         res = divs(atom("1"), res);
         } else
                 res = nfloat(pow(VALUE(car(args)),
-                                 VALUE(car(cdr(args)))));
+                                 VALUE(cadr(args))));
         return res;
 }
