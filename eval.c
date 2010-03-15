@@ -108,10 +108,10 @@ chknum(exp_t *lp, int n)
 {
         exp_t *ep;
 
-        for(ep = lp; n && !isnull(ep); n--, ep = cdr(ep))
+        for (ep = lp; n-- && !isnull(ep); ep = cdr(ep))
                 ;
-        return (n || !isnull(ep) ?
-                everr("wrong number of expressions", lp), 0: 1);
+        return (n == -1 && isnull(ep) ? 1 :
+                (everr("wrong number of expressions", lp), 0));
 }
 
 /* Evaluate a set! expression. */
