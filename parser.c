@@ -49,10 +49,10 @@ parse_pair(char *s, int size)
 
         if (*cp == ')')
                 return null;
-        n = carlen(cp);
-        if (*cp == '.' && n == 1)
+        if ((n = carlen(cp)) == 1 && *cp == '.')
                 goto fail;
-        car = parse(cp, n);
+        if ((car = parse(cp, n)) == NULL)
+                return NULL;    /* an error occurred */
         if (*(cp+n) == ' ')
                 n++;
         cp += n, len -= n;
@@ -66,7 +66,7 @@ parse_pair(char *s, int size)
                         goto fail;
                 cdr = parse_pair(cp, len);
         }
-        return cons(car, cdr);
+        return cdr == NULL ? NULL : cons(car, cdr);
 fail:
         warnx("Illegal use of . -- (%.*s", size, s);
         return NULL;
