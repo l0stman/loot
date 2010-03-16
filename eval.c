@@ -67,7 +67,7 @@ evdef(exp_t *ep, env_t *envp)
         const char *var = NULL;
         exp_t *val = NULL;
 
-        if (isatom(cadr(ep)) && !chknum(ep, 3))
+        if ((isnull(cdr(ep)) || isatom(cadr(ep))) && !chknum(ep, 3))
                 return NULL;
         if (bind(&var, &val, cdr(ep)) && (val = eval(val, envp)) != NULL) {
                 if (type(val) == PROC && label(val) == NULL)
