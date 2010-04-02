@@ -131,6 +131,23 @@ tostr(const exp_t *ep)
         return NULL;
 }
 
+#define SIGN(x) ((x) < 0 ? -1 : 1)
+#define ABS(x)  ((x) == LONG_MIN ? LONG_MAX + 1UL : ((x) < 0 ? -x : x))
+
+static inline unsigned long
+gcd(unsigned long m, unsigned long n)
+{
+        unsigned long r;
+
+        do {
+                r = m - (m/n) * n;
+                m = n;
+                n = r;
+        } while (n);
+
+        return m;
+}
+
 /* Built a new rational number */
 exp_t *
 nrat(long num, long den)

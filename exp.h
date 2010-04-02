@@ -197,23 +197,6 @@ isnull(const exp_t *ep)
         return ep != NULL && iseq(ep, null);
 }
 
-#define SIGN(x) ((x) < 0 ? -1 : 1)
-#define ABS(x)  ((x) == LONG_MIN ? LONG_MAX + 1UL : ((x) < 0 ? -x : x))
-
-static inline unsigned long
-gcd(unsigned long m, unsigned long n)
-{
-        unsigned long r;
-
-        do {
-                r = m - (m/n) * n;
-                m = n;
-                n = r;
-        } while (n);
-
-        return m;
-}
-
 /* Return true if the expression is a null-terminated pair */
 static inline int
 islist(const exp_t *ep)
