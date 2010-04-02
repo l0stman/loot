@@ -74,7 +74,6 @@ pairtostr(const exp_t *ep)
 }
 
 /* Return a string representing a procedure */
-#define PROCSTR "#<procedure"
 static char *
 proctostr(const exp_t *ep)
 {
