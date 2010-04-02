@@ -224,19 +224,15 @@ evcond(exp_t *ep, env_t *envp)
         exp_t *_else_ = atom("else");
 
         for (ep = cdr(ep); !isnull(ep); ep = cdr(ep)) {
-                if (!islist(car(ep)))
-                        return everr("should be a list", car(ep));
-                clause = car(ep);
-                if (iseq(_else_, b = car(clause)))
-                        goto success;
-                if ((b = eval(b, envp)) == NULL)        /* an error occured */
+                if (!islist(clause = car(ep)))
+                        return everr("should be a list", clause);
+                if (iseq(_else_, car(clause)) ||
+                    (b = eval(car(clause), envp)) != NULL && !iseq(false, b))
+                        return eval(cons(atom("begin"), cdr(clause)), envp);
+                if (b == NULL)        /* an error occurred */
                         return NULL;
-                if (!iseq(false, b))
-                        goto success;
         }
         return NULL;
-success:
-        return eval(cons(atom("begin"), cdr(clause)), envp);
 }
 
 /* Evaluate an and expression */
