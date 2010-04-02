@@ -82,7 +82,7 @@ proctostr(const exp_t *ep)
         char *s;
 
         bp = binit();
-        bwrite(bp, PROCSTR, sizeof(PROCSTR)-1);
+        bwrite(bp, "#<procedure", 11);
         if ((s = (char *)label(ep)) != NULL) {
                 bputc(':', bp);
                 bwrite(bp, s, strlen(s));
