@@ -110,7 +110,7 @@ chknum(exp_t *lp, int n)
 
         for (ep = lp; n-- && !isnull(ep); ep = cdr(ep))
                 ;
-        return ((n == -1 && isnull(ep)) ||
+        return (n == -1 && isnull(ep) ||
                 (int)everr("wrong number of expressions", lp));
 }
 
