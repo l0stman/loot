@@ -57,49 +57,36 @@ eval(exp_t *ep, env_t *envp)
                 return everr("unknown expression", ep);
 }
 
-static int bind(const char **, exp_t **, exp_t *);
 static int chknum(exp_t *, int);
 
 /* Evaluate a define expression */
 static exp_t *
 evdef(exp_t *ep, env_t *envp)
 {
-        const char *var = NULL;
-        exp_t *val = NULL;
+        const char *var;
+        exp_t *val, *args;
 
         if ((isnull(cdr(ep)) || isatom(cadr(ep))) && !chknum(ep, 3))
                 return NULL;
-        if (bind(&var, &val, cdr(ep)) && (val = eval(val, envp)) != NULL) {
+        args = cdr(ep);
+        if (ispair(ep = car(args))) { /* lambda shortcut */
+                if (!issym(car(ep)))
+                        return everr("should be a symbol", car(ep));
+                var = symp(car(ep));
+                val = cons(atom("lambda"), cons(cdr(ep), cdr(args)));
+        } else if (issym(ep)) {
+                var = symp(ep);
+                val = cadr(args);
+        } else
+                return everr("the expression couldn't be defined", car(args));
+
+        if ((val = eval(val, envp)) != NULL) {
                 if (type(val) == PROC && label(val) == NULL)
                         /* label anonymous procedure */
                         label(val) = strtoatm(var);
                 install(var, val, envp);
         }
         return NULL;
-}
-
-/* Bind a variable with a value */
-static int
-bind(const char **varp, exp_t **valp, exp_t *lp)
-{
-        exp_t *ep;
-
-        if (ispair(ep = car(lp))) {   /* lambda shortcut */
-                if (!issym(car(ep))) {
-                        everr("should be a symbol", car(ep));
-                        return 0;
-                }
-                *varp = symp(car(ep));
-                *valp = cons(atom("lambda"), cons(cdr(ep), cdr(lp)));
-                return 1;
-        }
-        if (issym(ep)) {
-                *varp = symp(ep);
-                *valp = cadr(lp);
-                return 1;
-        }
-        everr("the expression couldn't be defined", car(lp));
-        return 0;
 }
 
 /* Return true if the expression length is equal to n */
