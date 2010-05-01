@@ -86,7 +86,7 @@ evdef(exp_t *ep, env_t *envp)
                         label(val) = strtoatm(var);
                 install(var, val, envp);
         }
-        return NULL;
+        return val;
 }
 
 /* Return true if the expression length is equal to n */
@@ -118,7 +118,7 @@ evset(exp_t *ep, env_t *envp)
         if (!(np = lookup(symp(var), envp)))
                 return everr("unbound variable", var);
         np->defn = val;
-        return NULL;
+        return val;
 }
 
 /* Set an expression to a new value. */
@@ -141,7 +141,7 @@ set(exp_t *ep, env_t *envp, enum place place)
                 car(var) = val;
         else
                 cdr(var) = val;
-        return NULL;
+        return val;
 }
 
 /* Evaluate a set-car! expression */
@@ -219,7 +219,7 @@ evcond(exp_t *ep, env_t *envp)
                 if (b == NULL)        /* an error occurred */
                         return NULL;
         }
-        return NULL;
+        return null;
 }
 
 /* Evaluate an and expression */
@@ -337,4 +337,3 @@ evmap(exp_t *lp, env_t *envp)
         }
         return nreverse(res);
 }
-
