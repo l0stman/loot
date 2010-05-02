@@ -316,11 +316,10 @@ apply(exp_t *op, exp_t* args, env_t *envp)
                         return everr("too few arguments provided to", op);
                 blist = cons(cons(car(parp), car(args)), blist);
         }
-        if (isnull(parp)) {
-                if (!isnull(args))
-                        return everr("too many arguments provided to", op);
-        } else  /* variable length arguments */
+        if (!isnull(parp))      /* variable length arguments */
                 blist = cons(cons(parp, args), blist);
+        else if (!isnull(args))
+                return everr("too many arguments provided to", op);
         return eval(fbody(op), extenv(blist, fenv(op)));
 }
 
