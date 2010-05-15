@@ -310,11 +310,16 @@ evlet(exp_t *ep, env_t *envp)
 
         plst = vlst = null;
         for (; ispair(binds); binds = cdr(binds)) {
-                if (!islist(car(binds)) || !chknum(car(binds), 2))
+                if (issym(car(binds))) {
+                        plst = cons(car(binds), plst);
+                        vlst = cons(null, vlst);
+                } else if (islist(car(binds)) && chknum(car(binds), 2)) {
+                        plst = cons(caar(binds), plst);
+                        vlst = cons(cadar(binds), vlst);
+                } else
                         return everr("syntax error", ep);
-                plst = cons(caar(binds), plst);
-                vlst = cons(cadar(binds), vlst);
         }
+
         if (!isnull(binds))
                 return everr("should be a list of bindings", binds);
         op = cons(atom("lambda"), cons(nreverse(plst), body));
