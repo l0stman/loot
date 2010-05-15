@@ -308,8 +308,7 @@ evlet(exp_t *ep, env_t *envp)
                 body = cddr(ep);
         }
 
-        plst = vlst = null;
-        for (; ispair(binds); binds = cdr(binds))
+        for (plst = vlst = null; ispair(binds); binds = cdr(binds))
                 if (issym(car(binds))) {
                         plst = cons(car(binds), plst);
                         vlst = cons(null, vlst);
