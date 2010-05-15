@@ -207,21 +207,32 @@ evbegin(exp_t *ep, env_t *envp)
 static exp_t *
 evcond(exp_t *ep, env_t *envp)
 {
+        exp_t *_else_ = atom("else"), *arrow = atom("=>");
         exp_t *cl, *clauses, *b;
-        exp_t *_else_ = atom("else");
 
         /* Check the syntax. */
         for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses)) {
-                if (iseq(_else_, caar(clauses)) && !isnull(cdr(clauses)))
+                cl = car(clauses);
+                if (iseq(_else_, car(cl)) && !isnull(cdr(clauses)))
                         return everr("else clause must be last", ep);
+                if (iseq(arrow, cadr(cl)))
+                        if (iseq(_else_, car(cl)))
+                                return everr("illegal use of arrow", cl);
+                        else if (!isnull(cdddr(cl)))
+                                return everr("bad clause form", cl);
         }
 
+        /* Evaluate the expression. */
         for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses)) {
                 if (!islist(cl = car(clauses)))
                         return everr("should be a list", cl);
                 if (iseq(_else_, car(cl)) ||
                     (b = eval(car(cl), envp)) != NULL && !iseq(false, b))
-                        return eval(cons(atom("begin"), cdr(cl)), envp);
+                        return iseq(arrow, cadr(cl)) ?
+                                apply(eval(caddr(cl), envp),
+                                      cons(b, null),
+                                      envp) :
+                                eval(cons(atom("begin"), cdr(cl)), envp);
                 if (b == NULL)        /* an error occurred */
                         return NULL;
         }
