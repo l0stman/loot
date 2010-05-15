@@ -309,7 +309,7 @@ evlet(exp_t *ep, env_t *envp)
         }
 
         plst = vlst = null;
-        for (; ispair(binds); binds = cdr(binds)) {
+        for (; ispair(binds); binds = cdr(binds))
                 if (issym(car(binds))) {
                         plst = cons(car(binds), plst);
                         vlst = cons(null, vlst);
@@ -318,7 +318,6 @@ evlet(exp_t *ep, env_t *envp)
                         vlst = cons(cadar(binds), vlst);
                 } else
                         return everr("syntax error", ep);
-        }
 
         if (!isnull(binds))
                 return everr("should be a list of bindings", binds);
