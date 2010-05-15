@@ -295,12 +295,22 @@ chkpars(exp_t *ep)
 static exp_t *
 evlet(exp_t *ep, env_t *envp)
 {
-        exp_t *lp, *plst, *vlst, *op;
+        exp_t *lp, *plst, *vlst, *op, *name, *body;
 
         if (isnull(cdr(ep)) || isnull(cddr(ep)))
                 return everr("syntax error", ep);
+        if (issym(cadr(ep))) {
+                name = cadr(ep);
+                lp = caddr(ep);
+                body = cdddr(ep);
+        } else {
+                name = NULL;
+                lp = cadr(ep);
+                body = cddr(ep);
+        }
+
         plst = vlst = null;
-        for (lp = cadr(ep); ispair(lp); lp = cdr(lp)) {
+        for (; ispair(lp); lp = cdr(lp)) {
                 if (!islist(car(lp)) || !chknum(car(lp), 2))
                         return everr("syntax error", ep);
                 plst = cons(caar(lp), plst);
@@ -308,8 +318,15 @@ evlet(exp_t *ep, env_t *envp)
         }
         if (!isnull(lp))
                 return everr("should be a list of bindings", lp);
-        op = cons(atom("lambda"), cons(plst, cddr(ep)));
-        return eval(cons(op, vlst), envp);
+        op = cons(atom("lambda"), cons(nreverse(plst), body));
+        if (name != NULL) {     /* named let */
+                eval(cons(atom("define"),
+                          cons(name, cons(op, null))),
+                     envp);
+                op = name;
+        }
+
+        return eval(cons(op, nreverse(vlst)), envp);
 }
 
 /* Apply a procedure to its arguments */
