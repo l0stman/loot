@@ -212,7 +212,8 @@ evcond(exp_t *ep, env_t *envp)
 
         /* Check the syntax. */
         for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses)) {
-                cl = car(clauses);
+                if (!islist(cl = car(clauses)))
+                        return everr("should be a list", cl);
                 if (iseq(_else_, car(cl)) && !isnull(cdr(clauses)))
                         return everr("else clause must be last", ep);
                 if (iseq(arrow, cadr(cl)))
@@ -224,8 +225,6 @@ evcond(exp_t *ep, env_t *envp)
 
         /* Evaluate the expression. */
         for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses)) {
-                if (!islist(cl = car(clauses)))
-                        return everr("should be a list", cl);
                 if (iseq(_else_, car(cl)) ||
                     (b = eval(car(cl), envp)) != NULL && !iseq(false, b))
                         return iseq(arrow, cadr(cl)) ?
