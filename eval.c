@@ -295,29 +295,29 @@ chkpars(exp_t *ep)
 static exp_t *
 evlet(exp_t *ep, env_t *envp)
 {
-        exp_t *lp, *plst, *vlst, *op, *name, *body;
+        exp_t *binds, *name, *body, *plst, *vlst, *op;
 
         if (isnull(cdr(ep)) || isnull(cddr(ep)))
                 return everr("syntax error", ep);
         if (issym(cadr(ep))) {
                 name = cadr(ep);
-                lp = caddr(ep);
+                binds = caddr(ep);
                 body = cdddr(ep);
         } else {
                 name = NULL;
-                lp = cadr(ep);
+                binds = cadr(ep);
                 body = cddr(ep);
         }
 
         plst = vlst = null;
-        for (; ispair(lp); lp = cdr(lp)) {
-                if (!islist(car(lp)) || !chknum(car(lp), 2))
+        for (; ispair(binds); binds = cdr(binds)) {
+                if (!islist(car(binds)) || !chknum(car(binds), 2))
                         return everr("syntax error", ep);
-                plst = cons(caar(lp), plst);
-                vlst = cons(cadar(lp), vlst);
+                plst = cons(caar(binds), plst);
+                vlst = cons(cadar(binds), vlst);
         }
-        if (!isnull(lp))
-                return everr("should be a list of bindings", lp);
+        if (!isnull(binds))
+                return everr("should be a list of bindings", binds);
         op = cons(atom("lambda"), cons(nreverse(plst), body));
         if (name != NULL) {     /* named let */
                 eval(cons(atom("define"),
