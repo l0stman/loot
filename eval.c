@@ -207,15 +207,21 @@ evbegin(exp_t *ep, env_t *envp)
 static exp_t *
 evcond(exp_t *ep, env_t *envp)
 {
-        exp_t *clause, *b;
+        exp_t *cl, *clauses, *b;
         exp_t *_else_ = atom("else");
 
-        for (ep = cdr(ep); !isnull(ep); ep = cdr(ep)) {
-                if (!islist(clause = car(ep)))
-                        return everr("should be a list", clause);
-                if (iseq(_else_, car(clause)) ||
-                    (b = eval(car(clause), envp)) != NULL && !iseq(false, b))
-                        return eval(cons(atom("begin"), cdr(clause)), envp);
+        /* Check the syntax. */
+        for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses)) {
+                if (iseq(_else_, caar(clauses)) && !isnull(cdr(clauses)))
+                        return everr("else clause must be last", ep);
+        }
+
+        for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses)) {
+                if (!islist(cl = car(clauses)))
+                        return everr("should be a list", cl);
+                if (iseq(_else_, car(cl)) ||
+                    (b = eval(car(cl), envp)) != NULL && !iseq(false, b))
+                        return eval(cons(atom("begin"), cdr(cl)), envp);
                 if (b == NULL)        /* an error occurred */
                         return NULL;
         }
