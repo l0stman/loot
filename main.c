@@ -48,5 +48,7 @@ initenv(void)
         inter = 0;
         load(buf, envp);
         inter = mode;
+        line = 1;
+        
         return envp;
 }

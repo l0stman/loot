@@ -1,8 +1,6 @@
 #include "loot.h"
 #include "reader.h"
 
-static int line = 1;
-
 /* skip spaces in the input stream. */
 static inline void
 skip_spa(FILE *fp)

@@ -39,6 +39,8 @@ void bwrite(buf_t *, char *, int);
 buf_t *binit(void);
 
 extern int inter;
+extern int line;
+
 extern void *smalloc(size_t);
 extern void *scalloc(size_t, size_t);
 extern void *srealloc(void *, size_t);
