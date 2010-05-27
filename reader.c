@@ -57,42 +57,45 @@ static buf_t *read_quote(FILE *);
 buf_t *
 read(FILE *fp)
 {
-        int c;
         extern int inter;
+        int c, mode;
+        buf_t *exp;
 
         if (inter) {
                 printf("%s", INPR);
                 fflush(stdout);
         }
+        mode = inter;
+        inter = 0;           /* Passing in non-interactive mode. */
+
         skip(fp);
         switch (c = fgetc(fp)) {
         case EOF:
-                return NULL;
+                exp = NULL;
                 break;
         case '(':     /* compound expression */
                 skip(fp);
-                return read_pair(fp);
+                exp = read_pair(fp);
                 break;
         case '\'':/* quoted experssion */
-                return read_quote(fp);
+                exp = read_quote(fp);
                 break;
         default:      /* atom */
-                return read_atm(fp, c);
+                exp = read_atm(fp, c);
                 break;
         }
+        inter = mode;           /* Restore previous mode. */
+        return exp;
 }
 
 /* Read a pair from fp and write to buf. */
 static buf_t *
 read_pair(FILE *fp)
 {
-        int c, ln, mode;
+        int c, ln;
         buf_t *bp, *exp;
 
         ln = line;
-        mode = inter;
-        inter = 0;
-
         bp = binit();
         bputc('(', bp);
         while ((c = fgetc(fp)) != EOF && c != ')') {
@@ -106,7 +109,6 @@ read_pair(FILE *fp)
                 bwrite(bp, exp->buf, exp->len);
                 skip(fp);
         }
-        inter = mode;
         if (c == EOF)
                 err_quit("Too many open parenthesis at line %d.", ln);
         else
@@ -144,12 +146,9 @@ read_atm(FILE *fp, int ch)
 static buf_t *
 read_quote(FILE *fp)
 {
-        int mode = inter;
         buf_t *bp, *res;
 
-        inter = 0;    /* Passing in non-interactive mode */
         bp = read(fp);
-        inter = mode; /* Restore the previous mode */
 
         res = binit();
         bwrite(res, "(quote", 6);
