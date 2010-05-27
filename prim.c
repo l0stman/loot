@@ -32,6 +32,7 @@ static exp_t *prim_atan(exp_t *);
 static exp_t *prim_log(exp_t *);
 static exp_t *prim_exp(exp_t *);
 static exp_t *prim_pow(exp_t *);
+static exp_t *prim_write(exp_t *);
 
 /* List of primitive procedures */
 static struct {
@@ -63,6 +64,8 @@ static struct {
         {"log", prim_log},
         {"exp", prim_exp},
         {"expt", prim_pow},
+        /* I/O */
+        {"write", prim_write},
         /* misc */
         {"apply", prim_apply},
         {"load", prim_load},
@@ -84,7 +87,8 @@ print(exp_t *ep)
 {
         char *s;
 
-        printf("%s %s\n", OUTPR, s = tostr(ep));
+        printf("%s", s = tostr(ep));
+        fflush(stdout);
         free(s);
 }
 
@@ -106,8 +110,11 @@ load(char *path, env_t *envp)
 
         while ((bp = read(fp)) != NULL) {
                 ep = eval(parse(bp->buf, bp->len), envp);
-                if (inter && ep != NULL)
+                if (inter && ep != NULL){
+                        printf("%s", OUTPR);
                         print(ep);
+                        putchar('\n');
+                }
                 bfree(bp);
         }
         fclose(fp);
@@ -484,4 +491,13 @@ prim_pow(exp_t *args)
                 res = nfloat(pow(VALUE(car(args)),
                                  VALUE(cadr(args))));
         return res;
+}
+
+/* Write the expression to the standard output. */
+static exp_t *
+prim_write(exp_t *args)
+{
+        if (chkargs("write", args, 1))
+                print(car(args));
+        return null;
 }
