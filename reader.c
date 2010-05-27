@@ -79,7 +79,7 @@ read(FILE *fp)
         case ')':
                 err_quit("Unexpected ) at line %d", line);
                 break;
-        case '\'':/* quoted experssion */
+        case '\'':/* quoted expression */
                 exp = read_quote(fp);
                 break;
         default:      /* atom */
