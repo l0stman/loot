@@ -57,7 +57,6 @@ static buf_t *read_quote(FILE *);
 buf_t *
 read(FILE *fp)
 {
-        extern int inter;
         int c, mode;
         buf_t *exp;
 
@@ -76,6 +75,9 @@ read(FILE *fp)
         case '(':     /* compound expression */
                 skip(fp);
                 exp = read_pair(fp);
+                break;
+        case ')':
+                err_quit("Unexpected ) at line %d", line);
                 break;
         case '\'':/* quoted experssion */
                 exp = read_quote(fp);
