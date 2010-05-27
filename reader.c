@@ -109,6 +109,7 @@ read_pair(FILE *fp)
                 if (bp->len > 1 && !issep(*exp->buf))
                         bputc(' ', bp);
                 bwrite(bp, exp->buf, exp->len);
+                bfree(exp);
                 skip(fp);
         }
         if (c == EOF)
