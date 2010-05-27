@@ -86,46 +86,36 @@ read(FILE *fp)
 static buf_t *
 read_pair(FILE *fp)
 {
-        int c, ln, pn;
-        buf_t *bp, *q;
+        int c, ln, mode;
+        buf_t *bp, *exp;
 
-        pn = 1;               /* number of open parenthesis */
         ln = line;
+        mode = inter;
+        inter = 0;
 
         bp = binit();
         bputc('(', bp);
-        while ((c = fgetc(fp)) != EOF && pn) {
-                if (isspace(c) || c == ';') {
+        while ((c = fgetc(fp)) != EOF && c != ')') {
+                if (c == '\n')
+                        ++line;
+                if (!isspace(c))
                         ungetc(c, fp);
-                        skip(fp);
-                        if (!issep(c = fgetc(fp)))
-                                bputc(' ', bp);
-                        ungetc(c, fp);
-                        continue;
-                }
-                switch (c) {
-                case '(':
-                        ++pn;
-                        break;
-                case ')':
-                        --pn;
-                        break;
-                default:
-                        break;
-                }
-                if (c == '\'') {        /* it's a quoted expression */
-                        q = read_quote(fp);
-                        bwrite(bp, q->buf, q->len);
-                        bfree(q);
-                } else
-                        bputc(c, bp);
-                if (issep(c) && pn)
-                        skip(fp);
+                exp = read(fp);
+                if (bp->len > 1 && !issep(*exp->buf))
+                        bputc(' ', bp);
+                bwrite(bp, exp->buf, exp->len);
+                skip(fp);
         }
-        if (pn)
+        inter = mode;
+        if (c == EOF)
                 err_quit("Too many open parenthesis at line %d.", ln);
         else
-                ungetc(c, fp);
+                bputc(')', bp);
+
+#ifdef DEBUG_READER
+        printf("%.*s", bp->len, bp->buf);
+#endif
+
         return bp;
 }
 
