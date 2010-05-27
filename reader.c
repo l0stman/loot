@@ -9,7 +9,7 @@ skip_spa(FILE *fp)
 
         while ((c = fgetc(fp)) != EOF && isspace(c))
                 if (c == '\n')
-                        ++line;
+                        ++linenum;
         ungetc(c, fp);
 }
 
@@ -22,7 +22,7 @@ skip_line(FILE *fp)
         while ((c = fgetc(fp)) != EOF && c != '\n')
                 ;
         if (c == '\n')
-                ++line;
+                ++linenum;
 }
 
 /* skip blanks and comments from fp. */
@@ -34,7 +34,7 @@ skip(FILE *fp)
         while ((c = fgetc(fp)) != EOF) {
                 if (isspace(c)) {
                         if (c == '\n')
-                                ++line;
+                                ++linenum;
                         skip_spa(fp);
                 } else if (c == ';')    /* comment */
                         skip_line(fp);
@@ -60,12 +60,12 @@ read(FILE *fp)
         int c, mode;
         buf_t *exp;
 
-        if (inter) {
+        if (isinter) {
                 printf("%s", INPR);
                 fflush(stdout);
         }
-        mode = inter;
-        inter = 0;           /* Passing in non-interactive mode. */
+        mode = isinter;
+        isinter = 0;           /* Passing in non-interactive mode. */
 
         skip(fp);
         switch (c = fgetc(fp)) {
@@ -77,7 +77,7 @@ read(FILE *fp)
                 exp = read_pair(fp);
                 break;
         case ')':
-                err_quit("Unexpected ) at line %d", line);
+                err_quit("Unexpected ) at line %d", linenum);
                 break;
         case '\'':/* quoted expression */
                 exp = read_quote(fp);
@@ -86,7 +86,7 @@ read(FILE *fp)
                 exp = read_atm(fp, c);
                 break;
         }
-        inter = mode;           /* Restore previous mode. */
+        isinter = mode;           /* Restore previous mode. */
         return exp;
 }
 
@@ -97,12 +97,12 @@ read_pair(FILE *fp)
         int c, ln;
         buf_t *bp, *exp;
 
-        ln = line;
+        ln = linenum;
         bp = binit();
         bputc('(', bp);
         while ((c = fgetc(fp)) != EOF && c != ')') {
                 if (c == '\n')
-                        ++line;
+                        ++linenum;
                 if (!isspace(c))
                         ungetc(c, fp);
                 exp = read(fp);
@@ -128,7 +128,7 @@ read_pair(FILE *fp)
 static buf_t *
 read_atm(FILE *fp, int ch)
 {
-        int ln = line, c = ch;
+        int ln = linenum, c = ch;
         buf_t *bp;
 
         bp = binit();

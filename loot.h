@@ -38,8 +38,8 @@ typedef struct buf {            /* adjustable buffer */
 void bwrite(buf_t *, char *, int);
 buf_t *binit(void);
 
-extern int inter;
-extern int line;
+extern int isinter;
+extern int linenum;
 
 extern void *smalloc(size_t);
 extern void *scalloc(size_t, size_t);

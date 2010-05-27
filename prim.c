@@ -110,7 +110,7 @@ load(char *path, env_t *envp)
 
         while ((bp = read(fp)) != NULL) {
                 ep = eval(parse(bp->buf, bp->len), envp);
-                if (inter && ep != NULL){
+                if (isinter && ep != NULL){
                         printf("%s", OUTPR);
                         print(ep);
                         putchar('\n');
@@ -385,7 +385,7 @@ static exp_t *
 prim_load(exp_t *args, env_t *envp)
 {
         char *path;
-        int mode = inter;
+        int mode = isinter;
 
         if (!chkargs("load", args, 1))
                 return NULL;
@@ -395,9 +395,9 @@ prim_load(exp_t *args, env_t *envp)
         /* dump the quotes around the path name */
         path = sstrndup(path+1, strlen(path+1)-1);
 
-        inter = 0;    /* non interactive mode */
+        isinter = 0;    /* non interactive mode */
         load(path, envp);
-        inter = mode;
+        isinter = mode;
         free(path);
         return NULL;
 }
