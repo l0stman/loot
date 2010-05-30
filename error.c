@@ -40,7 +40,7 @@ err_sys(const char *fmt, ...)
 exfram_t *exstack = NULL;
 
 /* Raise an exception. */
-void raise(const excpt_t *e, const char *file, int line)
+void raise(const excpt_t *e, const char *file, int line, const char *msg)
 {
         exfram_t *p = exstack;
 
@@ -48,17 +48,18 @@ void raise(const excpt_t *e, const char *file, int line)
         if (p == NULL) {
                 fprintf(stderr, "Uncaught exception");
                 if (e->reason)
-                        fprintf(stderr, " %s", e->reason);
+                        fprintf(stderr, " %s: %s", e->reason, msg);
                 else
-                        fprintf(stderr, " at 0x%p", e);
+                        fprintf(stderr, " at 0x%p: %s", e, msg);
                 if (file && line > 0)
-                        fprintf(stderr, " raised at %s:%d\n", file, line);
-                fprintf(stderr, "\naborting...\n");
+                        fprintf(stderr, " raised at %s:%d", file, line);
+                fprintf(stderr, " aborting...\n");
                 abort();
         }
         p->exception = e;
-        p->file = file;
-        p->line = line;
+        p->file      = file;
+        p->line      = line;
+        p->msg       = msg;
 
         exstack = exstack->prev;
         longjmp(p->env, RAISED);

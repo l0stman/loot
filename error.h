@@ -19,14 +19,15 @@ typedef struct exfram {
         const char *file;
         int line;
         const excpt_t *exception;
+        const char *msg;
 } exfram_t;
 
 enum { ENTERED = 0, RAISED, HANDLED };
 
 extern exfram_t *exstack;
-void raise(const excpt_t *, const char *, int);
+void raise(const excpt_t *, const char *, int, const char *);
 
-#define RAISE(e) raise(&(e), filename, linenum)
+#define RAISE(e, msg) raise(&(e), filename, linenum, msg)
 #define RERAISE  raise(exfram.exception, exfram.file, exfram.line)
 #define RETURN   switch (exstack = exstack->prev, 0) default: return
 
@@ -57,7 +58,10 @@ void raise(const excpt_t *, const char *, int);
 	        else                                               	       \
         	        fprintf(stderr, "%s: exception at 0x%p", progname, e); \
         	if (exfram.file && exfram.line > 0)                            \
-                	fprintf(stderr, " at %s:%d\n",exfram.file,exfram.line);\
+                	fprintf(stderr, " %s at %s:%d\n",	               \
+                                exfram.msg,                     	       \
+                                exfram.file,                                   \
+                                exfram.line);                                  \
                 exflag = HANDLED;
 
 #define ENDTRY  if (exflag == ENTERED)                  \
