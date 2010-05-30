@@ -9,7 +9,6 @@
 #endif  /* __GNUC__ */
 #endif  /* !HAS_INLINE */
 
-#include <assert.h>
 #include <ctype.h>
 #include <err.h>
 #include <limits.h>
