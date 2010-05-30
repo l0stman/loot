@@ -106,8 +106,10 @@ load(char *path, env_t *envp)
                         warn("Can't open file %s", path);
                         return 1;
                 }
-        } else
+        } else  {
+                filename = NULL;
                 fp = stdin;
+        }
 
         linenum = 1;
         while ((bp = read(fp)) != NULL) {
