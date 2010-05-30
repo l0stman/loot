@@ -1,6 +1,8 @@
 #include "loot.h"
 #include "reader.h"
 
+const excpt_t read_error = { "reader error" };
+
 /* skip spaces in the input stream. */
 static inline void
 skip_spa(FILE *fp)
