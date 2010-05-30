@@ -79,7 +79,7 @@ read(FILE *fp)
                 exp = read_pair(fp);
                 break;
         case ')':
-                err_quit("Unexpected ) at line %d", linenum);
+                RAISE(read_error, "unexpected )");
                 break;
         case '\'':/* quoted expression */
                 exp = read_quote(fp);
@@ -115,7 +115,7 @@ read_pair(FILE *fp)
                 skip(fp);
         }
         if (c == EOF)
-                err_quit("Too many open parenthesis at line %d.", ln);
+                raise(&read_error, filename, ln, "too many open parenthesis");
         else
                 bputc(')', bp);
 
@@ -139,7 +139,7 @@ read_atm(FILE *fp, int ch)
         } while ((c = fgetc(fp)) != EOF && !isstop(ch, c));
         if (ch == '"')
                 if (c == EOF)
-                        err_quit("Unmatched quote at line %d.", ln);
+                        raise(&read_error, filename, ln, "unmatched quote");
                 else
                         bputc('"', bp);       /* writing the closing quote */
         else
