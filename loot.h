@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <err.h>
 #include <limits.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,8 +39,9 @@ typedef struct buf {            /* adjustable buffer */
 void bwrite(buf_t *, char *, int);
 buf_t *binit(void);
 
-extern int isinter;
-extern int linenum;
+extern int   isinter;
+extern int   linenum;
+extern char *filename;
 
 extern void *smalloc(size_t);
 extern void *scalloc(size_t, size_t);

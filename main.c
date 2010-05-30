@@ -30,7 +30,7 @@ initenv(void)
         env_t *envp;
         char buf[BUFSIZ], *pref;
         FILE *fp;
-        int mode = isinter, ret;
+        int mode, ret;
 
         envp = newenv();
         instcst(envp);
@@ -45,10 +45,10 @@ initenv(void)
                 warnx("environment variable %s not defined", PREFIX);
         if (!ret)
                 snprintf(buf, BUFSIZ, "%s", LIBNAM);
-        isinter = 0;
+        mode = isinter;
+        isinter = 0;            /* non-interactive mode. */
         load(buf, envp);
         isinter = mode;
-        linenum = 1;
 
         return envp;
 }

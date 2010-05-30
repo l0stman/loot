@@ -101,6 +101,7 @@ load(char *path, env_t *envp)
         exp_t *ep;
 
         if (path != NULL) {
+                filename = basename(path);
                 if ((fp = fopen(path, "r")) == NULL) {
                         warn("Can't open file %s", path);
                         return 1;
@@ -108,6 +109,7 @@ load(char *path, env_t *envp)
         } else
                 fp = stdin;
 
+        linenum = 1;
         while ((bp = read(fp)) != NULL) {
                 ep = eval(parse(bp->buf, bp->len), envp);
                 if (isinter && ep != NULL){
