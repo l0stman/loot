@@ -53,7 +53,7 @@ void raise(const excpt_t *e, const char *file, int line, const char *msg)
                         fprintf(stderr, " at 0x%p: %s", e, msg);
                 if (file && line > 0)
                         fprintf(stderr, " raised at %s:%d", file, line);
-                fprintf(stderr, " aborting...\n");
+                fprintf(stderr, "\naborting...\n");
                 abort();
         }
         p->exception = e;
