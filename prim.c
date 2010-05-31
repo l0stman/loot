@@ -112,6 +112,7 @@ load(char *path, env_t *envp)
                 fp = stdin;
         }
 
+        exstack = NULL;
         linenum = 1;
         mode = isinter;
 read:

@@ -37,7 +37,7 @@ err_sys(const char *fmt, ...)
         va_end(ap);
 }
 
-exfram_t *exstack = NULL;
+exfram_t *exstack = NULL;       /* Reinitialize when loading a new file. */
 
 /* Raise an exception. */
 void raise(const excpt_t *e, const char *file, int line, const char *msg)
