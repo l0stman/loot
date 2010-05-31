@@ -12,7 +12,7 @@
 void
 err_quit(const char *fmt, ...)
 {
-        char buf[MAXLINE];
+        static char buf[MAXLINE];
         va_list ap;
 
         va_start(ap, fmt);
@@ -28,7 +28,7 @@ err_quit(const char *fmt, ...)
 void
 err_sys(const char *fmt, ...)
 {
-        char buf[MAXLINE];
+        static char buf[MAXLINE];
         va_list ap;
 
         va_start(ap, fmt);
