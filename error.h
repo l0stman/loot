@@ -64,7 +64,7 @@ void raise(const excpt_t *, const char *, int, const char *, ...);
                                 &(e),                                          \
                                 exfram.msg);                                   \
         	if (exfram.file && exfram.line > 0)                            \
-                	fprintf(stderr, " in %s at line %d\n",                 \
+                	fprintf(stderr, " raised in %s at line %d\n",          \
                                 exfram.file,                                   \
                                 exfram.line);                                  \
                 else                                                           \
