@@ -39,12 +39,17 @@ err_sys(const char *fmt, ...)
 
 exfram_t *exstack = NULL;       /* Reinitialize when loading a new file. */
 
-/* Raise an exception. */
-void raise(const excpt_t *e, const char *file, int line, const char *msg)
+/* Raise an exception. Has the same format as printf. */
+void raise(const excpt_t *e, const char *file, int line, const char *fmt, ...)
 {
         exfram_t *p = exstack;
+        static char msg[MAXLINE];
+        va_list ap;
 
         assert(e);
+        va_start(ap, fmt);
+        vsnprintf(msg, sizeof(msg), fmt, ap);
+        va_end(ap);
         if (p == NULL) {
                 fprintf(stderr, "Uncaught exception");
                 if (e->reason)

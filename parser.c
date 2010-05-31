@@ -44,7 +44,6 @@ static int carlen(char *);
 static exp_t *
 parse_pair(char *s, int size)
 {
-        static char msg[80];
         exp_t *car, *cdr;
         int len = size;
         char *cp = s;
@@ -70,8 +69,7 @@ parse_pair(char *s, int size)
         }
         return cons(car, cdr);
 fail:
-        snprintf(msg, sizeof(msg), "illegal use of . in (%.*s", size, s);
-        RAISE(parse_error, msg);
+        raise(&parse_error,filename,linenum,"illegal use of . in (%.*s",size,s);
         return NULL;            /* not reached */
 }
 
