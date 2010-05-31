@@ -120,12 +120,16 @@ read:
         TRY
                 if ((bp = read(fp)) == NULL)
                         goto eof;
-                ep = eval(parse(bp->buf, bp->len), envp);
-                if (isinter && ep != NULL){
-                        printf("%s", OUTPR);
-                        print(ep);
-                        putchar('\n');
-                }
+                TRY
+                        ep = eval(parse(bp->buf, bp->len), envp);
+                        if (isinter && ep != NULL) {
+                                printf("%s", OUTPR);
+                                print(ep);
+                                putchar('\n');
+                        }
+                WARN(parse_error);
+                ENDTRY;
+
                 bfree(bp);
         WARN(read_error);
         ENDTRY;
