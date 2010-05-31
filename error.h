@@ -28,7 +28,7 @@ extern exfram_t *exstack;
 void raise(const excpt_t *, const char *, int, const char *);
 
 #define RAISE(e, msg) raise(&(e), filename, linenum, msg)
-#define RERAISE  raise(exfram.exception, exfram.file, exfram.line)
+#define RERAISE  raise(exfram.exception, exfram.file, exfram.line, exfram.msg)
 #define RETURN   switch (exstack = exstack->prev, 0) default: return
 
 #define TRY     do {                            \
@@ -53,15 +53,22 @@ void raise(const excpt_t *, const char *, int, const char *);
         if (exflag == ENTERED)                  			       \
                 exstack = exstack->prev;        			       \
         } else if (exfram.exception == &(e)) {  			       \
-        	if (e->reason)                          		       \
-                	fprintf(stderr, "%s: %s", progname, e->reason);        \
+        	if (e.reason)                          		       	       \
+                	fprintf(stderr, "%s: %s: %s",                          \
+                                progname,                                      \
+                                e.reason,                                      \
+                                exfram.msg);                                   \
 	        else                                               	       \
-        	        fprintf(stderr, "%s: exception at 0x%p", progname, e); \
+        	        fprintf(stderr, "%s: exception at 0x%p: %s",	       \
+                                progname,                                      \
+                                &(e),                                          \
+                                exfram.msg);                                   \
         	if (exfram.file && exfram.line > 0)                            \
-                	fprintf(stderr, " %s at %s:%d\n",	               \
-                                exfram.msg,                     	       \
+                	fprintf(stderr, " in %s at line %d\n",                 \
                                 exfram.file,                                   \
                                 exfram.line);                                  \
+                else                                                           \
+                        fprintf(stderr, "\n");                                 \
                 exflag = HANDLED;
 
 #define ENDTRY  if (exflag == ENTERED)                  \
