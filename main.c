@@ -4,12 +4,14 @@
 #include "prim.h"
 
 static env_t *initenv(void);
+const char *progname;
 
 int
 main(int argc, char *argv[])
 {
         env_t *envp;
 
+        progname = sstrdup(basename(argv[0]));
         envp = initenv();
         if (--argc) {
                 isinter = 0;      /* Non interactive mode */

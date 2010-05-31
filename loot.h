@@ -41,6 +41,7 @@ buf_t *binit(void);
 extern int   isinter;
 extern int   linenum;
 extern char *filename;
+extern const char *progname;
 
 extern void *smalloc(size_t);
 extern void *scalloc(size_t, size_t);
