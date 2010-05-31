@@ -3,3 +3,4 @@
 * Refactor using list operations: reverse, etc...
 * Implement the error primitive.
 * Don't implement strings as atoms.
+* Build an allocator for buffers that can be garbage recycled.
