@@ -46,7 +46,7 @@ void raise(const excpt_t *, const char *, int, const char *);
 
 #define ELSE		if (exflag == ENTERED)			\
                 		exstack = exstack->prev;        \
-		        } else                                  \
+		        } else {				\
                   		exflag = HANDLED;
 
 #define WARN(e)                                 			       \
