@@ -99,6 +99,7 @@ load(char *path, env_t *envp)
         FILE *fp;
         buf_t *bp;
         exp_t *ep;
+        int mode;
 
         if (path != NULL) {
                 filename = basename(path);
@@ -112,7 +113,12 @@ load(char *path, env_t *envp)
         }
 
         linenum = 1;
-        while ((bp = read(fp)) != NULL) {
+        mode = isinter;
+read:
+        isinter = mode;
+        TRY
+                if ((bp = read(fp)) == NULL)
+                        goto eof;
                 ep = eval(parse(bp->buf, bp->len), envp);
                 if (isinter && ep != NULL){
                         printf("%s", OUTPR);
@@ -120,7 +126,11 @@ load(char *path, env_t *envp)
                         putchar('\n');
                 }
                 bfree(bp);
-        }
+        WARN(read_error);
+        ENDTRY;
+
+        goto read;
+eof:
         fclose(fp);
         return 0;
 }
