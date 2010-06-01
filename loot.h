@@ -38,7 +38,6 @@ typedef struct buf {            /* adjustable buffer */
 void bwrite(buf_t *, char *, int);
 buf_t *binit(void);
 
-extern int   isinter;
 extern int   linenum;
 extern char *filename;
 extern const char *progname;

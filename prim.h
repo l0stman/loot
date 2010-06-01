@@ -33,7 +33,9 @@
                 return nfloat(proc(VALUE(car(args))));  \
         } while (0)
 
-extern int load(char *, struct env *);
+typedef enum mode { NINTER, INTER } mode_t;
+
+extern int load(char *, struct env *, mode_t);
 extern void instprim(struct env *);
 
 #endif /* !PRIM_H */

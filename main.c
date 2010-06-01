@@ -14,12 +14,11 @@ main(int argc, char *argv[])
         progname = sstrdup(basename(argv[0]));
         envp = initenv();
         if (--argc) {
-                isinter = 0;      /* Non interactive mode */
                 while (argc--)
-                        if (load(*++argv, envp))
+                        if (load(*++argv, envp, NINTER))
                                 exit(EXIT_FAILURE);
         } else {
-                load(NULL, envp);
+                load(NULL, envp, INTER);
                 putchar('\n');
         }
         exit(EXIT_SUCCESS);
@@ -32,7 +31,7 @@ initenv(void)
         env_t *envp;
         char buf[BUFSIZ], *pref;
         FILE *fp;
-        int mode, ret;
+        int ret;
 
         envp = newenv();
         instcst(envp);
@@ -47,10 +46,7 @@ initenv(void)
                 warnx("environment variable %s not defined", PREFIX);
         if (!ret)
                 snprintf(buf, BUFSIZ, "%s", LIBNAM);
-        mode = isinter;
-        isinter = 0;            /* non-interactive mode. */
-        load(buf, envp);
-        isinter = mode;
+        load(buf, envp, NINTER);
 
         return envp;
 }

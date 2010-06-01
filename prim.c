@@ -94,12 +94,17 @@ print(exp_t *ep)
 
 /* Evaluate all the expressions in the file */
 int
-load(char *path, env_t *envp)
+load(char *path, env_t *envp, mode_t isinter)
 {
-        FILE *fp;
-        buf_t *bp;
-        exp_t *ep;
+        FILE     *fp;
+        buf_t    *bp;
+        exp_t    *ep;
+        char     *file = filename;
+        exfram_t *es   = exstack;
+        int       line = linenum;
 
+        exstack = NULL;
+        linenum = 1;
         if (path != NULL) {
                 filename = basename(path);
                 if ((fp = fopen(path, "r")) == NULL) {
@@ -111,8 +116,6 @@ load(char *path, env_t *envp)
                 fp = stdin;
         }
 
-        exstack = NULL;
-        linenum = 1;
 read:
         TRY
                 if (isinter) {
@@ -138,6 +141,9 @@ read:
 
         goto read;
 eof:
+        filename = file;
+        linenum = line;
+        exstack = es;
         fclose(fp);
         return 0;
 }
@@ -392,8 +398,6 @@ static exp_t *
 prim_load(exp_t *args, env_t *envp)
 {
         char *path;
-        exfram_t *e = exstack;
-        int mode = isinter;
 
         chkargs("load", args, 1);
         if (!isstr(car(args)))
@@ -402,10 +406,7 @@ prim_load(exp_t *args, env_t *envp)
         /* dump the quotes around the path name */
         path = sstrndup(path+1, strlen(path+1)-1);
 
-        isinter = 0;    /* non interactive mode */
-        load(path, envp);
-        isinter = mode;
-        exstack = e;
+        load(path, envp, NINTER);
         free(path);
         return NULL;
 }
