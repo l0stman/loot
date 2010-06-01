@@ -81,17 +81,6 @@ instprim(env_t *envp)
                 install(plst[i].n, proc(prim(plst[i].n, plst[i].pp)), envp);
 }
 
-/* Print the expression to the standard outupt */
-static inline void
-print(exp_t *ep)
-{
-        char *s;
-
-        printf("%s", s = tostr(ep));
-        fflush(stdout);
-        free(s);
-}
-
 /* Evaluate all the expressions in the file */
 int
 load(char *path, env_t *envp, mode_t isinter)
@@ -127,9 +116,8 @@ read:
                 TRY
                         ep = eval(parse(bp->buf, bp->len), envp);
                         if (isinter && ep != NULL) {
-                                printf("%s", OUTPR);
-                                print(ep);
-                                putchar('\n');
+                                printf("%s%s\n", OUTPR, tostr(ep));
+                                fflush(stdout);
                         }
                 WARN(parse_error);
                 WARN(eval_error);
@@ -504,6 +492,6 @@ static exp_t *
 prim_write(exp_t *args)
 {
         chkargs("write", args, 1);
-        print(car(args));
+        printf("%s", tostr(car(args)));
         return NULL;
 }
