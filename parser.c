@@ -4,6 +4,8 @@
 #include "type.h"
 #include "parser.h"
 
+const excpt_t parse_error = { "parser error" };
+
 static exp_t *parse_atm(char *, int);
 static exp_t *parse_pair(char *, int);
 
@@ -51,8 +53,7 @@ parse_pair(char *s, int size)
                 return null;
         if ((n = carlen(cp)) == 1 && *cp == '.')
                 goto fail;
-        if ((car = parse(cp, n)) == NULL)
-                return NULL;    /* an error occurred */
+        car = parse(cp, n);
         if (*(cp+n) == ' ')
                 n++;
         cp += n, len -= n;
@@ -66,10 +67,10 @@ parse_pair(char *s, int size)
                         goto fail;
                 cdr = parse_pair(cp, len);
         }
-        return cdr == NULL ? NULL : cons(car, cdr);
+        return cons(car, cdr);
 fail:
-        warnx("Illegal use of . -- (%.*s", size, s);
-        return NULL;
+        raise(&parse_error,filename,linenum,"illegal use of . in (%.*s",size,s);
+        return NULL;            /* not reached */
 }
 
 /*

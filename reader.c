@@ -1,7 +1,7 @@
 #include "loot.h"
 #include "reader.h"
 
-static int line = 1;
+const excpt_t read_error = { "reader error" };
 
 /* skip spaces in the input stream. */
 static inline void
@@ -11,7 +11,7 @@ skip_spa(FILE *fp)
 
         while ((c = fgetc(fp)) != EOF && isspace(c))
                 if (c == '\n')
-                        ++line;
+                        ++linenum;
         ungetc(c, fp);
 }
 
@@ -24,7 +24,7 @@ skip_line(FILE *fp)
         while ((c = fgetc(fp)) != EOF && c != '\n')
                 ;
         if (c == '\n')
-                ++line;
+                ++linenum;
 }
 
 /* skip blanks and comments from fp. */
@@ -36,7 +36,7 @@ skip(FILE *fp)
         while ((c = fgetc(fp)) != EOF) {
                 if (isspace(c)) {
                         if (c == '\n')
-                                ++line;
+                                ++linenum;
                         skip_spa(fp);
                 } else if (c == ';')    /* comment */
                         skip_line(fp);
@@ -60,74 +60,61 @@ buf_t *
 read(FILE *fp)
 {
         int c;
-        extern int inter;
+        buf_t *exp;
 
-        if (inter) {
-                printf("%s", INPR);
-                fflush(stdout);
-        }
         skip(fp);
         switch (c = fgetc(fp)) {
         case EOF:
-                return NULL;
+                exp = NULL;
                 break;
         case '(':     /* compound expression */
                 skip(fp);
-                return read_pair(fp);
+                exp = read_pair(fp);
                 break;
-        case '\'':/* quoted experssion */
-                return read_quote(fp);
+        case ')':
+                RAISE(read_error, "unexpected )");
+                break;
+        case '\'':/* quoted expression */
+                exp = read_quote(fp);
                 break;
         default:      /* atom */
-                return read_atm(fp, c);
+                exp = read_atm(fp, c);
                 break;
         }
+        return exp;
 }
 
 /* Read a pair from fp and write to buf. */
 static buf_t *
 read_pair(FILE *fp)
 {
-        int c, ln, pn;
-        buf_t *bp, *q;
+        int c, ln;
+        buf_t *bp, *exp;
 
-        pn = 1;               /* number of open parenthesis */
-        ln = line;
-
+        ln = linenum;
         bp = binit();
         bputc('(', bp);
-        while ((c = fgetc(fp)) != EOF && pn) {
-                if (isspace(c) || c == ';') {
+        while ((c = fgetc(fp)) != EOF && c != ')') {
+                if (c == '\n')
+                        ++linenum;
+                if (!isspace(c))
                         ungetc(c, fp);
-                        skip(fp);
-                        if (!issep(c = fgetc(fp)))
-                                bputc(' ', bp);
-                        ungetc(c, fp);
-                        continue;
-                }
-                switch (c) {
-                case '(':
-                        ++pn;
-                        break;
-                case ')':
-                        --pn;
-                        break;
-                default:
-                        break;
-                }
-                if (c == '\'') {        /* it's a quoted expression */
-                        q = read_quote(fp);
-                        bwrite(bp, q->buf, q->len);
-                        bfree(q);
-                } else
-                        bputc(c, bp);
-                if (issep(c) && pn)
-                        skip(fp);
+                exp = read(fp);
+                if (bp->len > 1 && !issep(*exp->buf))
+                        bputc(' ', bp);
+                bwrite(bp, exp->buf, exp->len);
+                bfree(exp);
+                skip(fp);
         }
-        if (pn)
-                err_quit("Too many open parenthesis at line %d.", ln);
+        if (c == EOF)
+                raise(&read_error, filename, ln, "too many open parenthesis");
         else
-                ungetc(c, fp);
+                bputc(')', bp);
+
+#ifdef DEBUG_READER
+        printf("%.*s", bp->len, bp->buf);
+#endif
+
         return bp;
 }
 
@@ -135,7 +122,7 @@ read_pair(FILE *fp)
 static buf_t *
 read_atm(FILE *fp, int ch)
 {
-        int ln = line, c = ch;
+        int ln = linenum, c = ch;
         buf_t *bp;
 
         bp = binit();
@@ -144,7 +131,7 @@ read_atm(FILE *fp, int ch)
         } while ((c = fgetc(fp)) != EOF && !isstop(ch, c));
         if (ch == '"')
                 if (c == EOF)
-                        err_quit("Unmatched quote at line %d.", ln);
+                        raise(&read_error, filename, ln, "unmatched quote");
                 else
                         bputc('"', bp);       /* writing the closing quote */
         else
@@ -156,12 +143,9 @@ read_atm(FILE *fp, int ch)
 static buf_t *
 read_quote(FILE *fp)
 {
-        int mode = inter;
         buf_t *bp, *res;
 
-        inter = 0;    /* Passing in non-interactive mode */
         bp = read(fp);
-        inter = mode; /* Restore the previous mode */
 
         res = binit();
         bwrite(res, "(quote", 6);

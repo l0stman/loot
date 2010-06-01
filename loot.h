@@ -9,10 +9,10 @@
 #endif  /* __GNUC__ */
 #endif  /* !HAS_INLINE */
 
-#include <assert.h>
 #include <ctype.h>
 #include <err.h>
 #include <limits.h>
+#include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +38,10 @@ typedef struct buf {            /* adjustable buffer */
 void bwrite(buf_t *, char *, int);
 buf_t *binit(void);
 
-extern int inter;
+extern int   linenum;
+extern char *filename;
+extern const char *progname;
+
 extern void *smalloc(size_t);
 extern void *scalloc(size_t, size_t);
 extern void *srealloc(void *, size_t);

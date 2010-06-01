@@ -1,6 +1,7 @@
 #include "loot.h"
 
-int inter = 1;  /* interactive mode */
+int   linenum  = 1;             /* line being read */
+char *filename = NULL;          /* name of the file being read */
 
 /* Safe malloc. */
 void *

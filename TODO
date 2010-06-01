@@ -2,4 +2,5 @@
 * Implement infinite precision arithmetic.
 * Refactor using list operations: reverse, etc...
 * Implement the error primitive.
-* Fix the reader: ; bug
+* Don't implement strings as atoms.
+* Build an allocator for buffers that can be recycled.

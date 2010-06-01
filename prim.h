@@ -12,7 +12,7 @@
 /* Check if the expression is a number */
 #define CHKNUM(x, name) do {                                            \
                 if (!isnum(x))                                          \
-                        return everr(name": not a number", (x));        \
+                        everr(#name": not a number", (x));              \
         } while (0)
 
 /* Returns the numerator and denominator of a rational or an integer */
@@ -21,21 +21,21 @@
 
 /* Check the arguments for a comparison */
 #define CHKCMP(args, name)      do {            \
-                if (!chkargs(name, args, 2))    \
-                        return NULL;            \
+                chkargs(name, args, 2);         \
                 CHKNUM(car(args), name);        \
-                CHKNUM(cadr(args), name);   \
+                CHKNUM(cadr(args), name);       \
         } while (0)
 
 /* Call the procedure to a list of one argument */
 #define CALL(proc, args)        do {                    \
-                if (!chkargs(#proc, args, 1))           \
-                        return NULL;                    \
+                chkargs(#proc, args, 1);                \
                 CHKNUM(car(args), #proc);               \
                 return nfloat(proc(VALUE(car(args))));  \
         } while (0)
 
-extern int load(char *, struct env *);
+typedef enum mode { NINTER, INTER } mode_t;
+
+extern int load(char *, struct env *, mode_t);
 extern void instprim(struct env *);
 
 #endif /* !PRIM_H */

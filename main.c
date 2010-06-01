@@ -4,20 +4,21 @@
 #include "prim.h"
 
 static env_t *initenv(void);
+const char *progname;
 
 int
 main(int argc, char *argv[])
 {
         env_t *envp;
 
+        progname = sstrdup(basename(argv[0]));
         envp = initenv();
         if (--argc) {
-                inter = 0;      /* Non interactive mode */
                 while (argc--)
-                        if (load(*++argv, envp))
+                        if (load(*++argv, envp, NINTER))
                                 exit(EXIT_FAILURE);
         } else {
-                load(NULL, envp);
+                load(NULL, envp, INTER);
                 putchar('\n');
         }
         exit(EXIT_SUCCESS);
@@ -30,7 +31,7 @@ initenv(void)
         env_t *envp;
         char buf[BUFSIZ], *pref;
         FILE *fp;
-        int mode = inter, ret;
+        int ret;
 
         envp = newenv();
         instcst(envp);
@@ -45,8 +46,7 @@ initenv(void)
                 warnx("environment variable %s not defined", PREFIX);
         if (!ret)
                 snprintf(buf, BUFSIZ, "%s", LIBNAM);
-        inter = 0;
-        load(buf, envp);
-        inter = mode;
+        load(buf, envp, NINTER);
+
         return envp;
 }
