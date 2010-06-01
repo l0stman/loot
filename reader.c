@@ -59,15 +59,8 @@ static buf_t *read_quote(FILE *);
 buf_t *
 read(FILE *fp)
 {
-        int c, mode;
+        int c;
         buf_t *exp;
-
-        if (isinter) {
-                printf("%s", INPR);
-                fflush(stdout);
-        }
-        mode = isinter;
-        isinter = 0;           /* Passing in non-interactive mode. */
 
         skip(fp);
         switch (c = fgetc(fp)) {
@@ -88,7 +81,6 @@ read(FILE *fp)
                 exp = read_atm(fp, c);
                 break;
         }
-        isinter = mode;           /* Restore previous mode. */
         return exp;
 }
 

@@ -99,7 +99,6 @@ load(char *path, env_t *envp)
         FILE *fp;
         buf_t *bp;
         exp_t *ep;
-        int mode;
 
         if (path != NULL) {
                 filename = basename(path);
@@ -114,10 +113,12 @@ load(char *path, env_t *envp)
 
         exstack = NULL;
         linenum = 1;
-        mode = isinter;
 read:
-        isinter = mode;
         TRY
+                if (isinter) {
+                        printf("%s", INPR);
+                        fflush(stdout);
+                }
                 if ((bp = read(fp)) == NULL)
                         goto eof;
                 TRY
