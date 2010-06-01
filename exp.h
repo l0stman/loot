@@ -33,6 +33,7 @@ typedef struct exp {
 #define caddr(ep) car(cddr(ep))
 #define cadar(ep) car(cdar(ep))
 #define cdddr(ep) cdr(cddr(ep))
+#define cddar(ep) cdr(cdar(ep))
 
 struct cons {   /* pair */
         exp_t *car;
