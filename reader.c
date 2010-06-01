@@ -1,6 +1,8 @@
 #include "loot.h"
 #include "reader.h"
 
+const excpt_t read_error = { "reader error" };
+
 /* skip spaces in the input stream. */
 static inline void
 skip_spa(FILE *fp)
@@ -57,15 +59,8 @@ static buf_t *read_quote(FILE *);
 buf_t *
 read(FILE *fp)
 {
-        int c, mode;
+        int c;
         buf_t *exp;
-
-        if (isinter) {
-                printf("%s", INPR);
-                fflush(stdout);
-        }
-        mode = isinter;
-        isinter = 0;           /* Passing in non-interactive mode. */
 
         skip(fp);
         switch (c = fgetc(fp)) {
@@ -77,7 +72,7 @@ read(FILE *fp)
                 exp = read_pair(fp);
                 break;
         case ')':
-                err_quit("Unexpected ) at line %d", linenum);
+                RAISE(read_error, "unexpected )");
                 break;
         case '\'':/* quoted expression */
                 exp = read_quote(fp);
@@ -86,7 +81,6 @@ read(FILE *fp)
                 exp = read_atm(fp, c);
                 break;
         }
-        isinter = mode;           /* Restore previous mode. */
         return exp;
 }
 
@@ -113,7 +107,7 @@ read_pair(FILE *fp)
                 skip(fp);
         }
         if (c == EOF)
-                err_quit("Too many open parenthesis at line %d.", ln);
+                raise(&read_error, filename, ln, "too many open parenthesis");
         else
                 bputc(')', bp);
 
@@ -137,7 +131,7 @@ read_atm(FILE *fp, int ch)
         } while ((c = fgetc(fp)) != EOF && !isstop(ch, c));
         if (ch == '"')
                 if (c == EOF)
-                        err_quit("Unmatched quote at line %d.", ln);
+                        raise(&read_error, filename, ln, "unmatched quote");
                 else
                         bputc('"', bp);       /* writing the closing quote */
         else
