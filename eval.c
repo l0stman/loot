@@ -95,8 +95,7 @@ evdef(exp_t *ep, env_t *envp)
 
         val = eval(val, envp);
         if (type(val) == PROC && label(val) == NULL)
-                /* label anonymous procedure */
-                label(val) = strtoatm(var);
+                label(val) = strtoatm(var); /* label anonymous procedure */
         install(var, val, envp);
 
         return NULL;
