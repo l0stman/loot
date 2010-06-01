@@ -1,6 +1,7 @@
 #ifndef EVAL_H
 #define EVAL_H
 
+extern const excpt_t eval_error;
 extern exp_t *eval(exp_t *, env_t *);
 extern exp_t *apply(exp_t *, exp_t *, env_t *);
 
