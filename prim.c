@@ -392,6 +392,7 @@ static exp_t *
 prim_load(exp_t *args, env_t *envp)
 {
         char *path;
+        exfram_t *e = exstack;
         int mode = isinter;
 
         chkargs("load", args, 1);
@@ -404,6 +405,7 @@ prim_load(exp_t *args, env_t *envp)
         isinter = 0;    /* non interactive mode */
         load(path, envp);
         isinter = mode;
+        exstack = e;
         free(path);
         return NULL;
 }
