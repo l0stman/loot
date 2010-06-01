@@ -60,7 +60,17 @@ eval(exp_t *ep, env_t *envp)
         return NULL;            /* not reached */
 }
 
-static void chknum(exp_t *, int);
+/* Check that the expression length is equal to n. */
+static void
+chknum(exp_t *lp, int n)
+{
+        exp_t *ep;
+
+        for (ep = lp; n-- && !isnull(ep); ep = cdr(ep))
+                ;
+        if (n != -1 || !isnull(ep))
+                everr("wrong number of expressions", lp);
+}
 
 /* Evaluate a define expression */
 static exp_t *
@@ -90,18 +100,6 @@ evdef(exp_t *ep, env_t *envp)
         install(var, val, envp);
 
         return NULL;
-}
-
-/* Check that the expression length is equal to n. */
-static void
-chknum(exp_t *lp, int n)
-{
-        exp_t *ep;
-
-        for (ep = lp; n-- && !isnull(ep); ep = cdr(ep))
-                ;
-        if (n != -1 || !isnull(ep))
-                everr("wrong number of expressions", lp);
 }
 
 /* Evaluate a set! expression. */
