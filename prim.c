@@ -128,6 +128,7 @@ read:
                                 putchar('\n');
                         }
                 WARN(parse_error);
+                WARN(eval_error);
                 ENDTRY;
 
                 bfree(bp);
@@ -141,20 +142,18 @@ eof:
 }
 
 /* Check if the primitive has the right number of arguments */
-static inline int
-chkargs(char *name, exp_t *args, int n)
+static inline void
+chkargs(char *name, exp_t *args, int num)
 {
-        char  *s;
         exp_t *ep;
+        int n;
 
-        for (ep = args; n-- && !isnull(ep); ep = cdr(ep))
+        for (ep = args, n = num; n-- && !isnull(ep); ep = cdr(ep))
                 ;
-        if (n == -1 && isnull(ep))
-                return 1;
-        warnx("%s: wrong number of arguments -- %s", name, s = tostr(args));
-        free(s);
-
-        return 0;
+        if (n != -1 || !isnull(ep))
+                raise(&eval_error, filename, linenum,
+                      "%s: expects %d arguments, given %s",
+                      name, num, tostr(args));
 }
 
 /* Return the accumulation of the expression combined with the
@@ -177,8 +176,8 @@ add(exp_t *a1, exp_t *a2)
         long n1, n2, d1, d2;
         exp_t *res;
 
-        CHKNUM(a1, "+");
-        CHKNUM(a2, "+");
+        CHKNUM(a1, +);
+        CHKNUM(a2, +);
 
         if (isfloat(a1) || isfloat(a2))
                 res = nfloat(VALUE(a1) + VALUE(a2));
@@ -204,8 +203,8 @@ sub(exp_t *a1, exp_t *a2)
         long n1, n2, d1, d2;
         exp_t *res;
 
-        CHKNUM(a1, "-");
-        CHKNUM(a2, "-");
+        CHKNUM(a1, -);
+        CHKNUM(a2, -);
 
         if (isfloat(a1) || isfloat(a2))
                 res = nfloat(VALUE(a1) - VALUE(a2));
@@ -222,11 +221,10 @@ static exp_t *
 prim_sub(exp_t *args)
 {
         if (isnull(args))
-                return everr("- : need at least one argument, given", null);
+                everr("- : need at least one argument, given", null);
         else if (isnull(cdr(args)))
                 return sub(atom("0"), car(args));
-        else
-                return foldl(sub, car(args), cdr(args));
+        return foldl(sub, car(args), cdr(args));
 }
 
 /* Return the product of two expressions */
@@ -235,8 +233,8 @@ prod(exp_t *a1, exp_t *a2)
 {
         exp_t *res;
 
-        CHKNUM(a1, "*");
-        CHKNUM(a2, "*");
+        CHKNUM(a1, *);
+        CHKNUM(a2, *);
 
         if (isfloat(a1) || isfloat(a2))
                 res = nfloat(VALUE(a1) * VALUE(a2));
@@ -258,11 +256,11 @@ divs(exp_t *a1, exp_t *a2)
 {
         exp_t *res;
 
-        CHKNUM(a1, "/");
-        CHKNUM(a2, "/");
+        CHKNUM(a1, /);
+        CHKNUM(a2, /);
 
         if (VALUE(a2) == 0)
-                return everr("/: argument is divided by zero", a1);
+                everr("/: argument is divided by zero", a1);
         if (isfloat(a1) || isfloat(a2))
                 res = nfloat(VALUE(a1) / VALUE(a2));
         else
@@ -275,19 +273,17 @@ static exp_t *
 prim_div(exp_t *args)
 {
         if (isnull(args))
-                return everr("/: need at least one argument -- given", null);
+                everr("/: need at least one argument -- given", null);
         else if(isnull(cdr(args)))
                 return divs(atom("1"), car(args));
-        else
-                return foldl(divs, car(args), cdr(args));
+        return foldl(divs, car(args), cdr(args));
 }
 
 /* Test if two expressions occupy the same physical memory */
 static exp_t *
 prim_eq(exp_t *args)
 {
-        if (!chkargs("eq?", args, 2))
-                return NULL;
+        chkargs("eq?", args, 2);
         return iseq(car(args), cadr(args)) ? true : false;
 }
 
@@ -295,8 +291,7 @@ prim_eq(exp_t *args)
 static exp_t *
 prim_sym(exp_t *args)
 {
-        if (!chkargs("symbol?", args, 1))
-                return NULL;
+        chkargs("symbol?", args, 1);
         return issym(car(args)) ? true : false;
 }
 
@@ -304,8 +299,7 @@ prim_sym(exp_t *args)
 static exp_t *
 prim_pair(exp_t *args)
 {
-        if (!chkargs("pair?", args, 1))
-                return NULL;
+        chkargs("pair?", args, 1);
         return ispair(car(args)) ? true : false;
 }
 
@@ -337,8 +331,7 @@ prim_gt(exp_t *args)
 static exp_t *
 prim_isnum(exp_t *args)
 {
-        if (!chkargs("number?", args, 1))
-                return NULL;
+        chkargs("number?", args, 1);
         return isnum(car(args)) ? true: false;
 }
 
@@ -346,8 +339,7 @@ prim_isnum(exp_t *args)
 static exp_t *
 prim_cons(exp_t *args)
 {
-        if (!chkargs("cons", args, 2))
-                return NULL;
+        chkargs("cons", args, 2);
         return cons(car(args), cadr(args));
 }
 
@@ -355,24 +347,20 @@ prim_cons(exp_t *args)
 static exp_t *
 prim_car(exp_t *args)
 {
-        if (!chkargs("car", args, 1))
-                return NULL;
+        chkargs("car", args, 1);
         if (!ispair(car(args)))
-                return everr("car: the argument isn't a pair", car(args));
-        else
-                return caar(args);
+                everr("car: the argument isn't a pair", car(args));
+        return caar(args);
 }
 
 /* Return the second element of a pair */
 static exp_t *
 prim_cdr(exp_t *args)
 {
-        if (!chkargs("cdr", args, 1))
-                return NULL;
+        chkargs("cdr", args, 1);
         if (!ispair(car(args)))
-                return everr("cdr: the argument isn't a pair", car(args));
-        else
-                return cdar(args);
+                everr("cdr: the argument isn't a pair", car(args));
+        return cdar(args);
 }
 
 /* Apply a procedure expression to a list of expressions */
@@ -382,8 +370,7 @@ prim_apply(exp_t *args, env_t *envp)
         exp_t *op, *prev, *last;
 
         if (isnull(args) || isnull(cdr(args)))
-                return everr("apply: expects at least 2 arguments, given",
-                             args);
+                everr("apply: expects at least 2 arguments, given", args);
         op = car(args);
         if (!isnull(last = cddr(args))) {
                 for (prev = cdr(args); !isnull(cdr(last)); last = cdr(last))
@@ -395,7 +382,7 @@ prim_apply(exp_t *args, env_t *envp)
                 args = car(last);
         }
         if (!islist(car(last)))
-                return everr("apply: should be a proper list", car(last));
+                everr("apply: should be a proper list", car(last));
         return apply(op, args, envp);
 }
 
@@ -406,10 +393,9 @@ prim_load(exp_t *args, env_t *envp)
         char *path;
         int mode = isinter;
 
-        if (!chkargs("load", args, 1))
-                return NULL;
-        else if (!isstr(car(args)))
-                return everr("load: should be a string", car(args));
+        chkargs("load", args, 1);
+        if (!isstr(car(args)))
+                everr("load: should be a string", car(args));
         path = (char *)symp(car(args));
         /* dump the quotes around the path name */
         path = sstrndup(path+1, strlen(path+1)-1);
@@ -455,12 +441,10 @@ prim_log(exp_t *args)
 {
         double v;
 
-        if (!chkargs("log", args, 1))
-                return NULL;
-        else if (!isnum(car(args)) || (v = VALUE(car(args))) <= 0)
-                return everr("log : not a positive number", car(args));
-        else
-                return nfloat(log(v));
+        chkargs("log", args, 1);
+        if (!isnum(car(args)) || (v = VALUE(car(args))) <= 0)
+                everr("log : not a positive number", car(args));
+        return nfloat(log(v));
 }
 
 /* Return the base e exponential of the expression */
@@ -479,10 +463,9 @@ prim_pow(exp_t *args)
         long e;
         unsigned long u;
 
-        if (!chkargs("expt", args, 2))
-                return NULL;
-        CHKNUM(car(args), "expt");
-        CHKNUM(cadr(args), "expt");
+        chkargs("expt", args, 2);
+        CHKNUM(car(args), expt);
+        CHKNUM(cadr(args), expt);
 
         res = cadr(args);
         if (isint(res)) {
@@ -516,7 +499,7 @@ prim_pow(exp_t *args)
 static exp_t *
 prim_write(exp_t *args)
 {
-        if (chkargs("write", args, 1))
-                print(car(args));
-        return null;
+        chkargs("write", args, 1);
+        print(car(args));
+        return NULL;
 }
