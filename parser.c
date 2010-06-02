@@ -59,7 +59,7 @@ parse_pair(char *s, int size)
         cp += n, len -= n;
         if (*cp == '.' && *(cp+1) == ' ') {   /* dotted-pair notation */
                 cp += 2, len -= 3;
-                if (*cp == ')' || *(cp+carlen(cp)) != ')')
+                if (*(cp+carlen(cp)) != ')')
                         goto fail;
                 cdr = parse(cp, len);
         } else {
