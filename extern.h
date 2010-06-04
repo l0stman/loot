@@ -23,7 +23,7 @@
 #define OUTPR     "--> "        /* output */
 #define PREFIX    "HOME"
 #define LOOTRC    ".lootrc"
-#define LIBNAM    "lib.lt"
+#define LIBNAM    "lib.scm"
 #define NELEMS(x) ((sizeof (x))/(sizeof ((x)[0])))
 
 /* maximum number of digits (plus sign) for a 128-bits integer */

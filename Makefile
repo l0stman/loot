@@ -10,7 +10,7 @@ PROGNAME	= loot
 PREF		= ${HOME}
 INSTDIR		= $(PREF)/bin
 LIBDIR		= $(PREF)/lib/loot
-LIBNAME		= lib.lt
+LIBNAME		= lib.scm
 LOOTRC		= $(PREF)/.lootrc
 
 $(PROGNAME) : $(OBJS)
