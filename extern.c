@@ -68,9 +68,9 @@ binit(void)
         buf_t *bp;
 
         NEW(bp);
-        bp->buf = smalloc(BUFSIZ);
+        bp->buf = smalloc(BSIZ);
         bp->len = 0;
-        bp->size = 1;
+        bp->size = BSIZ;
         return bp;
 }
 
@@ -80,8 +80,8 @@ binit(void)
 void
 bwrite(buf_t *bp, char *s, int len)
 {
-        while (bp->len+len > BUFSIZ*bp->size)
-                bp->buf = srealloc(bp->buf, BUFSIZ * ++(bp->size));
+        while (bp->len+len > bp->size)
+                bp->buf = srealloc(bp->buf, bp->size += BSIZ);
         memcpy(bp->buf+bp->len, s, len);
         bp->len += len;
 }

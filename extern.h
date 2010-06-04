@@ -32,10 +32,12 @@
 
 #define NEW(p)	((p) = smalloc(sizeof *(p)))
 
+#define BSIZ	512
+
 typedef struct buf {            /* adjustable buffer */
         char   *buf;
-        int     len;            /* length of characters written in buf */
-        size_t  size;           /* the size of buf is size*BUFSIZ */
+        int     len;            /* length of the buffer */
+        size_t  size;           /* size of the buffer */
 } buf_t;
 void bwrite(buf_t *, char *, int);
 buf_t *binit(void);
@@ -69,8 +71,8 @@ isstop(char a, char b)
 static inline void
 bputc(int c, buf_t *bp)
 {
-        if (bp->len == BUFSIZ*bp->size)
-                bp->buf = srealloc(bp->buf, BUFSIZ * ++(bp->size));
+        if (bp->len == bp->size)
+                bp->buf = srealloc(bp->buf, bp->size += BSIZ);
         bp->buf[bp->len++] = c;
 }
 
