@@ -115,7 +115,7 @@ atom(const char *s)
 {
         exp_t *ep;
 
-        ep = smalloc(sizeof(*ep));
+        NEW(ep);
         ep->tp = ATOM;
         ep->u.sp = strtoatm(s);
         return ep;
@@ -127,9 +127,9 @@ cons(exp_t *a, exp_t *b)
 {
         exp_t *ep;
 
-        ep = smalloc(sizeof(*ep));
+        NEW(ep);
         ep->tp = PAIR;
-        ep->u.cp = smalloc(sizeof(*ep->u.cp));
+        NEW(ep->u.cp);
         ep->u.cp->car = a;
         ep->u.cp->cdr = b;
         return ep;
@@ -142,12 +142,12 @@ func(exp_t *parp, exp_t *bodyp, struct env *envp)
         struct func *fp;
         proc_t *pp;
 
-        fp = smalloc(sizeof(*fp));
+        NEW(fp);
         fp->parp = parp;
         fp->bodyp = bodyp;
         fp->envp = envp;
 
-        pp = smalloc(sizeof(*pp));
+        NEW(pp);
         pp->tp = FUNC;
         pp->label = NULL;     /* anonymous procedure */
         pp->u.funcp = fp;
@@ -160,7 +160,7 @@ prim(char *label, exp_t *(primp)())
 {
         proc_t *pp;
 
-        pp = smalloc(sizeof(*pp));
+        NEW(pp);
         pp->tp = PRIM;
         pp->label = label;
         pp->u.primp = primp;
@@ -173,7 +173,7 @@ proc(proc_t *pp)
 {
         exp_t *ep;
 
-        ep = smalloc(sizeof(*ep));
+        NEW(ep);
         ep->tp = PROC;
         ep->u.pp = pp;
         return ep;
@@ -185,7 +185,7 @@ nfloat(double e)
 {
         exp_t *ep;
 
-        ep = smalloc(sizeof(*ep));
+        NEW(ep);
         type(ep) = FLOAT;
         fvalue(ep) = e;
         return ep;

@@ -30,6 +30,8 @@
 #define MAXDIG  39
 #define FMAXDIG 2*MAXDIG
 
+#define NEW(p)	((p) = smalloc(sizeof *(p)))
+
 typedef struct buf {            /* adjustable buffer */
         char   *buf;
         int     len;            /* length of characters written in buf */

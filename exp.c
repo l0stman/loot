@@ -166,9 +166,9 @@ nrat(long num, long den)
 
         if (d == 1)
                 return atom(inttoatm(num));
-        ep = smalloc(sizeof(*ep));
+        NEW(ep);
         type(ep) = RAT;
-        ratp(ep) = smalloc(sizeof(*ratp(ep)));
+        NEW(ratp(ep));
         num(ep) = inttoatm(num);
         den(ep) = inttoatm(d);
 

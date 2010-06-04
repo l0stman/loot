@@ -49,7 +49,7 @@ install(const char *name, exp_t *defn, env_t *ep)
 
         fp = fframe(ep);
         if ((np = find(name, fp)) == NULL) {  /* not found */
-                np = smalloc(sizeof(*np));
+                NEW(np);
                 np->name = strtoatm(name);
                 hashval = hash(name, fp->size);
                 np->next = fp->bucket[hashval];
@@ -91,7 +91,7 @@ newframe(void)
 {
         frame_t *fp;
 
-        fp = smalloc(sizeof(*fp));
+        NEW(fp);
         fp->bucket = calloc(HASHSIZE, sizeof(*fp->bucket));
         fp->size = HASHSIZE;
         return fp;
@@ -103,7 +103,7 @@ newenv(void)
 {
         env_t *ep;
 
-        ep = smalloc(sizeof(*ep));
+        NEW(ep);
         ep->fp = newframe();
         ep->ep = NULL;
         return ep;

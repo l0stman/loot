@@ -67,7 +67,7 @@ binit(void)
 {
         buf_t *bp;
 
-        bp = smalloc(sizeof(*bp));
+        NEW(bp);
         bp->buf = smalloc(BUFSIZ);
         bp->len = 0;
         bp->size = 1;
