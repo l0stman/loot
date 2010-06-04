@@ -1,6 +1,6 @@
 #include <math.h>
 
-#include "loot.h"
+#include "extern.h"
 #include "exp.h"
 #include "type.h"
 #include "prim.h"

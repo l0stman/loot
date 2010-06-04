@@ -1,5 +1,5 @@
-#ifndef LOOT_H
-#define LOOT_H
+#ifndef EXTERN_H
+#define EXTERN_H
 
 #ifndef HAS_INLINE
 #ifdef __GNUC__
@@ -82,4 +82,4 @@ bfree(buf_t *bp)
         free(bp);
 }
 
-#endif /* !LOOT_H */
+#endif /* !EXTERN_H */

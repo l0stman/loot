@@ -3,8 +3,8 @@ CFLAGS		= -O0 -g -Wall -ansi -pedantic
 #CFLAGS		= -O3 -Wall -ansi -pedantic
 LDFLAGS		= -lm
 
-OBJS		= main.o error.o reader.o loot.o exp.o parser.o type.o eval.o \
-		  env.o prim.o atom.o
+OBJS		= main.o error.o reader.o extern.o exp.o parser.o type.o \
+		  eval.o env.o prim.o atom.o
 PROGNAME	= loot
 
 PREF		= ${HOME}

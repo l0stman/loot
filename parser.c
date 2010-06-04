@@ -1,4 +1,4 @@
-#include "loot.h"
+#include "extern.h"
 #include "exp.h"
 #include "atom.h"
 #include "type.h"

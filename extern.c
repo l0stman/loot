@@ -1,4 +1,4 @@
-#include "loot.h"
+#include "extern.h"
 
 int   linenum  = 1;             /* line being read */
 char *filename = NULL;          /* name of the file being read */

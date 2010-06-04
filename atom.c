@@ -1,4 +1,4 @@
-#include "loot.h"
+#include "extern.h"
 #include "atom.h"
 
 /* Inspired by David Hanson in C interfaces and implementations */

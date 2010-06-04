@@ -1,4 +1,4 @@
-#include "loot.h"
+#include "extern.h"
 #include "reader.h"
 
 const excpt_t read_error = { "reader error" };
