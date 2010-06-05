@@ -80,7 +80,7 @@ static list_t *alloc = NULL; /* List of allocated memories with xalloc. */
 
 /*
  * These memory allocation functions should be used with
- * exceptions to free unused memories.
+ * exceptions avoid memory leaks.
  */
 void*
 xalloc(size_t nbytes)
