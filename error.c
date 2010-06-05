@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "extern.h"
 #include "error.h"
 
 /*
@@ -68,4 +69,78 @@ void raise(const excpt_t *e, const char *file, int line, const char *fmt, ...)
 
         exstack = exstack->prev;
         longjmp(p->env, RAISED);
+}
+
+typedef struct list {
+        void *p;
+        struct list *next;
+} list_t;
+
+static list_t *alloc = NULL; /* List of allocated memories with xalloc. */
+
+void*
+xalloc(size_t nbytes)
+{
+        list_t *p;
+
+        p = smalloc(nbytes + sizeof(*p));
+        p->p = p+1;
+        p->next = alloc;
+        alloc = p;
+        return p->p;
+}
+
+void*
+xrealloc(void *ptr, size_t nbytes)
+{
+        list_t *p, *prev;
+
+        assert(alloc);
+        if (ptr == alloc->p) {
+                alloc = srealloc(alloc, sizeof(*alloc)+nbytes);
+                alloc->p = alloc+1;
+                return alloc->p;
+        }
+        for (prev = alloc, p = alloc->next; p; prev = p, p = p->next)
+                if (ptr == p->p) {
+                        p = srealloc(p, sizeof(*p)+nbytes);
+                        p->p = p+1;
+                        prev->next = p;
+                        return p->p;
+                }
+        assert(0);
+        return NULL;
+}
+
+void
+xfree(void *ptr)
+{
+        list_t *p, *prev;
+
+        assert(alloc);
+        if (ptr == alloc->p) {
+                p = alloc;
+                alloc = alloc->next;
+                free(p);
+                return;
+        }
+        for (prev = alloc, p = alloc->next; p; prev = p, p = p->next)
+                if (ptr == p->p) {
+                        prev->next = p->next;
+                        free(p);
+                        return;
+                }
+        assert(0);
+}
+
+void
+xfreeall(void)
+{
+        list_t *p;
+
+        while (alloc) {
+                p = alloc;
+                alloc = alloc->next;
+                free(p);
+        }
 }

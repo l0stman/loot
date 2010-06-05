@@ -77,4 +77,9 @@ void raise(const excpt_t *, const char *, int, const char *, ...);
                           RERAISE;                      \
         } while (0)
 
+void *xalloc(size_t);
+void *xrealloc(void *, size_t);
+void xfree(void *);
+void xfreeall(void);
+
 #endif /* !ERROR_H */
