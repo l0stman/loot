@@ -1,6 +1,6 @@
 atom.o: atom.c extern.h error.h atom.h
 env.o: env.c extern.h error.h exp.h atom.h env.h
-error.o: error.c error.h
+error.o: error.c extern.h error.h
 eval.o: eval.c extern.h error.h exp.h atom.h env.h eval.h type.h
 exp.o: exp.c extern.h error.h exp.h atom.h env.h
 extern.o: extern.c extern.h error.h
