@@ -39,7 +39,13 @@ iseq(const exp_t *a, const exp_t *b)
 static char *
 atmtostr(const exp_t *ep)
 {
-        return sstrdup(symp(ep));
+        char *s;
+        size_t len;
+
+        len = strlen(symp(ep))+1;
+        s = xalloc(len);
+        memcpy(s, symp(ep), len);
+        return s;
 }
 
 /* Return a string representing a pair */
@@ -47,7 +53,7 @@ static char *
 pairtostr(const exp_t *ep)
 {
         buf_t *bp;
-        char *s, *car, *cdr = NULL;
+        char *car, *cdr = NULL;
 
         bp = binit();
         car = tostr(car(ep));
@@ -66,11 +72,9 @@ pairtostr(const exp_t *ep)
                         bwrite(bp, cdr, strlen(cdr));
         }
         bwrite(bp, ")", 2);
-        s = bp->buf;
-        free(car);
-        free(cdr);
-        free(bp);
-        return s;
+        xfree(car);
+        xfree(cdr);
+        return bp->buf;
 }
 
 /* Return a string representing a procedure */
@@ -87,16 +91,14 @@ proctostr(const exp_t *ep)
                 bwrite(bp, s, strlen(s));
         }
         bwrite(bp, ">", 2);
-        s = bp->buf;
-        free(bp);
-        return s;
+        return bp->buf;
 }
 
 /* Return a string representing a float */
 static char *
 ftostr(const exp_t *ep)
 {
-        char *buf = smalloc(FMAXDIG);
+        char *buf = xalloc(FMAXDIG);
 
         snprintf(buf, FMAXDIG, "%e", fvalue(ep));
         return buf;
@@ -106,7 +108,7 @@ ftostr(const exp_t *ep)
 static char *
 rtostr(const exp_t *ep)
 {
-        char *buf = smalloc(strlen(num(ep))+strlen(num(ep))+2);
+        char *buf = xalloc(strlen(num(ep))+strlen(num(ep))+2);
 
         sprintf(buf, "%s/%s", num(ep), den(ep));
         return buf;

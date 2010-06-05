@@ -390,7 +390,6 @@ prim_load(exp_t *args, env_t *envp)
         path = (char *)symp(car(args));
         /* dump the quotes around the path name */
         path = sstrndup(path+1, strlen(path+1)-1);
-
         load(path, envp, NINTER);
         free(path);
         return NULL;
