@@ -113,20 +113,17 @@ read:
                 }
                 if ((bp = read(fp)) == NULL)
                         goto eof;
-                TRY
-                        ep = eval(parse(bp->buf, bp->len), envp);
-                        if (isinter && ep != NULL) {
-                                printf("%s%s\n", OUTPR, tostr(ep));
-                                fflush(stdout);
-                        }
-                WARN(parse_error);
-                WARN(eval_error);
-                ENDTRY;
-
-                bfree(bp);
+                ep = eval(parse(bp->buf, bp->len), envp);
+                if (isinter && ep != NULL) {
+                        printf("%s%s\n", OUTPR, tostr(ep));
+                        fflush(stdout);
+                }
         WARN(read_error);
+        WARN(parse_error);
+        WARN(eval_error);
         ENDTRY;
 
+        xfreeall();
         goto read;
 eof:
         filename = file;
