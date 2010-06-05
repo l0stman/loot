@@ -78,6 +78,10 @@ typedef struct list {
 
 static list_t *alloc = NULL; /* List of allocated memories with xalloc. */
 
+/*
+ * These memory allocation functions should be used with
+ * exceptions to free unused memories.
+ */
 void*
 xalloc(size_t nbytes)
 {
