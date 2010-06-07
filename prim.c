@@ -32,6 +32,7 @@ static exp_t *prim_atan(exp_t *);
 static exp_t *prim_log(exp_t *);
 static exp_t *prim_exp(exp_t *);
 static exp_t *prim_pow(exp_t *);
+static exp_t *prim_read(void);
 static exp_t *prim_write(exp_t *);
 
 /* List of primitive procedures */
@@ -66,6 +67,7 @@ static struct {
         {"expt", prim_pow},
         /* I/O */
         {"write", prim_write},
+        {"read", prim_read},
         /* misc */
         {"apply", prim_apply},
         {"load", prim_load},
@@ -490,4 +492,14 @@ prim_write(exp_t *args)
         chkargs("write", args, 1);
         printf("%s", tostr(car(args)));
         return NULL;
+}
+
+/* Read an expression from the standard input. */
+static exp_t *
+prim_read(void)
+{
+        buf_t *bp;
+
+        bp = read(stdin);
+        return parse(bp->buf, bp->len);
 }
