@@ -6,3 +6,4 @@
 * Measure if we need to implement a frame as a hash table or a linked list
   except maybe for the global environment.
 * Implement fixnum as long integers instead of atoms.
+* Make internal definitions to be simultaneous.
