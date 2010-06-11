@@ -21,6 +21,7 @@ main(int argc, char *argv[])
                 load(NULL, envp, INTER);
                 putchar('\n');
         }
+        free(progname);
         exit(EXIT_SUCCESS);
 }
 
