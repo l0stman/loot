@@ -52,27 +52,31 @@ atmtostr(const exp_t *ep)
 static char *
 pairtostr(const exp_t *ep)
 {
-        buf_t *bp;
-        char *car, *cdr = NULL;
+        char *buf, *car, *cdr;
+        size_t size;
 
-        bp = binit();
         car = tostr(car(ep));
-        bputc('(', bp);
-        bwrite(bp, car, strlen(car));
-
-        if (!isnull(cdr(ep))) {
-                if (ispair(cdr(ep)))
-                        bputc(' ', bp);
-                else
-                        bwrite(bp, " . ", 3);
-                cdr = tostr(cdr(ep));
-                if (ispair(cdr(ep)))    /* don't write the parenthesis */
-                        bwrite(bp, cdr+1, strlen(cdr)-2);
-                else if (!isnull(cdr(ep)))
-                        bwrite(bp, cdr, strlen(cdr));
+        size = strlen(car)+3;
+        if (isnull(cdr(ep))) {
+                buf = xalloc(size);
+                snprintf(buf, size, "(%s)", car);
+                goto clean;
         }
-        bwrite(bp, ")", 2);
-        return bp->buf;
+        cdr = tostr(cdr(ep));
+        if (ispair(cdr(ep))) {
+                size_t len = strlen(cdr)-2;
+                size += len+1;
+                buf = xalloc(size);
+                snprintf(buf, size, "(%s %.*s)", car, len, cdr+1);
+        } else {
+                size += strlen(cdr)+3;
+                buf = xalloc(size);
+                snprintf(buf, size, "(%s . %s)", car, cdr);
+        }
+        xfree(cdr);
+clean:
+        xfree(car);
+        return buf;
 }
 
 /* Return a string representing a procedure */
@@ -80,16 +84,16 @@ static char *
 proctostr(const exp_t *ep)
 {
         static char pref[] = "#<procedure";
-        char *s;
+        char *buf;
         size_t size;
 
         size = sizeof(pref)+(label(ep) ? strlen(label(ep)) : 0)+2;
-        s = xalloc(size);
+        buf = xalloc(size);
         if (label(ep))
-                snprintf(s, size, "%s:%s>", pref, label(ep));
+                snprintf(buf, size, "%s:%s>", pref, label(ep));
         else
-                snprintf(s, size, "%s>", pref);
-        return s;
+                snprintf(buf, size, "%s>", pref);
+        return buf;
 }
 
 /* Return a string representing a float */
