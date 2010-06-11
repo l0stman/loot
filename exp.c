@@ -79,17 +79,17 @@ pairtostr(const exp_t *ep)
 static char *
 proctostr(const exp_t *ep)
 {
-        buf_t *bp;
+        static char pref[] = "#<procedure";
         char *s;
+        size_t size;
 
-        bp = binit();
-        bwrite(bp, "#<procedure", 11);
-        if ((s = (char *)label(ep)) != NULL) {
-                bputc(':', bp);
-                bwrite(bp, s, strlen(s));
-        }
-        bwrite(bp, ">", 2);
-        return bp->buf;
+        size = sizeof(pref)+(label(ep) ? strlen(label(ep)) : 0)+2;
+        s = xalloc(size);
+        if (label(ep))
+                snprintf(s, size, "%s:%s>", pref, label(ep));
+        else
+                snprintf(s, size, "%s>", pref);
+        return s;
 }
 
 /* Return a string representing a float */
