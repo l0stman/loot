@@ -64,7 +64,7 @@ pairtostr(const exp_t *ep)
         }
         cdr = tostr(cdr(ep));
         if (ispair(cdr(ep))) {
-                size_t len = strlen(cdr)-2;
+                size_t len = strlen(cdr)-2; /* ignore parenthesis */
                 size += len+1;
                 buf = xalloc(size);
                 snprintf(buf, size, "(%s %.*s)", car, len, cdr+1);
