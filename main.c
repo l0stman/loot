@@ -21,7 +21,7 @@ main(int argc, char *argv[])
                 load(NULL, envp, INTER);
                 putchar('\n');
         }
-        free(progname);
+        free((void *)progname);
         exit(EXIT_SUCCESS);
 }
 
