@@ -72,8 +72,6 @@ pairtostr(const exp_t *ep)
                         bwrite(bp, cdr, strlen(cdr));
         }
         bwrite(bp, ")", 2);
-        xfree(car);
-        xfree(cdr);
         return bp->buf;
 }
 
