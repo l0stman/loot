@@ -93,6 +93,7 @@ load(char *path, env_t *envp, mode_t isinter)
         char     *file = filename;
         exfram_t *es   = exstack;
         int       line = linenum;
+        int	  rc   = 0;
 
         exstack = NULL;
         linenum = 1;
@@ -100,7 +101,8 @@ load(char *path, env_t *envp, mode_t isinter)
                 filename = basename(path);
                 if ((fp = fopen(path, "r")) == NULL) {
                         warn("Can't open file %s", path);
-                        return 1;
+                        rc = 1;
+                        goto restore;
                 }
         } else  {
                 filename = NULL;
@@ -108,31 +110,33 @@ load(char *path, env_t *envp, mode_t isinter)
         }
 
 read:
-        TRY
+        TRY {
                 if (isinter) {
                         printf("%s", INPR);
                         fflush(stdout);
                 }
-                if ((bp = read(fp)) == NULL)
-                        goto eof;
+                if ((bp = read(fp)) == NULL) {
+                        xfreeall();
+                        fclose(fp);
+                        goto restore;
+                }
                 ep = eval(parse(bp->buf, bp->len), envp);
                 if (isinter && ep != NULL) {
                         printf("%s%s\n", OUTPR, tostr(ep));
                         fflush(stdout);
                 }
+        }
         WARN(read_error);
         WARN(eval_error);
         ENDTRY;
 
         xfreeall();
         goto read;
-eof:
-        xfreeall();
+restore:
         filename = file;
         linenum = line;
         exstack = es;
-        fclose(fp);
-        return 0;
+        return rc;
 }
 
 /* Check if the primitive has the right number of arguments */
