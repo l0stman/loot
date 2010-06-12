@@ -12,7 +12,7 @@ skip_spa(FILE *fp)
         while ((c = fgetc(fp)) != EOF && isspace(c))
                 if (c == '\n')
                         ++linenum;
-        UNGETC(c, fp);
+        ungetc(c, fp);
 }
 
 /* skip the current line in the input stream. */
@@ -41,7 +41,7 @@ skip(FILE *fp)
                 } else if (c == ';')    /* comment */
                         skip_line(fp);
                 else {
-                        UNGETC(c, fp);
+                        ungetc(c, fp);
                         break;
                 }
         }
@@ -80,7 +80,7 @@ read(FILE *fp)
         case '.':
                 if ((c = fgetc(fp)) == EOF || issep(c))
                         RAISE(read_error, "Illegal use of .");
-                UNGETC(c, fp);
+                ungetc(c, fp);
                 c = '.';
         default:                /* atom */
                 exp = read_atm(fp, c);
@@ -105,7 +105,7 @@ read_pair(FILE *fp)
                         if ((c = fgetc(fp)) == EOF)
                                 break;
                         else if (!issep(c)) {
-                                UNGETC(c, fp);
+                                ungetc(c, fp);
                                 c = '.';
                         } else {
                                 if (bp->len == 1)
@@ -150,16 +150,16 @@ read_atm(FILE *fp, int ch)
         buf_t *bp;
 
         bp = binit();
-        do {
+        do
                 bputc(c, bp);
-        } while ((c = fgetc(fp)) != EOF && !isstop(ch, c));
+        while ((c = fgetc(fp)) != EOF && !isstop(ch, c));
         if (ch == '"')
                 if (c == EOF)
                         raise(&read_error, filename, ln, "unmatched quote");
                 else
                         bputc('"', bp);       /* writing the closing quote */
         else
-                UNGETC(c, fp);
+                ungetc(c, fp);
         return bp;
 }
 
