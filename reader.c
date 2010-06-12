@@ -67,16 +67,21 @@ read(FILE *fp)
         case EOF:
                 exp = NULL;
                 break;
-        case '(':     /* compound expression */
+        case '(':               /* compound expression */
                 skip(fp);
                 exp = read_pair(fp);
                 break;
         case ')':
                 RAISE(read_error, "unexpected )");
                 break;
-        case '\'':/* quoted expression */
+        case '\'':              /* quoted expression */
                 exp = read_quote(fp);
                 break;
+        case '.':
+                if ((c = fgetc(fp)) == EOF || issep(c))
+                        RAISE(read_error, "Illegal use of .");
+                ungetc(c, fp);
+                c = '.';
         default:      /* atom */
                 exp = read_atm(fp, c);
                 break;
@@ -88,19 +93,33 @@ read(FILE *fp)
 static buf_t *
 read_pair(FILE *fp)
 {
-        int c, ln;
+        int c, ln, isdot;
         buf_t *bp, *exp;
 
         ln = linenum;
+        isdot = 0;              /* dotted pair notation? */
         bp = binit();
         bputc('(', bp);
-        while ((c = fgetc(fp)) != EOF && c != ')') {
+        while ((c = fgetc(fp)) != EOF && c != ')' && !isdot) {
+                if (c == '.')
+                        if ((c = fgetc(fp)) == EOF)
+                                break;
+                        else if (!issep(c)) {
+                                ungetc(c, fp);
+                                c = '.';
+                        } else {
+                                if (bp->len == 1)
+                                        goto doterr;
+                                isdot = 1;
+                        }
                 if (c == '\n')
                         ++linenum;
                 if (!isspace(c))
                         ungetc(c, fp);
                 exp = read(fp);
-                if (bp->len > 1 && !issep(*exp->buf))
+                if (isdot)
+                        bwrite(bp, " . ", 3);
+                else if (bp->len > 1 && !issep(*exp->buf))
                         bputc(' ', bp);
                 bwrite(bp, exp->buf, exp->len);
                 bfree(exp);
@@ -108,6 +127,8 @@ read_pair(FILE *fp)
         }
         if (c == EOF)
                 raise(&read_error, filename, ln, "too many open parenthesis");
+        else if (isdot && c != ')')
+                goto doterr;
         else
                 bputc(')', bp);
 
@@ -116,6 +137,9 @@ read_pair(FILE *fp)
 #endif
 
         return bp;
+doterr:
+        raise(&read_error, filename, ln, "Illegal use of .");
+        return NULL;            /* not reached */
 }
 
 /* Read an atom from fp and write to buf. */
