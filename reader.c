@@ -103,13 +103,13 @@ read_pair(FILE *fp)
         while ((c = fgetc(fp)) != EOF && c != ')' && !isdot) {
                 if (c == '.')
                         if ((c = fgetc(fp)) == EOF)
-                                break;
+                                goto err;
                         else if (!issep(c)) {
                                 ungetc(c, fp);
                                 c = '.';
                         } else {
                                 if (bp->len == 1)
-                                        goto doterr;
+                                        goto err1;
                                 isdot = 1;
                         }
                 if (c == '\n')
@@ -126,9 +126,9 @@ read_pair(FILE *fp)
                 skip(fp);
         }
         if (c == EOF)
-                raise(&read_error, filename, ln, "too many open parenthesis");
+                goto err;
         else if (isdot && c != ')')
-                goto doterr;
+                goto err1;
         else
                 bputc(')', bp);
 
@@ -137,7 +137,9 @@ read_pair(FILE *fp)
 #endif
 
         return bp;
-doterr:
+err:
+        raise(&read_error, filename, ln, "too many open parenthesis");
+err1:
         raise(&read_error, filename, ln, "Illegal use of .");
         return NULL;            /* not reached */
 }
