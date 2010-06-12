@@ -34,4 +34,4 @@ clean:
 	rm -f *.o *.core *~ $(PROGNAME)
 
 tags:
-	find . -name '*.[ch]' -print | xargs etags -a
+	find . -name '*.[ch]' -print | xargs etags
