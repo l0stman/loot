@@ -60,16 +60,16 @@ eval(exp_t *ep, env_t *envp)
         return NULL;            /* not reached */
 }
 
-/* Check that the expression length is equal to n. */
+/* Check that the expression is a list of length n. */
 static void
 chknum(exp_t *lp, int n)
 {
         exp_t *ep;
 
-        for (ep = lp; n-- && !isnull(ep); ep = cdr(ep))
+        for (ep = lp; n-- && ispair(ep); ep = cdr(ep))
                 ;
         if (n != -1 || !isnull(ep))
-                everr("wrong number of expressions", lp);
+                everr("bad syntax in", lp);
 }
 
 /* Evaluate a define expression */

@@ -24,7 +24,7 @@ isnum(exp_t *ep)
 static inline int
 istag(exp_t *ep, char *tag)
 {
-        return islist(ep) && isatom(car(ep)) &&
+        return ispair(ep) && isatom(car(ep)) &&
                 strcmp(tag, symp(car(ep))) == 0;
 }
 
