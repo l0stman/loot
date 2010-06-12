@@ -20,15 +20,15 @@ parse_atm(char *s, int len)
 {
         exp_t *ep;
         char *p;
-        char *endp[1];
+        char *endp;
         long n, d;
 
         p = sstrndup(s, len);
         if (isfloatstr(p, len))
                 ep = nfloat(atof(p));
         else if (isratstr(p, len)) {
-                n = strtol(p, endp, 10);
-                d = strtol(++*endp, NULL, 10);
+                n = strtol(p, &endp, 10);
+                d = strtol(++endp, NULL, 10);
                 ep = nrat(n, d);
         } else
                 ep = atom(p);
