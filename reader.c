@@ -82,7 +82,7 @@ read(FILE *fp)
                         RAISE(read_error, "Illegal use of .");
                 UNGETC(c, fp);
                 c = '.';
-        default:      /* atom */
+        default:                /* atom */
                 exp = read_atm(fp, c);
                 break;
         }
