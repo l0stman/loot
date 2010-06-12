@@ -121,7 +121,6 @@ read:
                         fflush(stdout);
                 }
         WARN(read_error);
-        WARN(parse_error);
         WARN(eval_error);
         ENDTRY;
 
