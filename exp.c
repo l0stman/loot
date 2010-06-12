@@ -110,7 +110,7 @@ ftostr(const exp_t *ep)
 static char *
 rtostr(const exp_t *ep)
 {
-        char *buf = xalloc(strlen(num(ep))+strlen(num(ep))+2);
+        char *buf = xalloc(strlen(num(ep))+strlen(den(ep))+2);
 
         sprintf(buf, "%s/%s", num(ep), den(ep));
         return buf;
