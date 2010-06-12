@@ -121,13 +121,13 @@ read:
                         fflush(stdout);
                 }
         WARN(read_error);
-        WARN(parse_error);
         WARN(eval_error);
         ENDTRY;
 
         xfreeall();
         goto read;
 eof:
+        xfreeall();
         filename = file;
         linenum = line;
         exstack = es;

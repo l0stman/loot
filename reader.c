@@ -116,7 +116,8 @@ read_pair(FILE *fp)
                         ++linenum;
                 if (!isspace(c))
                         UNGETC(c, fp);
-                exp = read(fp);
+                if (!(exp = read(fp)))
+                        goto err;
                 if (isdot)
                         bwrite(bp, " . ", 3);
                 else if (bp->len > 1 && !issep(*exp->buf))
@@ -171,8 +172,8 @@ read_quote(FILE *fp)
 {
         buf_t *bp, *res;
 
-        bp = read(fp);
-
+        if (!(bp = read(fp)))
+                RAISE(read_error, "unexpected end of file");
         res = binit();
         bwrite(res, "(quote", 6);
         if (!issep(*bp->buf))
