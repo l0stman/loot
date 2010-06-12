@@ -2,6 +2,7 @@
 #include "exp.h"
 #include "env.h"
 #include "prim.h"
+#include "type.h"
 
 static env_t *initenv(void);
 const char *progname;
@@ -34,6 +35,7 @@ initenv(void)
         FILE *fp;
         int ret;
 
+        inittags();
         envp = newenv();
         instcst(envp);
         instprim(envp);
