@@ -12,7 +12,7 @@ skip_spa(FILE *fp)
         while ((c = fgetc(fp)) != EOF && isspace(c))
                 if (c == '\n')
                         ++linenum;
-        ungetc(c, fp);
+        UNGETC(c, fp);
 }
 
 /* skip the current line in the input stream. */
@@ -41,7 +41,7 @@ skip(FILE *fp)
                 } else if (c == ';')    /* comment */
                         skip_line(fp);
                 else {
-                        ungetc(c, fp);
+                        UNGETC(c, fp);
                         break;
                 }
         }
@@ -80,7 +80,7 @@ read(FILE *fp)
         case '.':
                 if ((c = fgetc(fp)) == EOF || issep(c))
                         RAISE(read_error, "Illegal use of .");
-                ungetc(c, fp);
+                UNGETC(c, fp);
                 c = '.';
         default:      /* atom */
                 exp = read_atm(fp, c);
@@ -105,7 +105,7 @@ read_pair(FILE *fp)
                         if ((c = fgetc(fp)) == EOF)
                                 break;
                         else if (!issep(c)) {
-                                ungetc(c, fp);
+                                UNGETC(c, fp);
                                 c = '.';
                         } else {
                                 if (bp->len == 1)
@@ -115,7 +115,7 @@ read_pair(FILE *fp)
                 if (c == '\n')
                         ++linenum;
                 if (!isspace(c))
-                        ungetc(c, fp);
+                        UNGETC(c, fp);
                 exp = read(fp);
                 if (isdot)
                         bwrite(bp, " . ", 3);
@@ -159,7 +159,7 @@ read_atm(FILE *fp, int ch)
                 else
                         bputc('"', bp);       /* writing the closing quote */
         else
-                ungetc(c, fp);
+                UNGETC(c, fp);
         return bp;
 }
 
