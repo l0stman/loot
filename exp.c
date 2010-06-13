@@ -136,7 +136,7 @@ tostr(const exp_t *ep)
 }
 
 #define SIGN(x) ((x) < 0 ? -1 : 1)
-#define ABS(x)  ((x) == LONG_MIN ? LONG_MAX + 1UL : ((x) < 0 ? -x : x))
+#define ABS(x)  ((x) == INT_MIN ? INT_MAX + 1U : ((x) < 0 ? -x : x))
 
 static inline unsigned long
 gcd(unsigned long m, unsigned long n)
@@ -154,27 +154,27 @@ gcd(unsigned long m, unsigned long n)
 
 /* Built a new rational number */
 exp_t *
-nrat(long num, long den)
+nrat(int num, int den)
 {
         exp_t *ep;
-        unsigned long d, g;
+        unsigned int d, g;
 
         assert(den != 0);
         if (num == 0)
-                return atom("0");
+                return nfixnum(0);
 
         d = ABS(den);
         g = gcd(ABS(num), d);
-        num = SIGN(den) * num/(long)g;
+        num = SIGN(den) * num/(int)g;
         d /= g;
 
         if (d == 1)
-                return atom(inttoatm(num));
+                return nfixnum(num);
         NEW(ep);
         type(ep) = RAT;
         NEW(ratp(ep));
-        num(ep) = inttoatm(num);
-        den(ep) = inttoatm(d);
+        num(ep) = num;
+        den(ep) = d;
 
         return ep;
 }
