@@ -111,6 +111,12 @@ israt(const exp_t *ep)
         return (ep != NULL  && type(ep) == RAT);
 }
 
+static inline int
+isfxn(const exp_t *ep)
+{
+        return (ep != NULL && type(ep) == FIXNUM);
+}
+
 /* Return an atom whose symbol is s */
 static inline exp_t *
 atom(const char *s)

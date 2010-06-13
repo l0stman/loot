@@ -29,6 +29,7 @@
 /* maximum number of digits (plus sign) for a 128-bits integer */
 #define MAXDIG  39
 #define FMAXDIG 2*MAXDIG
+#define IMAXDIG 10
 
 #define NEW(p)	((p) = smalloc(sizeof *(p)))
 

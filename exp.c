@@ -106,13 +106,23 @@ ftostr(const exp_t *ep)
         return buf;
 }
 
-/* Return a string representing a rational */
+/* Return a string representing a rational. */
 static char *
 rtostr(const exp_t *ep)
 {
-        char *buf = xalloc(strlen(num(ep))+strlen(den(ep))+2);
+        char *buf = xalloc(2*IMAXDIG+2);
 
-        sprintf(buf, "%s/%s", num(ep), den(ep));
+        sprintf(buf, "%d/%d", num(ep), den(ep));
+        return buf;
+}
+
+/* Return a string representing a fixnum. */
+static char *
+fxntostr(const exp_t *ep)
+{
+        char *buf = xalloc(IMAXDIG+1);
+
+        sprintf(buf, "%d", fixnum(ep));
         return buf;
 }
 
@@ -130,6 +140,8 @@ tostr(const exp_t *ep)
                 return ftostr(ep);
         else if (israt(ep))
                 return rtostr(ep);
+        else if (isfxn(ep))
+                return fxntostr(ep);
         else
                 err_quit("tostr: unknown expression");
         return NULL;
