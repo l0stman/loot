@@ -19,17 +19,19 @@ static exp_t *
 parse_atm(char *s, int len)
 {
         exp_t *ep;
-        char *p;
-        char *endp;
-        long n, d;
+        char *p, *endp;
+        int n, d;
 
         p = sstrndup(s, len);
         if (isfloatstr(p, len))
                 ep = nfloat(atof(p));
         else if (isratstr(p, len)) {
                 n = strtol(p, &endp, 10);
-                d = strtol(++endp, NULL, 10);
-                ep = nrat(n, d);
+                if (*endp == '/') {
+                        d = strtol(++endp, NULL, 10);
+                        ep = nrat(n, d);
+                } else
+                        ep = nfixnum(n);
         } else
                 ep = atom(p);
         free(p);

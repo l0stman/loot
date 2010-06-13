@@ -57,7 +57,9 @@ isratstr(const char *s, int len)
 {
         int offset;
 
-        if ((offset = intlen(s, len)) == 0 || *(s+offset) != '/')
+        if ((offset = intlen(s, len)) == len)
+                return 1;
+        else if (offset == 0 || *(s+offset) != '/')
                 return 0;
         s += (offset+1), len -= (offset+1);
         return (*s != '+' && *s != '-' ? intlen(s, len) == len : 0);

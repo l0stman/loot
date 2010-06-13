@@ -68,8 +68,8 @@ typedef struct proc {           /* A procedure is a function or a primitive */
 #define den(ep) ratp(ep)->den
 
 typedef struct rat {            /* represents a rational */
-        const char *num;        /* numerator */
-        const char *den;        /* denominator */
+        int num;                /* numerator */
+        int den;                /* denominator */
 } rat_t;
 
 extern exp_t *false;
@@ -79,7 +79,7 @@ extern exp_t *null;
 extern int iseq(const exp_t *, const exp_t *);
 extern char *tostr(const exp_t *);
 extern void instcst(struct env *);
-extern exp_t *nrat(long, long);
+extern exp_t *nrat(int, int);
 
 static inline int
 isatom(const exp_t *ep)
