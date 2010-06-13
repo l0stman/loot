@@ -29,7 +29,7 @@ extern void inittags(void);
 static inline int
 isint(exp_t *ep)
 {
-        return (isatom(ep) && isintstr(symp(ep), strlen(symp(ep))));
+        return isfxn(ep);
 }
 
 /* Test if the expression is a number */
