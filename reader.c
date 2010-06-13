@@ -33,7 +33,7 @@ skip(FILE *fp)
 {
         register int c;
 
-        while ((c = fgetc(fp)) != EOF) {
+        while ((c = fgetc(fp)) != EOF)
                 if (isspace(c)) {
                         if (c == '\n')
                                 ++linenum;
@@ -44,7 +44,6 @@ skip(FILE *fp)
                         ungetc(c, fp);
                         break;
                 }
-        }
 }
 
 /*
