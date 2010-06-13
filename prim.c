@@ -190,7 +190,7 @@ add(exp_t *a1, exp_t *a2)
 static exp_t *
 prim_add(exp_t *args)
 {
-        return foldl(add, atom("0"), args);
+        return foldl(add, nfixnum(0), args);
 }
 
 /* Return the difference of two expressions */
@@ -220,7 +220,7 @@ prim_sub(exp_t *args)
         if (isnull(args))
                 everr("- : need at least one argument, given", null);
         else if (isnull(cdr(args)))
-                return sub(atom("0"), car(args));
+                return sub(nfixnum(0), car(args));
         return foldl(sub, car(args), cdr(args));
 }
 
@@ -244,7 +244,7 @@ prod(exp_t *a1, exp_t *a2)
 static exp_t *
 prim_prod(exp_t *args)
 {
-        return foldl(prod, atom("1"), args);
+        return foldl(prod, nfixnum(1), args);
 }
 
 /* Return the division of two expressions */
@@ -272,7 +272,7 @@ prim_div(exp_t *args)
         if (isnull(args))
                 everr("/: need at least one argument -- given", null);
         else if(isnull(cdr(args)))
-                return divs(atom("1"), car(args));
+                return divs(nfixnum(1), car(args));
         return foldl(divs, car(args), cdr(args));
 }
 

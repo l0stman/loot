@@ -1,11 +1,8 @@
 #ifndef PRIM_H
 #define PRIM_H
 
-#define toint(s)        strtol((s), NULL, 10)
-#define atoint(s)       toint(symp(s))
-#define rvalue(r)       ((1.0 * toint(num(r))) / toint(den(r)))
-#define VALUE(x)        (isint(x) ? atoint(x):                  \
-                         (israt(x) ? rvalue(x) : fvalue(x)))
+#define VALUE(x)	(isint(x) ? fixnum(x):          \
+                         (israt(x) ? ((double)num(x)/(den(x))) : fvalue(x)))
 
 #define compare(op, x, y)       (VALUE(x) op VALUE(y) ? true: false)
 
@@ -16,8 +13,8 @@
         } while (0)
 
 /* Returns the numerator and denominator of a rational or an integer */
-#define NUMER(x)        (israt(x) ? toint(num(x)) : atoint(x))
-#define DENOM(x)        (israt(x) ? toint(den(x)) : 1)
+#define NUMER(x)        (israt(x) ? num(x) : fixnum(x))
+#define DENOM(x)        (israt(x) ? den(x) : 1)
 
 /* Check the arguments for a comparison */
 #define CHKCMP(args, name)      do {            \
