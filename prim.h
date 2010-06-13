@@ -2,7 +2,7 @@
 #define PRIM_H
 
 #define VALUE(x)	(isint(x) ? fixnum(x):          \
-                         (israt(x) ? ((double)num(x)/(den(x))) : fvalue(x)))
+                         (israt(x) ? ((double)num(x)/(den(x))) : flt(x)))
 
 #define compare(op, x, y)       (VALUE(x) op VALUE(y) ? true: false)
 

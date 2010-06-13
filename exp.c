@@ -102,7 +102,7 @@ ftostr(const exp_t *ep)
 {
         char *buf = xalloc(FMAXDIG);
 
-        snprintf(buf, FMAXDIG, "%e", fvalue(ep));
+        snprintf(buf, FMAXDIG, "%e", flt(ep));
         return buf;
 }
 

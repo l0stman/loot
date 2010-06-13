@@ -10,7 +10,7 @@ enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM };
 #define pairp(ep)       (ep)->u.cp
 #define procp(ep)       (ep)->u.pp
 #define label(ep)       (ep)->u.pp->label
-#define fvalue(ep)      (ep)->u.ft
+#define flt(ep)	        (ep)->u.ft
 #define fixnum(ep)	(ep)->u.fx
 #define ratp(ep)        (ep)->u.rp
 
@@ -195,7 +195,7 @@ nfloat(double e)
 
         NEW(ep);
         type(ep) = FLOAT;
-        fvalue(ep) = e;
+        flt(ep) = e;
         return ep;
 }
 
