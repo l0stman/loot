@@ -110,7 +110,7 @@ load(char *path, env_t *envp, mode_t isinter)
         }
 
 read:
-        TRY {
+        TRY
                 if (isinter) {
                         printf("%s", INPR);
                         fflush(stdout);
@@ -125,7 +125,6 @@ read:
                         printf("%s%s\n", OUTPR, tostr(ep));
                         fflush(stdout);
                 }
-        }
         WARN(read_error);
         WARN(eval_error);
         ENDTRY;
