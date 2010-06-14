@@ -126,6 +126,7 @@ read:
                         fflush(stdout);
                 }
         WARN(read_error);
+        WARN(syntax_error);
         WARN(eval_error);
         ENDTRY;
 
