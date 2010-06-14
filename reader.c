@@ -1,7 +1,7 @@
 #include "extern.h"
 #include "reader.h"
 
-const excpt_t read_error = { "reader error" };
+const excpt_t read_error = { "read" };
 
 /* skip spaces in the input stream. */
 static inline void

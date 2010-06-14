@@ -19,7 +19,7 @@ static exp_t *evset(exp_t *, env_t *);
 static exp_t *evsetcar(exp_t *, env_t *);
 static exp_t *evsetcdr(exp_t *, env_t *);
 
-const excpt_t eval_error = { "evaluation error" };
+const excpt_t eval_error = { "eval" };
 
 /* Evaluate the expression in the environment. */
 exp_t *
