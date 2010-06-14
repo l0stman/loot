@@ -4,60 +4,56 @@
 #include "eval.h"
 #include "type.h"
 
-static exp_t *evdef(exp_t *, env_t *);
-static exp_t *evvar(exp_t *, env_t *);
-static exp_t *evquote(exp_t *);
-static exp_t *evif(exp_t *, env_t *);
-static exp_t *evbegin(exp_t *, env_t *);
-static exp_t *evcond(exp_t *, env_t *);
-static exp_t *evlambda(exp_t *, env_t *);
-static exp_t *evand(exp_t *, env_t *);
-static exp_t *evor(exp_t *, env_t *);
-static exp_t *evlet(exp_t *, env_t *);
-static exp_t *evmap(exp_t *, env_t *);
-static exp_t *evset(exp_t *, env_t *);
-static exp_t *evsetcar(exp_t *, env_t *);
-static exp_t *evsetcdr(exp_t *, env_t *);
-
 const excpt_t eval_error = { "eval" };
+const excpt_t syntax_error = { "syntax" };
+
+/* Represents an evaluation procedure. */
+typedef struct evproc {
+        exp_t *(*eval)();
+        void *args;
+} evproc_t;
+
+static inline evproc_t *
+nevproc(exp_t *(*eval)(), void *args)
+{
+        evproc_t *epp;
+
+        NEW(epp);
+        epp->eval = eval;
+        epp->args = args;
+        return epp;
+}
+
+static exp_t *evself(exp_t *, env_t *);
+
+/*
+ * Check the syntax of the expression and return a corresponding
+ * evaluation procedure.
+ */
+static evproc_t *
+analyze(exp_t *ep)
+{
+        if (isself(ep))
+                return nevproc(evself, ep);
+        else
+                anerr("bad syntax in", ep);
+        return NULL;            /* not reached */
+}
 
 /* Evaluate the expression in the environment. */
 exp_t *
-eval(exp_t *ep, env_t *envp)
+eval(exp_t *exp, env_t *envp)
 {
-        if (isself(ep))
-                return ep;
-        else if (isdef(ep))
-                return evdef(ep, envp);
-        else if (isvar(ep))
-                return evvar(ep, envp);
-        else if (isquote(ep))
-                return evquote(ep);
-        else if (isif(ep))
-                return evif(ep, envp);
-        else if (isbegin(ep))
-                return evbegin(ep, envp);
-        else if (iscond(ep))
-                return evcond(ep, envp);
-        else if (islambda(ep))
-                return evlambda(ep, envp);
-        else if (isand(ep))
-                return evand(ep, envp);
-        else if (isor(ep))
-                return evor(ep, envp);
-        else if (islet(ep))
-                return evlet(ep, envp);
-        else if (isset(ep))
-                return evset(ep, envp);
-        else if (issetcar(ep))
-                return evsetcar(ep, envp);
-        else if (issetcdr(ep))
-                return evsetcdr(ep, envp);
-        else if (islist(ep))  /* application */
-                return apply(eval(car(ep), envp), evmap(cdr(ep), envp), envp);
-        else
-                everr("unknown expression", ep);
-        return NULL;            /* not reached */
+        evproc_t *epp;
+
+        epp = analyze(exp);
+        return epp->eval(epp->args, envp);
+}
+
+static exp_t *
+evself(exp_t *ep, env_t *envp)
+{
+        return ep;
 }
 
 /* Check that the expression is a list of length n. */
