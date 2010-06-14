@@ -57,15 +57,15 @@ evself(exp_t *ep, env_t *envp)
 }
 
 /* Check that the expression is a list of length n. */
-static void
-chknum(exp_t *lp, int n)
+static inline void
+chklst(exp_t *lp, int n)
 {
         exp_t *ep;
 
         for (ep = lp; n-- && ispair(ep); ep = cdr(ep))
                 ;
         if (n != -1 || !isnull(ep))
-                everr("bad syntax in", lp);
+                anerr("bad syntax in", lp);
 }
 
 /* Evaluate a define expression */
@@ -76,7 +76,7 @@ evdef(exp_t *ep, env_t *envp)
         exp_t *val, *args;
 
         if (isnull(cdr(ep)) || isatom(cadr(ep)))
-                chknum(ep, 3);
+                chklst(ep, 3);
         args = cdr(ep);
         if (ispair(ep = car(args))) { /* lambda shortcut */
                 if (!issym(car(ep)))
@@ -105,7 +105,7 @@ evset(exp_t *ep, env_t *envp)
         exp_t *val;
         struct nlist *np;
 
-        chknum(ep, 3);
+        chklst(ep, 3);
         if (!issym(var = cadr(ep)))
                 everr("should be a symbol", var);
         val = eval(caddr(ep), envp);
@@ -124,7 +124,7 @@ set(exp_t *ep, env_t *envp, enum place place)
         exp_t *var;
         exp_t *val;
 
-        chknum(ep, 3);
+        chklst(ep, 3);
         var = eval(cadr(ep), envp);
         val = eval(caddr(ep), envp);
         if (!ispair(var))
@@ -165,7 +165,7 @@ evvar(exp_t *ep, env_t *envp)
 static exp_t *
 evquote(exp_t *ep)
 {
-        chknum(ep, 2);
+        chklst(ep, 2);
         return cadr(ep);
 }
 
@@ -175,7 +175,7 @@ evif(exp_t *ep, env_t *envp)
 {
         exp_t *res;
 
-        chknum(ep, 4);
+        chklst(ep, 4);
         ep = cdr(ep);
         res = (iseq(false, eval(car(ep), envp)) ? caddr(ep): cadr(ep));
         return eval(res, envp);
