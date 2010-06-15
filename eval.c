@@ -109,6 +109,7 @@ anquote(exp_t *ep)
         return nevproc(evself, (void *)&cadr(ep));
 }
 
+/* Analyze the syntax of a define expression. */
 static evproc_t *
 andef(exp_t *ep)
 {
