@@ -25,6 +25,7 @@ nevproc(exp_t *(*eval)(), void *args)
 }
 
 static exp_t *evself(exp_t *, env_t *);
+static exp_t *evvar(exp_t *, env_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -35,6 +36,8 @@ analyze(exp_t *ep)
 {
         if (isself(ep))
                 return nevproc(evself, ep);
+        else if (isvar(ep))
+                return nevproc(evvar, ep);
         else
                 anerr("bad syntax in", ep);
         return NULL;            /* not reached */
@@ -50,11 +53,9 @@ eval(exp_t *exp, env_t *envp)
         return epp->eval(epp->args, envp);
 }
 
-static exp_t *
-evself(exp_t *ep, env_t *envp)
-{
-        return ep;
-}
+/*
+ * Syntax analyzer procedures.
+ */
 
 /* Check that the expression is a list of length n. */
 static inline void
@@ -66,6 +67,27 @@ chklst(exp_t *lp, int n)
                 ;
         if (n != -1 || !isnull(ep))
                 anerr("bad syntax in", lp);
+}
+
+/*
+ * Evaluation procedures.
+ */
+
+static exp_t *
+evself(exp_t *ep, env_t *envp)
+{
+        return ep;
+}
+
+/* Return the value of a variable if any. */
+static exp_t *
+evvar(exp_t *var, env_t *envp)
+{
+        struct nlist *np;
+
+        if ((np = lookup(symp(var), envp)) == NULL)
+                everr("unbound variable", var);
+        return np->defn;
 }
 
 /* Evaluate a define expression */
@@ -148,17 +170,6 @@ static exp_t *
 evsetcdr(exp_t *ep, env_t *envp)
 {
         return set(ep, envp, CDR);
-}
-
-/* Return the value of a variable if any */
-static exp_t *
-evvar(exp_t *ep, env_t *envp)
-{
-        struct nlist *np;
-
-        if ((np = lookup(symp(ep), envp)) == NULL)
-                everr("unbound variable", ep);
-        return np->defn;
 }
 
 /* Return the quoted expression */
