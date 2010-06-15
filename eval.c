@@ -12,6 +12,7 @@ static exp_t *evvar(exp_t **, env_t *);
 static exp_t *evdef(void **, env_t *);
 static exp_t *evif(evproc_t **, env_t *);
 static exp_t *evbegin(evproc_t **, env_t *);
+static exp_t *evlambda(void **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
@@ -19,6 +20,7 @@ static evproc_t *anquote(exp_t *);
 static evproc_t *andef(exp_t *);
 static evproc_t *anif(exp_t *);
 static evproc_t *anbegin(exp_t *);
+static evproc_t *anlambda(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -39,6 +41,8 @@ analyze(exp_t *ep)
                 return anif(ep);
         else if (isbegin(ep))
                 return anbegin(ep);
+        else if (islambda(ep))
+                return anlambda(ep);
         else
                 anerr("bad syntax in", ep);
         return NULL;            /* not reached */
@@ -167,6 +171,32 @@ anbegin(exp_t *ep)
         argv[size] = NULL;
 
         return nevproc(evbegin, (void **)argv);
+}
+
+/* Analyze the syntax of a lambda expression. */
+static evproc_t *
+anlambda(exp_t *ep)
+{
+        void **argv;
+        exp_t *lp, *p;
+
+        if (isnull(cdr(ep)) || isnull(cddr(ep)))
+                anerr("bad syntax in", ep);
+        for (lp = cadr(ep); ispair(lp); lp = cdr(lp)) {
+                if (!issym(car(lp)))
+                        anerr("should be a symbol", car(lp));
+                for (p = cdr(lp); ispair(p); p = cdr(p))
+                        if (iseq(car(lp), car(p)))
+                                anerr("duplicate symbol parameter", car(p));
+        }
+        if (!isnull(lp) && !issym(lp))
+                 anerr("should be null or a symbol", lp);
+
+        argv = smalloc(2*sizeof(*argv));
+        argv[0] = (void *)cadr(ep);
+        argv[1] = (void *)analyze(cons(atom("begin"), cddr(ep)));
+
+        return nevproc(evlambda, argv);
 }
 
 /*
@@ -340,31 +370,10 @@ evor(exp_t *ep, env_t *envp)
 }
 
 /* Evaluate a lambda expression */
-static int chkpars(exp_t *);
-
 static exp_t *
-evlambda(exp_t *lp, env_t *envp)
+evlambda(void **argv, env_t *envp)
 {
-        exp_t *ep;
-
-        ep = cdr(lp);
-        if (isnull(ep) || !chkpars(car(ep)) || isnull(cdr(ep)))
-                everr("syntax error in", lp);
-        return proc(func(car(ep), cons(atom("begin"), cdr(ep)), envp));
-}
-
-/* Verify if the expression represents function's parameters */
-static int
-chkpars(exp_t *ep)
-{
-        if (!ispair(ep))
-                return isatom(ep);
-        for (; !isatom(ep); ep = cdr(ep))
-                if (!issym(car(ep))) {
-                        warnx("should be a symbol %s: ", tostr(car(ep)));
-                        return 0;
-                }
-        return 1;
+        return proc(func((exp_t *)argv[0], (evproc_t *)argv[1], envp));
 }
 
 /* Eval a let expression */
