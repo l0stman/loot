@@ -8,7 +8,7 @@ exp_t *null;
 
 static struct {
         exp_t **ep;
-        const char *name;
+        symb_t *name;
 } cst[] = {
         {&false, "#f"},
         {&true, "#t"},

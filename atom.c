@@ -56,14 +56,15 @@ static unsigned long scatter[] = {
 };
 
 /* strtoatm: returns an atom pointer representing the string */
-const char *strtoatm(const char *s)
+symb_t *
+strtoatm(const char *s)
 {
         assert(s);
         return natom(s, strlen(s));
 }
 
 /* inttoatm: returns an atom representing an integer */
-const char *
+symb_t *
 inttoatm(long n)
 {
         char buf[MAXDIG+1];
@@ -85,10 +86,12 @@ inttoatm(long n)
         return strtoatm(s);
 }
 
-/* natom: returns an atom pointer representing the sequence
- * of bytes s of length len.
+/*
+ * natom: returns a pointer to an atom representing the sequence of
+ * bytes s of length len.
  */
-const char *natom(const char *s, int len) {
+symb_t *
+natom(const char *s, int len) {
         unsigned long h;
         int i;
         struct atom *p;

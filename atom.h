@@ -1,8 +1,10 @@
 #ifndef ATOM_H
 #define ATOM_H
 
-extern const char *strtoatm(const char *);
-extern const char *inttoatm(long);
-extern const char *natom(const char *, int);
+typedef const char symb_t;
+
+extern symb_t *strtoatm(const char *);
+extern symb_t *inttoatm(long);
+extern symb_t *natom(const char *, int);
 
 #endif	/* !ATOM_H */

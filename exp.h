@@ -17,7 +17,7 @@ enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM };
 typedef struct exp {
         enum type            tp; /* type of the expression */
         union {
-                const char  *sp; /* pointer to the symbol of an atom */
+                symb_t      *sp; /* pointer to the symbol of an atom */
                 struct cons *cp; /* pointer to a pair */
                 struct proc *pp; /* pointer to a procedure */
                 int          fx; /* represents a fixnum */
@@ -57,7 +57,7 @@ struct func {   /* Represents a function */
 enum ftype { FUNC, PRIM };
 typedef struct proc {           /* A procedure is a function or a primitive */
         enum ftype tp;          /* type of the procedure */
-        const char *label;      /* label of the procedure */
+        symb_t *label;          /* label of the procedure */
         union {
                 exp_t *(*primp)();  /* pointer to a primitive function */
                 struct func *funcp; /* pointer to an user-defined function */
@@ -119,7 +119,7 @@ isfxn(const exp_t *ep)
 
 /* Return an atom whose symbol is s */
 static inline exp_t *
-atom(const char *s)
+atom(symb_t *s)
 {
         exp_t *ep;
 

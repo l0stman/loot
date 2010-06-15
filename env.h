@@ -21,11 +21,11 @@ struct nlist {  /* table entry */
 
 extern frame_t *newframe(void);
 extern void fdump(frame_t *);
-extern struct nlist *lookup(const char *, env_t *);
-extern struct nlist *install(const char *, exp_t *, env_t *);
+extern struct nlist *lookup(symb_t *, env_t *);
+extern struct nlist *install(symb_t *, exp_t *, env_t *);
 extern env_t *newenv(void);
 extern env_t *extenv(exp_t *, env_t *);
-extern void undef(char *, frame_t *);
+extern void undef(symb_t *, frame_t *);
 
 /* fframe: return the first frame in the environment */
 static inline frame_t *
