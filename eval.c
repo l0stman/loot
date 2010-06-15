@@ -48,6 +48,8 @@ analyze(exp_t *ep)
         return NULL;            /* not reached */
 }
 
+#define EVPROC(epp, envp)	((epp)->eval((epp)->argv, envp))
+
 /* Evaluate the expression in the environment. */
 exp_t *
 eval(exp_t *exp, env_t *envp)
@@ -55,7 +57,7 @@ eval(exp_t *exp, env_t *envp)
         evproc_t *epp;
 
         epp = analyze(exp);
-        return epp->eval(epp->argv, envp);
+        return EVPROC(epp, envp);
 }
 
 /*
@@ -230,7 +232,7 @@ evdef(void **argv, env_t *envp)
 
         var = (symb_t *)argv[0];
         vproc = (evproc_t *)argv[1];
-        val = vproc->eval(vproc->argv, envp);
+        val = EVPROC(vproc, envp);
         if (type(val) == PROC && label(val) == NULL)
                 label(val) = strtoatm(var); /* label anonymous procedure */
         install(var, val, envp);
@@ -298,8 +300,8 @@ evif(evproc_t **argv, env_t *envp)
         evproc_t *pred, *res;
 
         pred = argv[0];
-        res = (!iseq(false, pred->eval(pred->argv, envp)) ? argv[1] : argv[2]);
-        return res->eval(res->argv, envp);
+        res = (!iseq(false, EVPROC(pred, envp)) ? argv[1] : argv[2]);
+        return EVPROC(res, envp);
 }
 
 /* Evaluate a begin expression */
@@ -310,7 +312,7 @@ evbegin(evproc_t **argv, env_t *envp)
 
         assert(*argv);
         for (; *argv; argv++)
-                rv = argv[0]->eval(argv[0]->argv, envp);
+                rv = EVPROC(argv[0], envp);
         return rv;
 }
 
