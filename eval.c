@@ -10,24 +10,28 @@ const excpt_t syntax_error = { "syntax" };
 /* Represents an evaluation procedure. */
 typedef struct evproc {
         exp_t *(*eval)();
-        void *args;
+        void **argv;
 } evproc_t;
 
 static inline evproc_t *
-nevproc(exp_t *(*eval)(), void *args)
+nevproc(exp_t *(*eval)(), void **argv)
 {
         evproc_t *epp;
 
         NEW(epp);
         epp->eval = eval;
-        epp->args = args;
+        epp->argv = argv;
         return epp;
 }
 
-static exp_t *evself(exp_t *, env_t *);
-static exp_t *evvar(exp_t *, env_t *);
+static exp_t *evself(void **, env_t *);
+static exp_t *evvar(void **, env_t *);
+static exp_t *evdef(void **, env_t *);
 
+static evproc_t *anself(exp_t *);
+static evproc_t *anvar(exp_t *);
 static evproc_t *anquote(exp_t *);
+static evproc_t *andef(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -37,11 +41,13 @@ static evproc_t *
 analyze(exp_t *ep)
 {
         if (isself(ep))
-                return nevproc(evself, ep);
+                return anself(ep);
         else if (isvar(ep))
-                return nevproc(evvar, ep);
+                return anvar(ep);
         else if (isquote(ep))
                 return anquote(ep);
+        else if (isdef(ep))
+                return andef(ep);
         else
                 anerr("bad syntax in", ep);
         return NULL;            /* not reached */
@@ -54,7 +60,7 @@ eval(exp_t *exp, env_t *envp)
         evproc_t *epp;
 
         epp = analyze(exp);
-        return epp->eval(epp->args, envp);
+        return epp->eval(epp->argv, envp);
 }
 
 /*
@@ -73,12 +79,62 @@ chklst(exp_t *lp, int n)
                 anerr("bad syntax in", lp);
 }
 
+/* Analyze a self-evaluating expression. */
+static evproc_t *
+anself(exp_t *ep)
+{
+        void **argv;
+
+        NEW(argv);
+        argv[0] = (void *)ep;
+        return nevproc(evself, argv);
+}
+
+/* Analyze a variable. */
+static evproc_t *
+anvar(exp_t *ep)
+{
+        void **argv;
+
+        NEW(argv);
+        argv[0] = (void *)ep;
+        return nevproc(evvar, argv);
+}
+
 /* Analyze the syntax of a quoted expression. */
 static evproc_t *
 anquote(exp_t *ep)
 {
         chklst(ep, 2);
-        return nevproc(evself, cadr(ep));
+        return nevproc(evself, (void *)&cadr(ep));
+}
+
+static evproc_t *
+andef(exp_t *ep)
+{
+        symb_t *var;
+        evproc_t *vproc;
+        exp_t *lst;
+        void **argv;
+
+        if (isnull(cdr(ep)) || isatom(cadr(ep)))
+                chklst(ep, 3);
+        lst = cdr(ep);
+        if (ispair(ep = car(lst))) { /* lambda shortcut */
+                if (!issym(car(ep)))
+                        anerr("should be a symbol", cdr(lst));
+                var = symp(car(ep));
+                vproc = analyze(cons(atom(keywords[LAMBDA]),
+                                   cons(cdr(ep), cdr(lst))));
+        } else if (issym(ep)) {
+                var = symp(ep);
+                vproc = analyze(cadr(lst));
+        } else
+                anerr("the expression couldn't be defined", car(lst));
+        argv = smalloc(2*sizeof(*argv));
+        argv[0] = (void *)var;
+        argv[1] = (void *)vproc;
+        return nevproc(evdef, argv);
 }
 
 /*
@@ -86,17 +142,19 @@ anquote(exp_t *ep)
  */
 
 static exp_t *
-evself(exp_t *ep, env_t *envp)
+evself(void **args, env_t *envp)
 {
-        return ep;
+        return *args;
 }
 
 /* Return the value of a variable if any. */
 static exp_t *
-evvar(exp_t *var, env_t *envp)
+evvar(void **argv, env_t *envp)
 {
         struct nlist *np;
+        exp_t *var;
 
+        var = (exp_t *)*argv;
         if ((np = lookup(symp(var), envp)) == NULL)
                 everr("unbound variable", var);
         return np->defn;
@@ -104,26 +162,15 @@ evvar(exp_t *var, env_t *envp)
 
 /* Evaluate a define expression */
 static exp_t *
-evdef(exp_t *ep, env_t *envp)
+evdef(void **argv, env_t *envp)
 {
-        const char *var;
-        exp_t *val, *args;
+        symb_t *var;
+        evproc_t *vproc;
+        exp_t *val;
 
-        if (isnull(cdr(ep)) || isatom(cadr(ep)))
-                chklst(ep, 3);
-        args = cdr(ep);
-        if (ispair(ep = car(args))) { /* lambda shortcut */
-                if (!issym(car(ep)))
-                        everr("should be a symbol", car(ep));
-                var = symp(car(ep));
-                val = cons(atom("lambda"), cons(cdr(ep), cdr(args)));
-        } else if (issym(ep)) {
-                var = symp(ep);
-                val = cadr(args);
-        } else
-                everr("the expression couldn't be defined", car(args));
-
-        val = eval(val, envp);
+        var = (symb_t *)argv[0];
+        vproc = (evproc_t *)argv[1];
+        val = vproc->eval(vproc->argv, envp);
         if (type(val) == PROC && label(val) == NULL)
                 label(val) = strtoatm(var); /* label anonymous procedure */
         install(var, val, envp);
