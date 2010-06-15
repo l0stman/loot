@@ -28,12 +28,14 @@ static exp_t *evself(exp_t **, env_t *);
 static exp_t *evvar(exp_t **, env_t *);
 static exp_t *evdef(void **, env_t *);
 static exp_t *evif(evproc_t **, env_t *);
+static exp_t *evbegin(evproc_t **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
 static evproc_t *anquote(exp_t *);
 static evproc_t *andef(exp_t *);
 static evproc_t *anif(exp_t *);
+static evproc_t *anbegin(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -52,6 +54,8 @@ analyze(exp_t *ep)
                 return andef(ep);
         else if (isif(ep))
                 return anif(ep);
+        else if (isbegin(ep))
+                return anbegin(ep);
         else
                 anerr("bad syntax in", ep);
         return NULL;            /* not reached */
@@ -155,6 +159,29 @@ anif(exp_t *ep)
         argv[1] = analyze(cadr(ep));
         argv[2] = analyze(caddr(ep));
         return nevproc(evif, (void **)argv);
+}
+
+/* Analyze the syntax of a begin expression. */
+static evproc_t *
+anbegin(exp_t *ep)
+{
+        evproc_t **argv;
+        exp_t *lp;
+        register int size;
+
+        if (isnull(lp = cdr(ep)))
+                anerr("empty form", ep);
+        for (size = 1; ispair(lp); lp = cdr(lp))
+                size++;
+        if (!isnull(lp))
+                anerr("should be a list", ep);
+
+        argv = smalloc(size*sizeof(*argv));
+        for (size = 0, lp = cdr(ep); ispair(lp); lp = cdr(lp))
+                argv[size++] = analyze(car(lp));
+        argv[size] = NULL;
+
+        return nevproc(evbegin, (void *)argv);
 }
 
 /*
@@ -262,12 +289,13 @@ evif(evproc_t **argv, env_t *envp)
 
 /* Evaluate a begin expression */
 static exp_t *
-evbegin(exp_t *ep, env_t *envp)
+evbegin(evproc_t **argv, env_t *envp)
 {
-        exp_t *rv = NULL;
+        exp_t *rv;
 
-        for (ep = cdr(ep); !isnull(ep); ep = cdr(ep))
-                rv = eval(car(ep), envp);
+        assert(*argv);
+        for (; *argv; argv++)
+                rv = argv[0]->eval(argv[0]->argv, envp);
         return rv;
 }
 
