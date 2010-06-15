@@ -182,7 +182,7 @@ func(exp_t *parp, evproc_t *bodyp, struct env *envp)
 
 /* Return a primitive */
 static inline proc_t *
-prim(char *label, exp_t *(primp)())
+nprim(char *label, exp_t *(primp)())
 {
         proc_t *pp;
 
@@ -195,7 +195,7 @@ prim(char *label, exp_t *(primp)())
 
 /* Return an expression from a procedure */
 static inline exp_t *
-proc(proc_t *pp)
+nproc(proc_t *pp)
 {
         exp_t *ep;
 

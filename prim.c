@@ -80,7 +80,7 @@ instprim(env_t *envp)
         int i;
 
         for (i = 0; i < NELEMS(plst); i++)
-                install(plst[i].n, proc(prim(plst[i].n, plst[i].pp)), envp);
+                install(plst[i].n, nproc(nprim(plst[i].n, plst[i].pp)), envp);
 }
 
 /* Evaluate all the expressions in the file */

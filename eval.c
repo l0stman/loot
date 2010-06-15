@@ -373,7 +373,7 @@ evor(exp_t *ep, env_t *envp)
 static exp_t *
 evlambda(void **argv, env_t *envp)
 {
-        return proc(func((exp_t *)argv[0], (evproc_t *)argv[1], envp));
+        return nproc(func((exp_t *)argv[0], (evproc_t *)argv[1], envp));
 }
 
 /* Eval a let expression */
