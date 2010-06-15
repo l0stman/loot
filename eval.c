@@ -60,9 +60,9 @@ eval(exp_t *exp, env_t *envp)
         return EVPROC(epp, envp);
 }
 
-/*
- * Syntax analyzer procedures.
- */
+/* * * * * * * * * * * * * * * *
+ * Syntax analyzer procedures. *
+ * * * * * * * * * * * * * * * */
 
 /* Check that the expression is a list of length n. */
 static inline void
@@ -201,9 +201,9 @@ anlambda(exp_t *ep)
         return nevproc(evlambda, argv);
 }
 
-/*
- * Evaluation procedures.
- */
+/* * * * * * * * * * * * * *
+ * Evaluation procedures.  *
+ * * * * * * * * * * * * * */
 
 static exp_t *
 evself(exp_t **args, env_t *envp)
