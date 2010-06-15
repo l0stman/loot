@@ -24,14 +24,16 @@ nevproc(exp_t *(*eval)(), void **argv)
         return epp;
 }
 
-static exp_t *evself(void **, env_t *);
-static exp_t *evvar(void **, env_t *);
+static exp_t *evself(exp_t **, env_t *);
+static exp_t *evvar(exp_t **, env_t *);
 static exp_t *evdef(void **, env_t *);
+static exp_t *evif(evproc_t **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
 static evproc_t *anquote(exp_t *);
 static evproc_t *andef(exp_t *);
+static evproc_t *anif(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -48,6 +50,8 @@ analyze(exp_t *ep)
                 return anquote(ep);
         else if (isdef(ep))
                 return andef(ep);
+        else if (isif(ep))
+                return anif(ep);
         else
                 anerr("bad syntax in", ep);
         return NULL;            /* not reached */
@@ -138,26 +142,39 @@ andef(exp_t *ep)
         return nevproc(evdef, argv);
 }
 
+/* Analyze the syntax of an if expression. */
+static evproc_t *
+anif(exp_t *ep)
+{
+        evproc_t **argv;
+
+        chklst(ep, 4);
+        ep = cdr(ep);
+        argv = smalloc(3*sizeof(*argv));
+        argv[0] = analyze(car(ep));
+        argv[1] = analyze(cadr(ep));
+        argv[2] = analyze(caddr(ep));
+        return nevproc(evif, (void **)argv);
+}
+
 /*
  * Evaluation procedures.
  */
 
 static exp_t *
-evself(void **args, env_t *envp)
+evself(exp_t **args, env_t *envp)
 {
         return *args;
 }
 
 /* Return the value of a variable if any. */
 static exp_t *
-evvar(void **argv, env_t *envp)
+evvar(exp_t **argv, env_t *envp)
 {
         struct nlist *np;
-        exp_t *var;
 
-        var = (exp_t *)*argv;
-        if ((np = lookup(symp(var), envp)) == NULL)
-                everr("unbound variable", var);
+        if ((np = lookup(symp(argv[0]), envp)) == NULL)
+                everr("unbound variable", argv[0]);
         return np->defn;
 }
 
@@ -234,14 +251,13 @@ evsetcdr(exp_t *ep, env_t *envp)
 
 /* Evaluate an if expression */
 static exp_t *
-evif(exp_t *ep, env_t *envp)
+evif(evproc_t **argv, env_t *envp)
 {
-        exp_t *res;
+        evproc_t *pred, *res;
 
-        chklst(ep, 4);
-        ep = cdr(ep);
-        res = (iseq(false, eval(car(ep), envp)) ? caddr(ep): cadr(ep));
-        return eval(res, envp);
+        pred = argv[0];
+        res = (!iseq(false, pred->eval(pred->argv, envp)) ? argv[1] : argv[2]);
+        return res->eval(res->argv, envp);
 }
 
 /* Evaluate a begin expression */
