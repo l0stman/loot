@@ -6,25 +6,6 @@ extern int isfloatstr(const char *, int);
 extern int isratstr(const char *, int);
 extern int isself(exp_t *);
 
-/* Index of tag symbols in tagsyms. */
-enum tag {
-        DEFINE,
-        QUOTE,
-        IF,
-        BEGIN,
-        COND,
-        LAMBDA,
-        AND,
-        OR,
-        LET,
-        SET,
-        SETCAR,
-        SETCDR
-};
-
-extern const char *tagsyms[];
-extern void inittags(void);
-
 /* Test if an expression is an integer */
 static inline int
 isint(exp_t *ep)
@@ -50,7 +31,7 @@ istag(exp_t *ep, char const *tag)
 static inline int
 isdef(exp_t *ep)
 {
-        return istag(ep, tagsyms[DEFINE]);
+        return istag(ep, keywords[DEFINE]);
 }
 
 /* Test if the expression is a symbol. */
@@ -78,21 +59,21 @@ isvar(exp_t *ep)
 static inline int
 isquote(exp_t *ep)
 {
-        return istag(ep, tagsyms[QUOTE]);
+        return istag(ep, keywords[QUOTE]);
 }
 
 /* Test if the expression is an if expression */
 static inline int
 isif(exp_t *ep)
 {
-        return istag(ep, tagsyms[IF]);
+        return istag(ep, keywords[IF]);
 }
 
 /* Test if the expression is a cond expression */
 static inline int
 iscond(exp_t *ep)
 {
-        return istag(ep, tagsyms[COND]);
+        return istag(ep, keywords[COND]);
 }
 
 /* Test if an expression is a boolean */
@@ -106,55 +87,55 @@ isbool(exp_t *ep)
 static inline int
 isbegin(exp_t *ep)
 {
-        return istag(ep, tagsyms[BEGIN]);
+        return istag(ep, keywords[BEGIN]);
 }
 
 /* Test if an expression is an and expression */
 static inline int
 isand(exp_t *ep)
 {
-        return istag(ep, tagsyms[AND]);
+        return istag(ep, keywords[AND]);
 }
 
 /* Test if an expression is an or expression */
 static inline int
 isor(exp_t *ep)
 {
-        return istag(ep, tagsyms[OR]);
+        return istag(ep, keywords[OR]);
 }
 
 /* Test if an expression is a lambda expression */
 static inline int
 islambda(exp_t *ep)
 {
-        return istag(ep, tagsyms[LAMBDA]);
+        return istag(ep, keywords[LAMBDA]);
 }
 
 /* Test if an expression is a let expression */
 static inline int
 islet(exp_t *ep)
 {
-        return istag(ep, tagsyms[LET]);
+        return istag(ep, keywords[LET]);
 }
 
 /* Test if an expression is a set! expression */
 static inline int
 isset(exp_t *ep)
 {
-        return istag(ep, tagsyms[SET]);
+        return istag(ep, keywords[SET]);
 }
 
 /* Test if an expression is a set-car! expression */
 static inline int
 issetcar(exp_t *ep)
 {
-        return istag(ep, tagsyms[SETCAR]);
+        return istag(ep, keywords[SETCAR]);
 }
 
 /* Test if an expression is a set-cdr! expression */
 static inline int
 issetcdr(exp_t *ep)
 {
-        return istag(ep, tagsyms[SETCDR]);
+        return istag(ep, keywords[SETCDR]);
 }
 #endif /* !TYPE_H */

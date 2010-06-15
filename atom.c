@@ -119,3 +119,29 @@ natom(const char *s, int len) {
         buckets[h] = p;
         return p->str;
 }
+
+symb_t *keywords[] = {
+        "define",
+        "quote",
+        "if",
+        "begin",
+        "cond",
+        "lambda",
+        "and",
+        "or",
+        "let",
+        "set!",
+        "set-car!",
+        "set-cdr!"
+};
+
+
+/* Transform the strings in keywords into symbols. */
+void
+initkeys(void)
+{
+        register int i;
+
+        for (i = 0; i < NELEMS(keywords); i++)
+                keywords[i] = strtoatm(keywords[i]);
+}
