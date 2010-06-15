@@ -308,12 +308,10 @@ evif(evproc_t **argv, env_t *envp)
 static exp_t *
 evbegin(evproc_t **argv, env_t *envp)
 {
-        exp_t *rv;
-
         assert(*argv);
-        for (; *argv; argv++)
-                rv = EVPROC(argv[0], envp);
-        return rv;
+        for (; *(argv+1); argv++)
+                EVPROC(argv[0], envp);
+        return EVPROC(argv[0], envp);
 }
 
 /* Evaluate a cond expression */
