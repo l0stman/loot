@@ -27,6 +27,8 @@ nevproc(exp_t *(*eval)(), void *args)
 static exp_t *evself(exp_t *, env_t *);
 static exp_t *evvar(exp_t *, env_t *);
 
+static evproc_t *anquote(exp_t *);
+
 /*
  * Check the syntax of the expression and return a corresponding
  * evaluation procedure.
@@ -38,6 +40,8 @@ analyze(exp_t *ep)
                 return nevproc(evself, ep);
         else if (isvar(ep))
                 return nevproc(evvar, ep);
+        else if (isquote(ep))
+                return anquote(ep);
         else
                 anerr("bad syntax in", ep);
         return NULL;            /* not reached */
@@ -67,6 +71,14 @@ chklst(exp_t *lp, int n)
                 ;
         if (n != -1 || !isnull(ep))
                 anerr("bad syntax in", lp);
+}
+
+/* Analyze the syntax of a quoted expression. */
+static evproc_t *
+anquote(exp_t *ep)
+{
+        chklst(ep, 2);
+        return nevproc(evself, cadr(ep));
 }
 
 /*
@@ -170,14 +182,6 @@ static exp_t *
 evsetcdr(exp_t *ep, env_t *envp)
 {
         return set(ep, envp, CDR);
-}
-
-/* Return the quoted expression */
-static exp_t *
-evquote(exp_t *ep)
-{
-        chklst(ep, 2);
-        return cadr(ep);
 }
 
 /* Evaluate an if expression */
