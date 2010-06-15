@@ -181,7 +181,7 @@ anbegin(exp_t *ep)
                 argv[size++] = analyze(car(lp));
         argv[size] = NULL;
 
-        return nevproc(evbegin, (void *)argv);
+        return nevproc(evbegin, (void **)argv);
 }
 
 /*
