@@ -7,23 +7,6 @@
 const excpt_t eval_error = { "eval" };
 const excpt_t syntax_error = { "syntax" };
 
-/* Represents an evaluation procedure. */
-typedef struct evproc {
-        exp_t *(*eval)();
-        void **argv;
-} evproc_t;
-
-static inline evproc_t *
-nevproc(exp_t *(*eval)(), void **argv)
-{
-        evproc_t *epp;
-
-        NEW(epp);
-        epp->eval = eval;
-        epp->argv = argv;
-        return epp;
-}
-
 static exp_t *evself(exp_t **, env_t *);
 static exp_t *evvar(exp_t **, env_t *);
 static exp_t *evdef(void **, env_t *);
@@ -159,6 +142,7 @@ anif(exp_t *ep)
         argv[0] = analyze(car(ep));
         argv[1] = analyze(cadr(ep));
         argv[2] = analyze(caddr(ep));
+
         return nevproc(evif, (void **)argv);
 }
 

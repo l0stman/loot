@@ -42,9 +42,16 @@ struct cons {   /* pair */
         exp_t *cdr;
 };
 
-struct func {   /* Represents a function */
-        exp_t *parp;            /* Parameters of the function */
-        exp_t *bodyp;           /* body of the function */
+
+/* Represents an evaluation procedure (see analyze). */
+typedef struct evproc {
+        exp_t *(*eval)();
+        void **argv;
+} evproc_t;
+
+struct func {                   /* Represents a function */
+        exp_t      *parp;       /* Parameters of the function */
+        evproc_t   *bodyp;      /* body of the function */
         struct env *envp;       /* environment of the function */
 };
 
@@ -143,9 +150,20 @@ cons(exp_t *a, exp_t *b)
         return ep;
 }
 
+static inline evproc_t *
+nevproc(exp_t *(*eval)(), void **argv)
+{
+        evproc_t *epp;
+
+        NEW(epp);
+        epp->eval = eval;
+        epp->argv = argv;
+        return epp;
+}
+
 /* Return a function */
 static inline proc_t *
-func(exp_t *parp, exp_t *bodyp, struct env *envp)
+func(exp_t *parp, evproc_t *bodyp, struct env *envp)
 {
         struct func *fp;
         proc_t *pp;
