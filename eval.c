@@ -131,7 +131,7 @@ andef(exp_t *ep)
         lst = cdr(ep);
         if (ispair(ep = car(lst))) { /* lambda shortcut */
                 if (!issym(car(ep)))
-                        anerr("should be a symbol", cdr(lst));
+                        anerr("should be a symbol", car(ep));
                 var = symp(car(ep));
                 vproc = analyze(cons(atom(keywords[LAMBDA]),
                                    cons(cdr(ep), cdr(lst))));
@@ -143,6 +143,7 @@ andef(exp_t *ep)
         argv = smalloc(2*sizeof(*argv));
         argv[0] = (void *)var;
         argv[1] = (void *)vproc;
+
         return nevproc(evdef, argv);
 }
 
