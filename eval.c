@@ -481,5 +481,5 @@ evapp(evproc_t **argv, env_t *envp)
         argc = (int)argv[0];
         for (args = null, i = 2; i<argc; i++)
                 args = cons(EVPROC(argv[i], envp), args);
-        return apply(EVPROC(argv[1], envp), args, envp);
+        return apply(EVPROC(argv[1], envp), nreverse(args), envp);
 }
