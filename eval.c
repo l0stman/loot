@@ -196,7 +196,7 @@ anlambda(exp_t *ep)
 
         argv = smalloc(2*sizeof(*argv));
         argv[0] = (void *)cadr(ep);
-        argv[1] = (void *)analyze(cons(atom("begin"), cddr(ep)));
+        argv[1] = (void *)anbegin(cons(atom("begin"), cddr(ep)));
 
         return nevproc(evlambda, argv);
 }
