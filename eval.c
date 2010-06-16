@@ -233,7 +233,7 @@ evdef(void **argv, env_t *envp)
         var = (symb_t *)argv[0];
         vproc = (evproc_t *)argv[1];
         val = EVPROC(vproc, envp);
-        if (type(val) == PROC && label(val) == NULL)
+        if (val && type(val) == PROC && label(val) == NULL)
                 label(val) = strtoatm(var); /* label anonymous procedure */
         install(var, val, envp);
 
