@@ -23,7 +23,7 @@ static exp_t *prim_isnum(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
-static exp_t *prim_apply(exp_t *, env_t *);
+static exp_t *prim_apply(exp_t *);
 static exp_t *prim_load(exp_t *);
 static exp_t *prim_sin(exp_t *);
 static exp_t *prim_cos(exp_t *);
@@ -363,7 +363,7 @@ prim_cdr(exp_t *args)
 
 /* Apply a procedure expression to a list of expressions */
 static exp_t *
-prim_apply(exp_t *args, env_t *envp)
+prim_apply(exp_t *args)
 {
         exp_t *op, *prev, *last;
 
@@ -381,7 +381,7 @@ prim_apply(exp_t *args, env_t *envp)
         }
         if (!islist(car(last)))
                 everr("apply: should be a proper list", car(last));
-        return apply(op, args, envp);
+        return apply(op, args);
 }
 
 /* Evaluate the expressions inside the file pointed by ep */

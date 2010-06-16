@@ -66,7 +66,7 @@ eval(exp_t *exp, env_t *envp)
 
 /* Apply a procedure to its arguments. */
 exp_t *
-apply(exp_t *op, exp_t *args, env_t *envp)
+apply(exp_t *op, exp_t *args)
 {
         exp_t *pars;
         exp_t *binds;           /* binding list */
@@ -74,7 +74,7 @@ apply(exp_t *op, exp_t *args, env_t *envp)
         if (!isproc(op))
                 everr("expression is not a procedure", op);
         if (procp(op)->tp == PRIM) /* primitive */
-                return primp(op)(args, envp);
+                return primp(op)(args);
 
         /* function */
         for (pars = fpar(op), binds = null;
@@ -391,9 +391,7 @@ evcond(exp_t *ep, env_t *envp)
                 if (iseq(_else_, car(cl)) ||
                     !iseq(false, b = eval(car(cl), envp)))
                         return iseq(arrow, cadr(cl)) ?
-                                apply(eval(caddr(cl), envp),
-                                      cons(b, null),
-                                      envp) :
+                                apply(eval(caddr(cl), envp), cons(b, null)) :
                                 eval(cons(atom("begin"), cdr(cl)), envp);
 
         return null;
@@ -481,5 +479,5 @@ evapp(evproc_t **argv, env_t *envp)
         argc = (int)argv[0];
         for (args = null, i = 2; i<argc; i++)
                 args = cons(EVPROC(argv[i], envp), args);
-        return apply(EVPROC(argv[1], envp), nreverse(args), envp);
+        return apply(EVPROC(argv[1], envp), nreverse(args));
 }
