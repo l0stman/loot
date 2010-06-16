@@ -44,11 +44,6 @@ void raise(const excpt_t *, const char *, int, const char *, ...);
                         } else if (exfram.exception == &(e)) { \
                                 exflag = HANDLED;
 
-#define ELSE		if (exflag == ENTERED)			\
-                		exstack = exstack->prev;        \
-		        } else {				\
-                  		exflag = HANDLED;
-
 #define WARN(e)                                 			       \
         if (exflag == ENTERED)                  			       \
                 exstack = exstack->prev;        			       \
