@@ -13,6 +13,7 @@ static exp_t *evdef(void **, env_t *);
 static exp_t *evif(evproc_t **, env_t *);
 static exp_t *evbegin(evproc_t **, env_t *);
 static exp_t *evlambda(void **, env_t *);
+static exp_t *evapp(evproc_t **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
@@ -21,6 +22,7 @@ static evproc_t *andef(exp_t *);
 static evproc_t *anif(exp_t *);
 static evproc_t *anbegin(exp_t *);
 static evproc_t *anlambda(exp_t *);
+static evproc_t *anapp(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -43,6 +45,8 @@ analyze(exp_t *ep)
                 return anbegin(ep);
         else if (islambda(ep))
                 return anlambda(ep);
+        else if (ispair(ep))    /* application */
+                return anapp(ep);
         else
                 anerr("bad syntax in", ep);
         return NULL;            /* not reached */
@@ -58,6 +62,34 @@ eval(exp_t *exp, env_t *envp)
 
         epp = analyze(exp);
         return EVPROC(epp, envp);
+}
+
+/* Apply a procedure to its arguments. */
+exp_t *
+apply(exp_t *op, exp_t *args, env_t *envp)
+{
+        exp_t *pars;
+        exp_t *binds;           /* binding list */
+
+        if (!isproc(op))
+                everr("expression is not a procedure", op);
+        if (procp(op)->tp == PRIM) /* primitive */
+                return primp(op)(args, envp);
+
+        /* function */
+        for (pars = fpar(op), binds = null;
+             ispair(pars);
+             pars = cdr(pars), args = cdr(args)) {
+                if (isnull(args))
+                        everr("too few arguments provided to", op);
+                binds = cons(cons(car(pars), car(args)), binds);
+        }
+        if (!isnull(pars))      /* variable length arguments */
+                binds = cons(cons(pars, args), binds);
+        else if (!isnull(args))
+                everr("too many arguments provided to", op);
+
+        return EVPROC(fbody(op), extenv(binds, fenv(op)));
 }
 
 /* * * * * * * * * * * * * * * *
@@ -199,6 +231,26 @@ anlambda(exp_t *ep)
         argv[1] = (void *)anbegin(cons(keywords[BEGIN], cddr(ep)));
 
         return nevproc(evlambda, argv);
+}
+
+/* Analyze the syntax of an application expression. */
+static evproc_t *
+anapp(exp_t *ep)
+{
+        void **argv;
+        exp_t *p;
+        register int size;
+
+        for (size = 1, p = ep; ispair(p); p = cdr(p))
+                ++size;
+        if (!isnull(p))
+                anerr("an application should be a list, given", ep);
+        argv = smalloc(size*sizeof(*argv));
+        argv[0] = (void *)size;
+        for (size = 1, p = ep; ispair(p); p = cdr(p))
+                argv[size++] = analyze(car(p));
+
+        return nevproc(evapp, argv);
 }
 
 /* * * * * * * * * * * * * *
@@ -419,39 +471,15 @@ evlet(exp_t *ep, env_t *envp)
         return eval(cons(op, nreverse(vlst)), envp);
 }
 
-/* Apply a procedure to its arguments */
-exp_t *
-apply(exp_t *op, exp_t* args, env_t *envp)
-{
-        exp_t *parp;
-        exp_t *blist; /* binding list */
-
-        if (!isproc(op))
-                everr("expression is not a procedure", op);
-        if (procp(op)->tp == PRIM)    /* primitive */
-                return primp(op)(args, envp);
-
-        /* function */
-        for (parp = fpar(op), blist = null ; !isatom(parp);
-             parp = cdr(parp), args = cdr(args)) {
-                if (isnull(args))
-                        everr("too few arguments provided to", op);
-                blist = cons(cons(car(parp), car(args)), blist);
-        }
-        if (!isnull(parp))      /* variable length arguments */
-                blist = cons(cons(parp, args), blist);
-        else if (!isnull(args))
-                everr("too many arguments provided to", op);
-        return eval(fbody(op), extenv(blist, fenv(op)));
-}
-
-/* Return a list of evaluated expressions */
+/* Evaluate an application expression. */
 static exp_t *
-evmap(exp_t *lp, env_t *envp)
+evapp(evproc_t **argv, env_t *envp)
 {
-        exp_t *res;
+        int argc, i;
+        exp_t *args;
 
-        for (res = null; !isnull(lp); lp = cdr(lp))
-                res = cons(eval(car(lp), envp), res);
-        return nreverse(res);
+        argc = (int)argv[0];
+        for (args = null, i = 2; i<argc; i++)
+                args = cons(EVPROC(argv[i], envp), args);
+        return apply(EVPROC(argv[1], envp), args, envp);
 }
