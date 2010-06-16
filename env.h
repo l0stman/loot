@@ -19,6 +19,7 @@ struct nlist {  /* table entry */
         exp_t *defn;                  /* replacement expression */
 };
 
+extern env_t* globenv;
 extern frame_t *newframe(void);
 extern void fdump(frame_t *);
 extern struct nlist *lookup(symb_t *, env_t *);

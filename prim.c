@@ -24,7 +24,7 @@ static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
 static exp_t *prim_apply(exp_t *, env_t *);
-static exp_t *prim_load(exp_t *, env_t *);
+static exp_t *prim_load(exp_t *);
 static exp_t *prim_sin(exp_t *);
 static exp_t *prim_cos(exp_t *);
 static exp_t *prim_tan(exp_t *);
@@ -85,7 +85,7 @@ instprim(env_t *envp)
 
 /* Evaluate all the expressions in the file */
 int
-load(char *path, env_t *envp, mode_t isinter)
+load(char *path, mode_t isinter)
 {
         FILE     *fp;
         buf_t    *bp;
@@ -120,7 +120,7 @@ read:
                         fclose(fp);
                         goto restore;
                 }
-                ep = eval(parse(bp->buf, bp->len), envp);
+                ep = eval(parse(bp->buf, bp->len), globenv);
                 if (isinter && ep != NULL) {
                         printf("%s%s\n", OUTPR, tostr(ep));
                         fflush(stdout);
@@ -386,7 +386,7 @@ prim_apply(exp_t *args, env_t *envp)
 
 /* Evaluate the expressions inside the file pointed by ep */
 static exp_t *
-prim_load(exp_t *args, env_t *envp)
+prim_load(exp_t *args)
 {
         char *path;
 
@@ -396,7 +396,7 @@ prim_load(exp_t *args, env_t *envp)
         path = (char *)symp(car(args));
         /* dump the quotes around the path name */
         path = sstrndup(path+1, strlen(path+1)-1);
-        load(path, envp, NINTER);
+        load(path, NINTER);
         free(path);
         return NULL;
 }

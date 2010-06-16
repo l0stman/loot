@@ -2,6 +2,8 @@
 #include "exp.h"
 #include "env.h"
 
+env_t *globenv;                 /* global environment */
+
 /* inspired by K&R */
 
 /* hash: compute the hash value for symbol s. */

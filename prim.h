@@ -32,7 +32,7 @@
 
 typedef enum mode { NINTER, INTER } mode_t;
 
-extern int load(char *, struct env *, mode_t);
+extern int load(char *, mode_t);
 extern void instprim(struct env *);
 
 #endif /* !PRIM_H */
