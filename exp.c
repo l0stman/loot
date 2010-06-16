@@ -27,7 +27,9 @@ void *keywords[] = {
         "let",
         "set!",
         "set-car!",
-        "set-cdr!"
+        "set-cdr!",
+        "else",
+        "=>"
 };
 
 /* Initiate the variables and install the constants in the

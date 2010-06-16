@@ -96,7 +96,9 @@ enum kindex {
         LET,
         SET,
         SETCAR,
-        SETCDR
+        SETCDR,
+        ELSE,
+        ARROW
 };
 
 extern void *keywords[];

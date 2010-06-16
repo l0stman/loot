@@ -14,6 +14,7 @@ static exp_t *evif(evproc_t **, env_t *);
 static exp_t *evbegin(evproc_t **, env_t *);
 static exp_t *evlambda(void **, env_t *);
 static exp_t *evapp(evproc_t **, env_t *);
+static exp_t *evcond(evproc_t **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
@@ -23,6 +24,7 @@ static evproc_t *anif(exp_t *);
 static evproc_t *anbegin(exp_t *);
 static evproc_t *anlambda(exp_t *);
 static evproc_t *anapp(exp_t *);
+static evproc_t *ancond(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -45,6 +47,8 @@ analyze(exp_t *ep)
                 return anbegin(ep);
         else if (islambda(ep))
                 return anlambda(ep);
+        else if (iscond(ep))
+                return ancond(ep);
         else if (ispair(ep))    /* application */
                 return anapp(ep);
         else
@@ -138,6 +142,8 @@ anquote(exp_t *ep)
         return nevproc(evself, (void *)&cadr(ep));
 }
 
+#define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
+
 /* Analyze the syntax of a define expression. */
 static evproc_t *
 andef(exp_t *ep)
@@ -154,8 +160,7 @@ andef(exp_t *ep)
                 if (!issym(car(ep)))
                         anerr("should be a symbol", car(ep));
                 var = symp(car(ep));
-                vproc = analyze(cons(keywords[LAMBDA],
-                                     cons(cdr(ep), cdr(lst))));
+                vproc = analyze(nlambda(cdr(ep), cdr(lst)));
         } else if (issym(ep)) {
                 var = symp(ep);
                 vproc = analyze(cadr(lst));
@@ -207,6 +212,8 @@ anbegin(exp_t *ep)
         return nevproc(evbegin, (void **)argv);
 }
 
+#define nseq(ep)	(cons(keywords[BEGIN], ep))
+
 /* Analyze the syntax of a lambda expression. */
 static evproc_t *
 anlambda(exp_t *ep)
@@ -228,9 +235,54 @@ anlambda(exp_t *ep)
 
         argv = smalloc(2*sizeof(*argv));
         argv[0] = (void *)cadr(ep);
-        argv[1] = (void *)anbegin(cons(keywords[BEGIN], cddr(ep)));
+        argv[1] = (void *)anbegin(nseq(cddr(ep)));
 
         return nevproc(evlambda, argv);
+}
+
+#define iselse(p)	(iseq(keywords[ELSE], (exp_t *)(p)))
+#define isarrow(p)	(iseq(keywords[ARROW], (exp_t *)(p)))
+
+/* Analyze the syntax of a cond expression. */
+static evproc_t *
+ancond(exp_t *ep)
+{
+        exp_t *cl, *clauses;
+        int argc;
+        void **argv;
+
+        argc = 1;
+        for (clauses = cdr(ep); ispair(clauses); clauses = cdr(clauses)) {
+                argc += 2;
+                if (!ispair(cl = car(clauses)) || !ispair(cdr(cl)))
+                        anerr("should be a test-value pair", cl);
+                if (iselse(car(cl)) && !isnull(cdr(clauses)))
+                        anerr("else clause must be last", ep);
+                if (isarrow(cadr(cl)))
+                        if (iselse(car(cl)))
+                                anerr("illegal use of arrow", cl);
+                        else if (isnull(cddr(cl)) || !isnull(cdddr(cl)))
+                                anerr("bad clause form", cl);
+                        else
+                                ++argc;
+        }
+        if (!isnull(clauses))
+                anerr("should be a list", ep);
+
+        argv = smalloc(argc*sizeof(*argv));
+        argv[0] = (void *)argc;
+        argc = 1;
+        for (clauses = cdr(ep); ispair(clauses); clauses = cdr(clauses)) {
+                cl = car(clauses);
+                argv[argc++] = iselse(car(cl))?keywords[ELSE]:analyze(car(cl));
+                if (isarrow(cadr(cl))) {
+                        argv[argc++] = keywords[ARROW];
+                        argv[argc++] = analyze(caddr(cl));
+                } else
+                        argv[argc++] = analyze(nseq(cdr(cl)));
+        }
+
+        return nevproc(evcond, argv);
 }
 
 /* Analyze the syntax of an application expression. */
@@ -368,31 +420,19 @@ evbegin(evproc_t **argv, env_t *envp)
 
 /* Evaluate a cond expression */
 static exp_t *
-evcond(exp_t *ep, env_t *envp)
+evcond(evproc_t **argv, env_t *envp)
 {
-        exp_t *_else_ = atom("else"), *arrow = atom("=>");
-        exp_t *cl, *clauses, *b;
+        int i, argc;
+        exp_t *b;
 
-        /* Check the syntax. */
-        for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses)) {
-                if (!islist(cl = car(clauses)))
-                        everr("should be a list", cl);
-                if (iseq(_else_, car(cl)) && !isnull(cdr(clauses)))
-                        everr("else clause must be last", ep);
-                if (iseq(arrow, cadr(cl)))
-                        if (iseq(_else_, car(cl)))
-                                everr("illegal use of arrow", cl);
-                        else if (!isnull(cdddr(cl)))
-                                everr("bad clause form", cl);
-        }
-
-        /* Evaluate the expression. */
-        for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses))
-                if (iseq(_else_, car(cl)) ||
-                    !iseq(false, b = eval(car(cl), envp)))
-                        return iseq(arrow, cadr(cl)) ?
-                                apply(eval(caddr(cl), envp), cons(b, null)) :
-                                eval(cons(atom("begin"), cdr(cl)), envp);
+        argc = (int)argv[0];
+        for (i = 1; i < argc; i += 2)
+                if (iselse(argv[i]) || !iseq(false, b = EVPROC(argv[i], envp)))
+                        return isarrow(argv[i+1]) ?
+                                apply(EVPROC(argv[i+2], envp), cons(b, null)) :
+                                EVPROC(argv[i+1], envp);
+                else if (isarrow(argv[i+1]))
+                        ++i;
 
         return null;
 }
