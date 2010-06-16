@@ -22,9 +22,9 @@ isnum(exp_t *ep)
 
 /* Test if exp is a list whose first element is an atom of symbol tag. */
 static inline int
-istag(exp_t *ep, char const *tag)
+istag(exp_t *ep, exp_t *tag)
 {
-        return ispair(ep) && isatom(car(ep)) && tag == symp(car(ep));
+        return ispair(ep) && iseq(car(ep), tag);
 }
 
 /* Test if the expression is a definition. */

@@ -83,6 +83,25 @@ extern exp_t *false;
 extern exp_t *true;
 extern exp_t *null;
 
+/* Index of keyword symbols in keywords. */
+enum kindex {
+        DEFINE,
+        QUOTE,
+        IF,
+        BEGIN,
+        COND,
+        LAMBDA,
+        AND,
+        OR,
+        LET,
+        SET,
+        SETCAR,
+        SETCDR
+};
+
+extern void *keywords[];
+extern void initkeys(void);
+
 extern int iseq(const exp_t *, const exp_t *);
 extern char *tostr(const exp_t *);
 extern void instcst(struct env *);
