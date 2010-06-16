@@ -122,8 +122,8 @@ andef(exp_t *ep)
                 if (!issym(car(ep)))
                         anerr("should be a symbol", car(ep));
                 var = symp(car(ep));
-                vproc = analyze(cons(atom(keywords[LAMBDA]),
-                                   cons(cdr(ep), cdr(lst))));
+                vproc = analyze(cons(keywords[LAMBDA],
+                                     cons(cdr(ep), cdr(lst))));
         } else if (issym(ep)) {
                 var = symp(ep);
                 vproc = analyze(cadr(lst));
@@ -196,7 +196,7 @@ anlambda(exp_t *ep)
 
         argv = smalloc(2*sizeof(*argv));
         argv[0] = (void *)cadr(ep);
-        argv[1] = (void *)anbegin(cons(atom("begin"), cddr(ep)));
+        argv[1] = (void *)anbegin(cons(keywords[BEGIN], cddr(ep)));
 
         return nevproc(evlambda, argv);
 }
