@@ -97,7 +97,7 @@
 (define (list . l) l)
 
 (define (length l)
-  (foldl (lambda (x, y) (+ 1 y)) 0 l))
+  (foldl (lambda (x y) (+ 1 y)) 0 l))
 
 (define (reverse l) (foldl cons null l))
 
