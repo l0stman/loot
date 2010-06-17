@@ -214,19 +214,19 @@ anbegin(exp_t *ep)
 {
         evproc_t **argv;
         exp_t *lp;
-        register int size;
+        register int argc;
 
         if (isnull(lp = cdr(ep)))
                 anerr("empty form", ep);
-        for (size = 1; ispair(lp); lp = cdr(lp))
-                size++;
+        for (argc = 1; ispair(lp); lp = cdr(lp))
+                argc++;
         if (!isnull(lp))
                 anerr("should be a list", ep);
 
-        argv = smalloc(size*sizeof(*argv));
-        for (size = 0, lp = cdr(ep); ispair(lp); lp = cdr(lp))
-                argv[size++] = analyze(car(lp));
-        argv[size] = NULL;
+        argv = smalloc(argc*sizeof(*argv));
+        for (argc = 0, lp = cdr(ep); ispair(lp); lp = cdr(lp))
+                argv[argc++] = analyze(car(lp));
+        argv[argc] = NULL;
 
         return nevproc(evbegin, (void **)argv);
 }
