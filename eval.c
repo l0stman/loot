@@ -21,6 +21,8 @@ static exp_t *evset(void **, env_t *);
 static exp_t *evsetpair(evproc_t **, env_t *);
 static exp_t *evor(evproc_t **, env_t *);
 static exp_t *evand(evproc_t **, env_t *);
+static exp_t *evproc(evproc_t **, env_t *);
+static exp_t *evlet(evproc_t **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
@@ -34,6 +36,7 @@ static evproc_t *ancond(exp_t *);
 static evproc_t *anset(exp_t *);
 static evproc_t *ansetpair(exp_t *, enum place);
 static evproc_t *anlogic(exp_t *, enum logic);
+static evproc_t *anlet(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -68,6 +71,8 @@ analyze(exp_t *ep)
                 return anlogic(ep, LOR);
         else if (isand(ep))
                 return anlogic(ep, LAND);
+        else if (islet(ep))
+                return anlet(ep);
         else if (ispair(ep))    /* application */
                 return anapp(ep);
         else
@@ -358,6 +363,52 @@ anlogic(exp_t *ep, enum logic lg)
         return nevproc((lg == LOR ? evor : evand), (void **)argv);
 }
 
+/* Analyze the syntax of a `let' expression. */
+static evproc_t *
+anlet(exp_t *ep)
+{
+        evproc_t **argv;
+        exp_t *bd, *binds, *body, *name, *op, *pars, *vals;
+
+        if (isnull(cdr(ep)))
+                anerr("bad syntax", ep);
+        if (issym(cadr(ep))) {  /* named let */
+                name = cadr(ep);
+                if (isnull(cddr(ep)))
+                        anerr("bad syntax", ep);
+                binds = caddr(ep);
+                body = cdddr(ep);
+        } else {
+                name = NULL;
+                binds = cadr(ep);
+                body = cddr(ep);
+        }
+
+        for (pars = vals = null; ispair(binds); binds = cdr(binds))
+                if (issym(bd = car(binds))) {
+                        pars = cons(bd, pars);
+                        vals = cons(null, vals);
+                } else if (ispair(bd) && ispair(cdr(bd)) && isnull(cddr(bd))) {
+                        pars = cons(car(bd), pars);
+                        vals = cons(cadr(bd), vals);
+                } else
+                        anerr("bad binding syntax", ep);
+        if (!isnull(binds))
+                anerr("should be a list of bindings", binds);
+
+        argv = smalloc(2*sizeof(*argv));
+        op = nlambda(nreverse(pars), body);
+        if (name) {             /* named let */
+                argv[0] = analyze(cons(keywords[DEFINE],
+                                       cons(name, cons(op, null))));
+                op = name;
+        } else
+                argv[0] = NULL;
+        argv[1] = analyze(cons(op, nreverse(vals)));
+
+        return nevproc(evlet, (void **)argv);
+}
+
 /* Analyze the syntax of an application expression. */
 static evproc_t *
 anapp(exp_t *ep)
@@ -523,45 +574,11 @@ evlambda(void **argv, env_t *envp)
 
 /* Eval a let expression */
 static exp_t *
-evlet(exp_t *ep, env_t *envp)
+evlet(evproc_t **argv, env_t *envp)
 {
-        exp_t *binds, *name, *body, *plst, *vlst, *op;
-
-        if (isnull(cdr(ep)) || isnull(cddr(ep)))
-                everr("syntax error", ep);
-        if (issym(cadr(ep))) {
-                name = cadr(ep);
-                binds = caddr(ep);
-                body = cdddr(ep);
-        } else {
-                name = NULL;
-                binds = cadr(ep);
-                body = cddr(ep);
-        }
-
-        for (plst = vlst = null; ispair(binds); binds = cdr(binds))
-                if (issym(car(binds))) {
-                        plst = cons(car(binds), plst);
-                        vlst = cons(null, vlst);
-                } else if (ispair(car(binds)) &&
-                           ispair(cdar(binds)) &&
-                           isnull(cddar(binds))) {
-                        plst = cons(caar(binds), plst);
-                        vlst = cons(cadar(binds), vlst);
-                } else
-                        everr("syntax error", ep);
-
-        if (!isnull(binds))
-                everr("should be a list of bindings", binds);
-        op = cons(atom("lambda"), cons(nreverse(plst), body));
-        if (name != NULL) {     /* named let */
-                eval(cons(atom("define"),
-                          cons(name, cons(op, null))),
-                     envp);
-                op = name;
-        }
-
-        return eval(cons(op, nreverse(vlst)), envp);
+        if (argv[0])           /* named let */
+                EVPROC(argv[0], envp);
+        return EVPROC(argv[1], envp);
 }
 
 /* Evaluate an application expression. */
