@@ -184,7 +184,7 @@ nevproc(exp_t *(*eval)(), void **argv)
 
 /* Return a function */
 static inline proc_t *
-func(exp_t *parp, evproc_t *bodyp, struct env *envp)
+nfunc(exp_t *parp, evproc_t *bodyp, struct env *envp)
 {
         struct func *fp;
         proc_t *pp;
