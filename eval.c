@@ -6,6 +6,7 @@
 
 const excpt_t eval_error = { "eval" };
 const excpt_t syntax_error = { "syntax" };
+static enum place { CAR, CDR };
 
 static exp_t *evself(exp_t **, env_t *);
 static exp_t *evvar(exp_t **, env_t *);
@@ -16,6 +17,7 @@ static exp_t *evlambda(void **, env_t *);
 static exp_t *evapp(evproc_t **, env_t *);
 static exp_t *evcond(evproc_t **, env_t *);
 static exp_t *evset(void **, env_t *);
+static exp_t *evsetpair(evproc_t **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
@@ -27,6 +29,7 @@ static evproc_t *anlambda(exp_t *);
 static evproc_t *anapp(exp_t *);
 static evproc_t *ancond(exp_t *);
 static evproc_t *anset(exp_t *);
+static evproc_t *ansetpair(exp_t *, enum place);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -53,6 +56,10 @@ analyze(exp_t *ep)
                 return ancond(ep);
         else if (isset(ep))
                 return anset(ep);
+        else if (issetcar(ep))
+                return ansetpair(ep, CAR);
+        else if (issetcdr(ep))
+                return ansetpair(ep, CDR);
         else if (ispair(ep))    /* application */
                 return anapp(ep);
         else
@@ -306,6 +313,21 @@ anset(exp_t *ep)
         return nevproc(evset, argv);
 }
 
+/* Analyze the syntax of a set-car! or set-cdr! expression. */
+static evproc_t *
+ansetpair(exp_t *ep, enum place pl)
+{
+        evproc_t **argv;
+
+        chklst(ep, 3);
+        argv = smalloc(3*sizeof(*argv));
+        argv[0] = (evproc_t *)pl;
+        argv[1] = analyze(cadr(ep));
+        argv[2] = analyze(caddr(ep));
+
+        return nevproc(evsetpair, (void **)argv);
+}
+
 /* Analyze the syntax of an application expression. */
 static evproc_t *
 anapp(exp_t *ep)
@@ -386,39 +408,21 @@ evset(void **argv, env_t *envp)
         return NULL;
 }
 
-/* Set an expression to a new value. */
-enum place { CAR, CDR };
-
+/* Set the car or the cdr of an expression to a new value. */
 static exp_t *
-set(exp_t *ep, env_t *envp, enum place place)
+evsetpair(evproc_t **argv, env_t *envp)
 {
-        exp_t *var;
-        exp_t *val;
+        exp_t *var, *val;
 
-        chklst(ep, 3);
-        var = eval(cadr(ep), envp);
-        val = eval(caddr(ep), envp);
-        if (!ispair(var))
-                everr("should be a pair", cadr(ep));
-        else if (place == CAR)
+        if (!ispair(var = EVPROC(argv[1], envp)))
+                everr("should be a pair", var);
+        if (!(val = EVPROC(argv[2], envp)))
+                valerr(symp(var));
+        if ((enum place)argv[0] == CAR)
                 car(var) = val;
         else
                 cdr(var) = val;
         return NULL;
-}
-
-/* Evaluate a set-car! expression */
-static exp_t *
-evsetcar(exp_t *ep, env_t *envp)
-{
-        return set(ep, envp, CAR);
-}
-
-/* Evaluate a set-cdr! expression */
-static exp_t *
-evsetcdr(exp_t *ep, env_t *envp)
-{
-        return set(ep, envp, CDR);
 }
 
 /* Evaluate an if expression */
