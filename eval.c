@@ -96,7 +96,7 @@ apply(exp_t *op, exp_t *args)
 
         if (!isproc(op))
                 everr("expression is not a procedure", op);
-        if (procp(op)->tp == PRIM) /* primitive */
+        if (ptype(op) == PRIM) /* primitive */
                 return primp(op)(args);
 
         /* function */

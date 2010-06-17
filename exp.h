@@ -55,6 +55,7 @@ struct func {                   /* Represents a function */
         struct env *envp;       /* environment of the function */
 };
 
+#define ptype(ep)	procp(ep)->tp
 #define primp(ep)       procp(ep)->u.primp
 #define funcp(ep)       procp(ep)->u.funcp
 #define fpar(ep)        funcp(ep)->parp
