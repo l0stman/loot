@@ -7,6 +7,7 @@
 const excpt_t eval_error = { "eval" };
 const excpt_t syntax_error = { "syntax" };
 static enum place { CAR, CDR };
+static enum logic { LAND, LOR };
 
 static exp_t *evself(exp_t **, env_t *);
 static exp_t *evvar(exp_t **, env_t *);
@@ -18,6 +19,8 @@ static exp_t *evapp(evproc_t **, env_t *);
 static exp_t *evcond(evproc_t **, env_t *);
 static exp_t *evset(void **, env_t *);
 static exp_t *evsetpair(evproc_t **, env_t *);
+static exp_t *evor(evproc_t **, env_t *);
+static exp_t *evand(evproc_t **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
@@ -30,6 +33,7 @@ static evproc_t *anapp(exp_t *);
 static evproc_t *ancond(exp_t *);
 static evproc_t *anset(exp_t *);
 static evproc_t *ansetpair(exp_t *, enum place);
+static evproc_t *anlogic(exp_t *, enum logic);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -60,6 +64,10 @@ analyze(exp_t *ep)
                 return ansetpair(ep, CAR);
         else if (issetcdr(ep))
                 return ansetpair(ep, CDR);
+        else if (isor(ep))
+                return anlogic(ep, LOR);
+        else if (isand(ep))
+                return anlogic(ep, LAND);
         else if (ispair(ep))    /* application */
                 return anapp(ep);
         else
@@ -328,6 +336,28 @@ ansetpair(exp_t *ep, enum place pl)
         return nevproc(evsetpair, (void **)argv);
 }
 
+/* Analyze the syntax of an `or' or an `and' expression. */
+static evproc_t *
+anlogic(exp_t *ep, enum logic lg)
+{
+        evproc_t **argv;
+        register int argc;
+        exp_t *p;
+
+        ep = cdr(ep);
+        for (argc = 1, p = ep; ispair(p); p = cdr(p))
+                ++argc;
+        if (!isnull(p))
+                anerr("should be list", ep);
+
+        argv = smalloc(argc*sizeof(*argv));
+        argv[0] = (evproc_t *)argc;
+        for (argc = 1; ispair(ep); ep = cdr(ep))
+                argv[argc++] = analyze(car(ep));
+
+        return nevproc((lg == LOR ? evor : evand), (void **)argv);
+}
+
 /* Analyze the syntax of an application expression. */
 static evproc_t *
 anapp(exp_t *ep)
@@ -466,26 +496,28 @@ evcond(evproc_t **argv, env_t *envp)
         return null;
 }
 
-/* Evaluate an and expression */
+/* Evaluate an `and' expression */
 static exp_t *
-evand(exp_t *ep, env_t *envp)
+evand(evproc_t **argv, env_t *envp)
 {
-        exp_t *res = true;
+        register int i;
+        exp_t *pred;
 
-        for (ep = cdr(ep); !isnull(ep) && !iseq(false, res); ep = cdr(ep))
-                res = eval(car(ep), envp);
-        return res;
+        for (pred = true, i = 1; i<(int)argv[0] && !iseq(false, pred); i++)
+                pred = EVPROC(argv[i], envp);
+        return pred;
 }
 
-/* Evaluate an or expression */
+/* Evaluate an `or' expression */
 static exp_t *
-evor(exp_t *ep, env_t *envp)
+evor(evproc_t **argv, env_t *envp)
 {
-        exp_t *res = false;
+        register int i;
+        exp_t *pred;
 
-        for (ep = cdr(ep); !isnull(ep) && iseq(false, res); ep = cdr(ep))
-                res = eval(car(ep), envp);
-        return res;
+        for (pred = false, i = 1; i<(int)argv[0] && iseq(false, pred); i++)
+                pred = EVPROC(argv[i], envp);
+        return pred;
 }
 
 /* Evaluate a lambda expression */
