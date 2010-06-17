@@ -15,6 +15,7 @@ static exp_t *evbegin(evproc_t **, env_t *);
 static exp_t *evlambda(void **, env_t *);
 static exp_t *evapp(evproc_t **, env_t *);
 static exp_t *evcond(evproc_t **, env_t *);
+static exp_t *evset(void **, env_t *);
 
 static evproc_t *anself(exp_t *);
 static evproc_t *anvar(exp_t *);
@@ -25,6 +26,7 @@ static evproc_t *anbegin(exp_t *);
 static evproc_t *anlambda(exp_t *);
 static evproc_t *anapp(exp_t *);
 static evproc_t *ancond(exp_t *);
+static evproc_t *anset(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -49,6 +51,8 @@ analyze(exp_t *ep)
                 return anlambda(ep);
         else if (iscond(ep))
                 return ancond(ep);
+        else if (isset(ep))
+                return anset(ep);
         else if (ispair(ep))    /* application */
                 return anapp(ep);
         else
@@ -285,6 +289,23 @@ ancond(exp_t *ep)
         return nevproc(evcond, argv);
 }
 
+/* Analyze the syntax of a set! expression. */
+static evproc_t *
+anset(exp_t *ep)
+{
+        void **argv;
+        exp_t *var;
+
+        chklst(ep, 3);
+        if (!issym(var = cadr(ep)))
+                anerr("should be a symbol", var);
+        argv = smalloc(2*sizeof(*argv));
+        argv[0] = var;
+        argv[1] = analyze(caddr(ep));
+
+        return nevproc(evset, argv);
+}
+
 /* Analyze the syntax of an application expression. */
 static evproc_t *
 anapp(exp_t *ep)
@@ -351,16 +372,14 @@ evdef(void **argv, env_t *envp)
 
 /* Evaluate a set! expression. */
 static exp_t *
-evset(exp_t *ep, env_t *envp)
+evset(void **argv, env_t *envp)
 {
-        exp_t *var;
-        exp_t *val;
+        exp_t *var, *val;
         struct nlist *np;
 
-        chklst(ep, 3);
-        if (!issym(var = cadr(ep)))
-                everr("should be a symbol", var);
-        val = eval(caddr(ep), envp);
+        var = argv[0];
+        if (!(val = EVPROC((evproc_t *)argv[1], envp)))
+                valerr(symp(var));
         if (!(np = lookup(symp(var), envp)))
                 everr("unbound variable", var);
         np->defn = val;
