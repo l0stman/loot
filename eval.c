@@ -214,19 +214,19 @@ anbegin(exp_t *ep)
 {
         evproc_t **argv;
         exp_t *lp;
-        register int argc;
+        register int size;
 
         if (isnull(lp = cdr(ep)))
                 anerr("empty form", ep);
-        for (argc = 1; ispair(lp); lp = cdr(lp))
-                argc++;
+        for (size = 1; ispair(lp); lp = cdr(lp))
+                size++;
         if (!isnull(lp))
                 anerr("should be a list", ep);
 
-        argv = smalloc(argc*sizeof(*argv));
-        argv[0] = (evproc_t *)argc;
-        for (argc = 1, lp = cdr(ep); ispair(lp); lp = cdr(lp))
-                argv[argc++] = analyze(car(lp));
+        argv = smalloc(size*sizeof(*argv));
+        for (size = 0, lp = cdr(ep); ispair(lp); lp = cdr(lp))
+                argv[size++] = analyze(car(lp));
+        argv[size] = NULL;
 
         return nevproc(evbegin, (void **)argv);
 }
@@ -470,11 +470,9 @@ evif(evproc_t **argv, env_t *envp)
 static exp_t *
 evbegin(evproc_t **argv, env_t *envp)
 {
-        register int i;
-
-        for (i = 1; i < (int)argv[0]-1; i++)
-                EVPROC(argv[i], envp);
-        return EVPROC(argv[i], envp);
+        for (; *(argv+1); argv++)
+                EVPROC(argv[0], envp);
+        return EVPROC(argv[0], envp);
 }
 
 /* Evaluate a cond expression */
