@@ -289,8 +289,7 @@ ancond(exp_t *ep)
                 anerr("should be a list", ep);
 
         argv = smalloc(argc*sizeof(*argv));
-        argv[0] = (void *)argc;
-        argc = 1;
+        argc = 0;
         for (clauses = cdr(ep); ispair(clauses); clauses = cdr(clauses)) {
                 cl = car(clauses);
                 argv[argc++] = iselse(car(cl))?keywords[ELSE]:analyze(car(cl));
@@ -300,6 +299,7 @@ ancond(exp_t *ep)
                 } else
                         argv[argc++] = analyze(nseq(cdr(cl)));
         }
+        argv[argc] = NULL;
 
         return nevproc(evcond, argv);
 }
@@ -351,9 +351,9 @@ anlogic(exp_t *ep, enum logic lg)
                 anerr("should be list", ep);
 
         argv = smalloc(argc*sizeof(*argv));
-        argv[0] = (evproc_t *)argc;
-        for (argc = 1; ispair(ep); ep = cdr(ep))
+        for (argc = 0; ispair(ep); ep = cdr(ep))
                 argv[argc++] = analyze(car(ep));
+        argv[argc] = NULL;
 
         return nevproc((lg == LOR ? evor : evand), (void **)argv);
 }
@@ -364,16 +364,16 @@ anapp(exp_t *ep)
 {
         void **argv;
         exp_t *p;
-        register int size;
+        register int argc;
 
-        for (size = 1, p = ep; ispair(p); p = cdr(p))
-                ++size;
+        for (argc = 1, p = ep; ispair(p); p = cdr(p))
+                ++argc;
         if (!isnull(p))
                 anerr("an application should be a list, given", ep);
-        argv = smalloc(size*sizeof(*argv));
-        argv[0] = (void *)size;
-        for (size = 1, p = ep; ispair(p); p = cdr(p))
-                argv[size++] = analyze(car(p));
+        argv = smalloc(argc*sizeof(*argv));
+        for (argc = 0, p = ep; ispair(p); p = cdr(p))
+                argv[argc++] = analyze(car(p));
+        argv[argc] = NULL;
 
         return nevproc(evapp, argv);
 }
@@ -479,17 +479,15 @@ evbegin(evproc_t **argv, env_t *envp)
 static exp_t *
 evcond(evproc_t **argv, env_t *envp)
 {
-        int i, argc;
         exp_t *b;
 
-        argc = (int)argv[0];
-        for (i = 1; i < argc; i += 2)
-                if (iselse(argv[i]) || !iseq(false, b = EVPROC(argv[i], envp)))
-                        return isarrow(argv[i+1]) ?
-                                apply(EVPROC(argv[i+2], envp), cons(b, null)) :
-                                EVPROC(argv[i+1], envp);
-                else if (isarrow(argv[i+1]))
-                        ++i;
+        for (; *argv; argv += 2)
+                if (iselse(*argv) || !iseq(false, b = EVPROC(*argv, envp)))
+                        return isarrow(*(argv+1)) ?
+                                apply(EVPROC(*(argv+2), envp), cons(b, null)) :
+                                EVPROC(*(argv+1), envp);
+                else if (isarrow(*(argv+1)))
+                        ++argv;
 
         return null;
 }
@@ -498,11 +496,10 @@ evcond(evproc_t **argv, env_t *envp)
 static exp_t *
 evand(evproc_t **argv, env_t *envp)
 {
-        register int i;
         exp_t *pred;
 
-        for (pred = true, i = 1; i<(int)argv[0] && !iseq(false, pred); i++)
-                pred = EVPROC(argv[i], envp);
+        for (pred = true; *argv && !iseq(false, pred); argv++)
+                pred = EVPROC(*argv, envp);
         return pred;
 }
 
@@ -510,11 +507,10 @@ evand(evproc_t **argv, env_t *envp)
 static exp_t *
 evor(evproc_t **argv, env_t *envp)
 {
-        register int i;
         exp_t *pred;
 
-        for (pred = false, i = 1; i<(int)argv[0] && iseq(false, pred); i++)
-                pred = EVPROC(argv[i], envp);
+        for (pred = false; *argv && iseq(false, pred); argv++)
+                pred = EVPROC(*argv, envp);
         return pred;
 }
 
@@ -572,11 +568,11 @@ evlet(exp_t *ep, env_t *envp)
 static exp_t *
 evapp(evproc_t **argv, env_t *envp)
 {
-        int argc, i;
+        evproc_t *op;
         exp_t *args;
 
-        argc = (int)argv[0];
-        for (args = null, i = 2; i<argc; i++)
-                args = cons(EVPROC(argv[i], envp), args);
-        return apply(EVPROC(argv[1], envp), nreverse(args));
+        op = *argv++;
+        for (args = null; *argv; argv++)
+                args = cons(EVPROC(*argv, envp), args);
+        return apply(EVPROC(op, envp), nreverse(args));
 }
