@@ -1,7 +1,7 @@
 #include "extern.h"
 #include "reader.h"
 
-const excpt_t read_error = { "reader error" };
+const excpt_t read_error = { "read" };
 
 /* skip spaces in the input stream. */
 static inline void
@@ -33,7 +33,7 @@ skip(FILE *fp)
 {
         register int c;
 
-        while ((c = fgetc(fp)) != EOF) {
+        while ((c = fgetc(fp)) != EOF)
                 if (isspace(c)) {
                         if (c == '\n')
                                 ++linenum;
@@ -44,7 +44,6 @@ skip(FILE *fp)
                         ungetc(c, fp);
                         break;
                 }
-        }
 }
 
 /*

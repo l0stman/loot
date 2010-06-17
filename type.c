@@ -2,32 +2,6 @@
 #include "exp.h"
 #include "type.h"
 
-char const *tagsyms[] = {
-        "define",
-        "quote",
-        "if",
-        "begin",
-        "cond",
-        "lambda",
-        "and",
-        "or",
-        "let",
-        "set!",
-        "set-car!",
-        "set-cdr!"
-};
-
-
-/* Transform the strings in tagsyms into atoms. */
-void
-inittags(void)
-{
-        register int i;
-
-        for (i = 0; i < NELEMS(tagsyms); i++)
-                tagsyms[i] = strtoatm(tagsyms[i]);
-}
-
 /* Returns the length of the prefix of s representing an integer. */
 static int
 intlen(const char *s, int len)

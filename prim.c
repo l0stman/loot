@@ -23,8 +23,8 @@ static exp_t *prim_isnum(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
-static exp_t *prim_apply(exp_t *, env_t *);
-static exp_t *prim_load(exp_t *, env_t *);
+static exp_t *prim_apply(exp_t *);
+static exp_t *prim_load(exp_t *);
 static exp_t *prim_sin(exp_t *);
 static exp_t *prim_cos(exp_t *);
 static exp_t *prim_tan(exp_t *);
@@ -80,12 +80,12 @@ instprim(env_t *envp)
         int i;
 
         for (i = 0; i < NELEMS(plst); i++)
-                install(plst[i].n, proc(prim(plst[i].n, plst[i].pp)), envp);
+                install(plst[i].n, nproc(nprim(plst[i].n, plst[i].pp)), envp);
 }
 
 /* Evaluate all the expressions in the file */
 int
-load(char *path, env_t *envp, mode_t isinter)
+load(char *path, mode_t isinter)
 {
         FILE     *fp;
         buf_t    *bp;
@@ -120,12 +120,13 @@ read:
                         fclose(fp);
                         goto restore;
                 }
-                ep = eval(parse(bp->buf, bp->len), envp);
+                ep = eval(parse(bp->buf, bp->len), globenv);
                 if (isinter && ep != NULL) {
                         printf("%s%s\n", OUTPR, tostr(ep));
                         fflush(stdout);
                 }
         WARN(read_error);
+        WARN(syntax_error);
         WARN(eval_error);
         ENDTRY;
 
@@ -362,7 +363,7 @@ prim_cdr(exp_t *args)
 
 /* Apply a procedure expression to a list of expressions */
 static exp_t *
-prim_apply(exp_t *args, env_t *envp)
+prim_apply(exp_t *args)
 {
         exp_t *op, *prev, *last;
 
@@ -380,12 +381,12 @@ prim_apply(exp_t *args, env_t *envp)
         }
         if (!islist(car(last)))
                 everr("apply: should be a proper list", car(last));
-        return apply(op, args, envp);
+        return apply(op, args);
 }
 
 /* Evaluate the expressions inside the file pointed by ep */
 static exp_t *
-prim_load(exp_t *args, env_t *envp)
+prim_load(exp_t *args)
 {
         char *path;
 
@@ -395,7 +396,7 @@ prim_load(exp_t *args, env_t *envp)
         path = (char *)symp(car(args));
         /* dump the quotes around the path name */
         path = sstrndup(path+1, strlen(path+1)-1);
-        load(path, envp, NINTER);
+        load(path, NINTER);
         free(path);
         return NULL;
 }

@@ -2,24 +2,21 @@
 #include "exp.h"
 #include "env.h"
 #include "prim.h"
-#include "type.h"
 
-static env_t *initenv(void);
+static void initenv(void);
 const char *progname;
 
 int
 main(int argc, char *argv[])
 {
-        env_t *envp;
-
         progname = sstrdup(basename(argv[0]));
-        envp = initenv();
+        initenv();
         if (--argc) {
                 while (argc--)
-                        if (load(*++argv, envp, NINTER))
+                        if (load(*++argv, NINTER))
                                 exit(EXIT_FAILURE);
         } else {
-                load(NULL, envp, INTER);
+                load(NULL, INTER);
                 putchar('\n');
         }
         free((void *)progname);
@@ -27,18 +24,17 @@ main(int argc, char *argv[])
 }
 
 /* Initialize the global environment */
-static env_t *
+static void
 initenv(void)
 {
-        env_t *envp;
         char buf[BUFSIZ], *pref;
         FILE *fp;
         int ret;
 
-        inittags();
-        envp = newenv();
-        instcst(envp);
-        instprim(envp);
+        initkeys();
+        globenv = newenv();
+        instcst(globenv);
+        instprim(globenv);
 
         /* load the library */
         if ((ret = (pref = getenv(PREFIX)) != NULL)) {
@@ -49,7 +45,5 @@ initenv(void)
                 warnx("environment variable %s not defined", PREFIX);
         if (!ret)
                 snprintf(buf, BUFSIZ, "%s", LIBNAM);
-        load(buf, envp, NINTER);
-
-        return envp;
+        load(buf, NINTER);
 }

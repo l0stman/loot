@@ -8,11 +8,28 @@ exp_t *null;
 
 static struct {
         exp_t **ep;
-        const char *name;
+        symb_t *name;
 } cst[] = {
         {&false, "#f"},
         {&true, "#t"},
         {&null, "()"}
+};
+
+void *keywords[] = {
+        "define",
+        "quote",
+        "if",
+        "begin",
+        "cond",
+        "lambda",
+        "and",
+        "or",
+        "let",
+        "set!",
+        "set-car!",
+        "set-cdr!",
+        "else",
+        "=>"
 };
 
 /* Initiate the variables and install the constants in the
@@ -20,12 +37,22 @@ static struct {
 void
 instcst(struct env *envp)
 {
-        int i;
+        register int i;
 
         for (i = 0; i < NELEMS(cst); i++) {
                 *cst[i].ep = atom(cst[i].name);
                 install(cst[i].name, *cst[i].ep, envp);
         }
+}
+
+/* Transform the strings in keywords into symbol expressions. */
+void
+initkeys(void)
+{
+        register int i;
+
+        for (i = 0; i < NELEMS(keywords); i++)
+                keywords[i] = atom(keywords[i]);
 }
 
 /* Return true if the two expressions occupy the same memory.*/

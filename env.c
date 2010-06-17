@@ -2,11 +2,13 @@
 #include "exp.h"
 #include "env.h"
 
+env_t *globenv;                 /* global environment */
+
 /* inspired by K&R */
 
-/* hash: form hash value for string s */
+/* hash: compute the hash value for symbol s. */
 static unsigned
-hash(const char *s, size_t hashsize)
+hash(symb_t *s, size_t hashsize)
 {
         unsigned hashval;
 
@@ -17,7 +19,7 @@ hash(const char *s, size_t hashsize)
 
 /* find: look for s in frame */
 static struct nlist *
-find(const char *s, frame_t *fp)
+find(symb_t *s, frame_t *fp)
 {
         struct nlist *np;
 
@@ -29,7 +31,7 @@ find(const char *s, frame_t *fp)
 
 /* lookup: look for s in the environment */
 struct nlist *
-lookup(const char *s, env_t *ep)
+lookup(symb_t *s, env_t *ep)
 {
         struct nlist *np;
 
@@ -41,7 +43,7 @@ lookup(const char *s, env_t *ep)
 
 /* install: put (name, defn) in the environment */
 struct nlist *
-install(const char *name, exp_t *defn, env_t *ep)
+install(symb_t *name, exp_t *defn, env_t *ep)
 {
         struct nlist *np;
         frame_t *fp;
@@ -61,7 +63,7 @@ install(const char *name, exp_t *defn, env_t *ep)
 
 /* undef: remove the entry corresponding to name in frame */
 void
-undef(char *s, frame_t *fp)
+undef(symb_t *s, frame_t *fp)
 {
         struct nlist *np;
         struct nlist *prev;

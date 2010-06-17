@@ -17,7 +17,7 @@ enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM };
 typedef struct exp {
         enum type            tp; /* type of the expression */
         union {
-                const char  *sp; /* pointer to the symbol of an atom */
+                symb_t      *sp; /* pointer to the symbol of an atom */
                 struct cons *cp; /* pointer to a pair */
                 struct proc *pp; /* pointer to a procedure */
                 int          fx; /* represents a fixnum */
@@ -42,12 +42,20 @@ struct cons {   /* pair */
         exp_t *cdr;
 };
 
-struct func {   /* Represents a function */
-        exp_t *parp;            /* Parameters of the function */
-        exp_t *bodyp;           /* body of the function */
+
+/* Represents an evaluation procedure (see analyze). */
+typedef struct evproc {
+        exp_t *(*eval)();
+        void **argv;
+} evproc_t;
+
+struct func {                   /* Represents a function */
+        exp_t      *parp;       /* Parameters of the function */
+        evproc_t   *bodyp;      /* body of the function */
         struct env *envp;       /* environment of the function */
 };
 
+#define ptype(ep)	procp(ep)->tp
 #define primp(ep)       procp(ep)->u.primp
 #define funcp(ep)       procp(ep)->u.funcp
 #define fpar(ep)        funcp(ep)->parp
@@ -57,7 +65,7 @@ struct func {   /* Represents a function */
 enum ftype { FUNC, PRIM };
 typedef struct proc {           /* A procedure is a function or a primitive */
         enum ftype tp;          /* type of the procedure */
-        const char *label;      /* label of the procedure */
+        symb_t *label;          /* label of the procedure */
         union {
                 exp_t *(*primp)();  /* pointer to a primitive function */
                 struct func *funcp; /* pointer to an user-defined function */
@@ -75,6 +83,27 @@ typedef struct rat {            /* represents a rational */
 extern exp_t *false;
 extern exp_t *true;
 extern exp_t *null;
+
+/* Index of keyword symbols in keywords. */
+enum kindex {
+        DEFINE,
+        QUOTE,
+        IF,
+        BEGIN,
+        COND,
+        LAMBDA,
+        AND,
+        OR,
+        LET,
+        SET,
+        SETCAR,
+        SETCDR,
+        ELSE,
+        ARROW
+};
+
+extern void *keywords[];
+extern void initkeys(void);
 
 extern int iseq(const exp_t *, const exp_t *);
 extern char *tostr(const exp_t *);
@@ -119,7 +148,7 @@ isfxn(const exp_t *ep)
 
 /* Return an atom whose symbol is s */
 static inline exp_t *
-atom(const char *s)
+atom(symb_t *s)
 {
         exp_t *ep;
 
@@ -143,9 +172,20 @@ cons(exp_t *a, exp_t *b)
         return ep;
 }
 
+static inline evproc_t *
+nevproc(exp_t *(*eval)(), void **argv)
+{
+        evproc_t *epp;
+
+        NEW(epp);
+        epp->eval = eval;
+        epp->argv = argv;
+        return epp;
+}
+
 /* Return a function */
 static inline proc_t *
-func(exp_t *parp, exp_t *bodyp, struct env *envp)
+nfunc(exp_t *parp, evproc_t *bodyp, struct env *envp)
 {
         struct func *fp;
         proc_t *pp;
@@ -164,7 +204,7 @@ func(exp_t *parp, exp_t *bodyp, struct env *envp)
 
 /* Return a primitive */
 static inline proc_t *
-prim(char *label, exp_t *(primp)())
+nprim(char *label, exp_t *(primp)())
 {
         proc_t *pp;
 
@@ -177,7 +217,7 @@ prim(char *label, exp_t *(primp)())
 
 /* Return an expression from a procedure */
 static inline exp_t *
-proc(proc_t *pp)
+nproc(proc_t *pp)
 {
         exp_t *ep;
 

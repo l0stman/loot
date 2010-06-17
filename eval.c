@@ -4,96 +4,468 @@
 #include "eval.h"
 #include "type.h"
 
-static exp_t *evdef(exp_t *, env_t *);
-static exp_t *evvar(exp_t *, env_t *);
-static exp_t *evquote(exp_t *);
-static exp_t *evif(exp_t *, env_t *);
-static exp_t *evbegin(exp_t *, env_t *);
-static exp_t *evcond(exp_t *, env_t *);
-static exp_t *evlambda(exp_t *, env_t *);
-static exp_t *evand(exp_t *, env_t *);
-static exp_t *evor(exp_t *, env_t *);
-static exp_t *evlet(exp_t *, env_t *);
-static exp_t *evmap(exp_t *, env_t *);
-static exp_t *evset(exp_t *, env_t *);
-static exp_t *evsetcar(exp_t *, env_t *);
-static exp_t *evsetcdr(exp_t *, env_t *);
+const excpt_t eval_error = { "eval" };
+const excpt_t syntax_error = { "syntax" };
+static enum place { CAR, CDR };
+static enum logic { LAND, LOR };
 
-const excpt_t eval_error = { "evaluation error" };
+static exp_t *evself(exp_t **, env_t *);
+static exp_t *evvar(exp_t **, env_t *);
+static exp_t *evdef(void **, env_t *);
+static exp_t *evif(evproc_t **, env_t *);
+static exp_t *evbegin(evproc_t **, env_t *);
+static exp_t *evlambda(void **, env_t *);
+static exp_t *evapp(evproc_t **, env_t *);
+static exp_t *evcond(evproc_t **, env_t *);
+static exp_t *evset(void **, env_t *);
+static exp_t *evsetpair(evproc_t **, env_t *);
+static exp_t *evor(evproc_t **, env_t *);
+static exp_t *evand(evproc_t **, env_t *);
+static exp_t *evproc(evproc_t **, env_t *);
+static exp_t *evlet(evproc_t **, env_t *);
 
-/* Evaluate the expression in the environment. */
-exp_t *
-eval(exp_t *ep, env_t *envp)
+static evproc_t *anself(exp_t *);
+static evproc_t *anvar(exp_t *);
+static evproc_t *anquote(exp_t *);
+static evproc_t *andef(exp_t *);
+static evproc_t *anif(exp_t *);
+static evproc_t *anbegin(exp_t *);
+static evproc_t *anlambda(exp_t *);
+static evproc_t *anapp(exp_t *);
+static evproc_t *ancond(exp_t *);
+static evproc_t *anset(exp_t *);
+static evproc_t *ansetpair(exp_t *, enum place);
+static evproc_t *anlogic(exp_t *, enum logic);
+static evproc_t *anlet(exp_t *);
+
+/*
+ * Check the syntax of the expression and return a corresponding
+ * evaluation procedure.
+ */
+static evproc_t *
+analyze(exp_t *ep)
 {
         if (isself(ep))
-                return ep;
-        else if (isdef(ep))
-                return evdef(ep, envp);
+                return anself(ep);
         else if (isvar(ep))
-                return evvar(ep, envp);
+                return anvar(ep);
         else if (isquote(ep))
-                return evquote(ep);
+                return anquote(ep);
+        else if (isdef(ep))
+                return andef(ep);
         else if (isif(ep))
-                return evif(ep, envp);
+                return anif(ep);
         else if (isbegin(ep))
-                return evbegin(ep, envp);
-        else if (iscond(ep))
-                return evcond(ep, envp);
+                return anbegin(ep);
         else if (islambda(ep))
-                return evlambda(ep, envp);
-        else if (isand(ep))
-                return evand(ep, envp);
-        else if (isor(ep))
-                return evor(ep, envp);
-        else if (islet(ep))
-                return evlet(ep, envp);
+                return anlambda(ep);
+        else if (iscond(ep))
+                return ancond(ep);
         else if (isset(ep))
-                return evset(ep, envp);
+                return anset(ep);
         else if (issetcar(ep))
-                return evsetcar(ep, envp);
+                return ansetpair(ep, CAR);
         else if (issetcdr(ep))
-                return evsetcdr(ep, envp);
-        else if (islist(ep))  /* application */
-                return apply(eval(car(ep), envp), evmap(cdr(ep), envp), envp);
+                return ansetpair(ep, CDR);
+        else if (isor(ep))
+                return anlogic(ep, LOR);
+        else if (isand(ep))
+                return anlogic(ep, LAND);
+        else if (islet(ep))
+                return anlet(ep);
+        else if (ispair(ep))    /* application */
+                return anapp(ep);
         else
-                everr("unknown expression", ep);
+                anerr("bad syntax in", ep);
         return NULL;            /* not reached */
 }
 
+#define EVPROC(epp, envp)	((epp)->eval((epp)->argv, envp))
+
+/* Evaluate the expression in the environment. */
+exp_t *
+eval(exp_t *exp, env_t *envp)
+{
+        evproc_t *epp;
+
+        epp = analyze(exp);
+        return EVPROC(epp, envp);
+}
+
+/* Apply a procedure to its arguments. */
+exp_t *
+apply(exp_t *op, exp_t *args)
+{
+        exp_t *pars;
+        exp_t *binds;           /* binding list */
+
+        if (!isproc(op))
+                everr("expression is not a procedure", op);
+        if (ptype(op) == PRIM) /* primitive */
+                return primp(op)(args);
+
+        /* function */
+        for (pars = fpar(op), binds = null;
+             ispair(pars);
+             pars = cdr(pars), args = cdr(args)) {
+                if (isnull(args))
+                        everr("too few arguments provided to", op);
+                binds = cons(cons(car(pars), car(args)), binds);
+        }
+        if (!isnull(pars))      /* variable length arguments */
+                binds = cons(cons(pars, args), binds);
+        else if (!isnull(args))
+                everr("too many arguments provided to", op);
+
+        return EVPROC(fbody(op), extenv(binds, fenv(op)));
+}
+
+/* * * * * * * * * * * * * * * *
+ * Syntax analyzer procedures. *
+ * * * * * * * * * * * * * * * */
+
 /* Check that the expression is a list of length n. */
-static void
-chknum(exp_t *lp, int n)
+static inline void
+chklst(exp_t *lp, int n)
 {
         exp_t *ep;
 
         for (ep = lp; n-- && ispair(ep); ep = cdr(ep))
                 ;
         if (n != -1 || !isnull(ep))
-                everr("bad syntax in", lp);
+                anerr("bad syntax in", lp);
 }
+
+/* Analyze a self-evaluating expression. */
+static evproc_t *
+anself(exp_t *ep)
+{
+        void **argv;
+
+        NEW(argv);
+        argv[0] = (void *)ep;
+        return nevproc(evself, argv);
+}
+
+/* Analyze a variable. */
+static evproc_t *
+anvar(exp_t *ep)
+{
+        void **argv;
+
+        NEW(argv);
+        argv[0] = (void *)ep;
+        return nevproc(evvar, argv);
+}
+
+/* Analyze the syntax of a quoted expression. */
+static evproc_t *
+anquote(exp_t *ep)
+{
+        chklst(ep, 2);
+        return nevproc(evself, (void *)&cadr(ep));
+}
+
+#define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
+
+/* Analyze the syntax of a define expression. */
+static evproc_t *
+andef(exp_t *ep)
+{
+        symb_t *var;
+        evproc_t *vproc;
+        exp_t *lst;
+        void **argv;
+
+        if (isnull(cdr(ep)) || isatom(cadr(ep)))
+                chklst(ep, 3);
+        lst = cdr(ep);
+        if (ispair(ep = car(lst))) { /* lambda shortcut */
+                if (!issym(car(ep)))
+                        anerr("should be a symbol", car(ep));
+                var = symp(car(ep));
+                vproc = analyze(nlambda(cdr(ep), cdr(lst)));
+        } else if (issym(ep)) {
+                var = symp(ep);
+                vproc = analyze(cadr(lst));
+        } else
+                anerr("the expression couldn't be defined", car(lst));
+        argv = smalloc(2*sizeof(*argv));
+        argv[0] = (void *)var;
+        argv[1] = (void *)vproc;
+
+        return nevproc(evdef, argv);
+}
+
+/* Analyze the syntax of an if expression. */
+static evproc_t *
+anif(exp_t *ep)
+{
+        evproc_t **argv;
+
+        chklst(ep, 4);
+        ep = cdr(ep);
+        argv = smalloc(3*sizeof(*argv));
+        argv[0] = analyze(car(ep));
+        argv[1] = analyze(cadr(ep));
+        argv[2] = analyze(caddr(ep));
+
+        return nevproc(evif, (void **)argv);
+}
+
+/* Analyze the syntax of a begin expression. */
+static evproc_t *
+anbegin(exp_t *ep)
+{
+        evproc_t **argv;
+        exp_t *lp;
+        register int argc;
+
+        if (isnull(lp = cdr(ep)))
+                anerr("empty form", ep);
+        for (argc = 1; ispair(lp); lp = cdr(lp))
+                argc++;
+        if (!isnull(lp))
+                anerr("should be a list", ep);
+
+        argv = smalloc(argc*sizeof(*argv));
+        for (argc = 0, lp = cdr(ep); ispair(lp); lp = cdr(lp))
+                argv[argc++] = analyze(car(lp));
+        argv[argc] = NULL;
+
+        return nevproc(evbegin, (void **)argv);
+}
+
+#define nseq(ep)	(cons(keywords[BEGIN], ep))
+
+/* Analyze the syntax of a lambda expression. */
+static evproc_t *
+anlambda(exp_t *ep)
+{
+        void **argv;
+        exp_t *lp, *p;
+
+        if (isnull(cdr(ep)) || isnull(cddr(ep)))
+                anerr("bad syntax in", ep);
+        for (lp = cadr(ep); ispair(lp); lp = cdr(lp)) {
+                if (!issym(car(lp)))
+                        anerr("should be a symbol", car(lp));
+                for (p = cdr(lp); ispair(p); p = cdr(p))
+                        if (iseq(car(lp), car(p)))
+                                anerr("duplicate symbol parameter", car(p));
+        }
+        if (!isnull(lp) && !issym(lp))
+                 anerr("should be null or a symbol", lp);
+
+        argv = smalloc(2*sizeof(*argv));
+        argv[0] = (void *)cadr(ep);
+        argv[1] = (void *)anbegin(nseq(cddr(ep)));
+
+        return nevproc(evlambda, argv);
+}
+
+#define iselse(p)	(iseq(keywords[ELSE], (exp_t *)(p)))
+#define isarrow(p)	(iseq(keywords[ARROW], (exp_t *)(p)))
+
+/* Analyze the syntax of a cond expression. */
+static evproc_t *
+ancond(exp_t *ep)
+{
+        exp_t *cl, *clauses;
+        int argc;
+        void **argv;
+
+        argc = 1;
+        for (clauses = cdr(ep); ispair(clauses); clauses = cdr(clauses)) {
+                argc += 2;
+                if (!ispair(cl = car(clauses)) || !ispair(cdr(cl)))
+                        anerr("should be a test-value pair", cl);
+                if (iselse(car(cl)) && !isnull(cdr(clauses)))
+                        anerr("else clause must be last", ep);
+                if (isarrow(cadr(cl)))
+                        if (iselse(car(cl)))
+                                anerr("illegal use of arrow", cl);
+                        else if (isnull(cddr(cl)) || !isnull(cdddr(cl)))
+                                anerr("bad clause form", cl);
+                        else
+                                ++argc;
+        }
+        if (!isnull(clauses))
+                anerr("should be a list", ep);
+
+        argv = smalloc(argc*sizeof(*argv));
+        argc = 0;
+        for (clauses = cdr(ep); ispair(clauses); clauses = cdr(clauses)) {
+                cl = car(clauses);
+                argv[argc++] = iselse(car(cl))?keywords[ELSE]:analyze(car(cl));
+                if (isarrow(cadr(cl))) {
+                        argv[argc++] = keywords[ARROW];
+                        argv[argc++] = analyze(caddr(cl));
+                } else
+                        argv[argc++] = analyze(nseq(cdr(cl)));
+        }
+        argv[argc] = NULL;
+
+        return nevproc(evcond, argv);
+}
+
+/* Analyze the syntax of a set! expression. */
+static evproc_t *
+anset(exp_t *ep)
+{
+        void **argv;
+        exp_t *var;
+
+        chklst(ep, 3);
+        if (!issym(var = cadr(ep)))
+                anerr("should be a symbol", var);
+        argv = smalloc(2*sizeof(*argv));
+        argv[0] = var;
+        argv[1] = analyze(caddr(ep));
+
+        return nevproc(evset, argv);
+}
+
+/* Analyze the syntax of a set-car! or set-cdr! expression. */
+static evproc_t *
+ansetpair(exp_t *ep, enum place pl)
+{
+        evproc_t **argv;
+
+        chklst(ep, 3);
+        argv = smalloc(3*sizeof(*argv));
+        argv[0] = (evproc_t *)pl;
+        argv[1] = analyze(cadr(ep));
+        argv[2] = analyze(caddr(ep));
+
+        return nevproc(evsetpair, (void **)argv);
+}
+
+/* Analyze the syntax of an `or' or an `and' expression. */
+static evproc_t *
+anlogic(exp_t *ep, enum logic lg)
+{
+        evproc_t **argv;
+        register int argc;
+        exp_t *p;
+
+        ep = cdr(ep);
+        for (argc = 1, p = ep; ispair(p); p = cdr(p))
+                ++argc;
+        if (!isnull(p))
+                anerr("should be list", ep);
+
+        argv = smalloc(argc*sizeof(*argv));
+        for (argc = 0; ispair(ep); ep = cdr(ep))
+                argv[argc++] = analyze(car(ep));
+        argv[argc] = NULL;
+
+        return nevproc((lg == LOR ? evor : evand), (void **)argv);
+}
+
+/* Analyze the syntax of a `let' expression. */
+static evproc_t *
+anlet(exp_t *ep)
+{
+        evproc_t **argv;
+        exp_t *bd, *binds, *body, *name, *op, *pars, *vals;
+
+        if (isnull(cdr(ep)))
+                anerr("bad syntax", ep);
+        if (issym(cadr(ep))) {  /* named let */
+                name = cadr(ep);
+                if (isnull(cddr(ep)))
+                        anerr("bad syntax", ep);
+                binds = caddr(ep);
+                body = cdddr(ep);
+        } else {
+                name = NULL;
+                binds = cadr(ep);
+                body = cddr(ep);
+        }
+
+        for (pars = vals = null; ispair(binds); binds = cdr(binds))
+                if (issym(bd = car(binds))) {
+                        pars = cons(bd, pars);
+                        vals = cons(null, vals);
+                } else if (ispair(bd) && ispair(cdr(bd)) && isnull(cddr(bd))) {
+                        pars = cons(car(bd), pars);
+                        vals = cons(cadr(bd), vals);
+                } else
+                        anerr("bad binding syntax", ep);
+        if (!isnull(binds))
+                anerr("should be a list of bindings", binds);
+
+        argv = smalloc(2*sizeof(*argv));
+        op = nlambda(nreverse(pars), body);
+        if (name) {             /* named let */
+                argv[0] = analyze(cons(keywords[DEFINE],
+                                       cons(name, cons(op, null))));
+                op = name;
+        } else
+                argv[0] = NULL;
+        argv[1] = analyze(cons(op, nreverse(vals)));
+
+        return nevproc(evlet, (void **)argv);
+}
+
+/* Analyze the syntax of an application expression. */
+static evproc_t *
+anapp(exp_t *ep)
+{
+        void **argv;
+        exp_t *p;
+        register int argc;
+
+        for (argc = 1, p = ep; ispair(p); p = cdr(p))
+                ++argc;
+        if (!isnull(p))
+                anerr("an application should be a list, given", ep);
+        argv = smalloc(argc*sizeof(*argv));
+        for (argc = 0, p = ep; ispair(p); p = cdr(p))
+                argv[argc++] = analyze(car(p));
+        argv[argc] = NULL;
+
+        return nevproc(evapp, argv);
+}
+
+/* * * * * * * * * * * * * *
+ * Evaluation procedures.  *
+ * * * * * * * * * * * * * */
+
+static exp_t *
+evself(exp_t **args, env_t *envp)
+{
+        return *args;
+}
+
+/* Return the value of a variable if any. */
+static exp_t *
+evvar(exp_t **argv, env_t *envp)
+{
+        struct nlist *np;
+
+        if ((np = lookup(symp(argv[0]), envp)) == NULL)
+                everr("unbound variable", argv[0]);
+        return np->defn;
+}
+
+#define valerr(var)	raise(&eval_error, filename, linenum,                  \
+                              "the expression assigned to %s returns no value",\
+                              var)
 
 /* Evaluate a define expression */
 static exp_t *
-evdef(exp_t *ep, env_t *envp)
+evdef(void **argv, env_t *envp)
 {
-        const char *var;
-        exp_t *val, *args;
+        symb_t *var;
+        evproc_t *vproc;
+        exp_t *val;
 
-        if (isnull(cdr(ep)) || isatom(cadr(ep)))
-                chknum(ep, 3);
-        args = cdr(ep);
-        if (ispair(ep = car(args))) { /* lambda shortcut */
-                if (!issym(car(ep)))
-                        everr("should be a symbol", car(ep));
-                var = symp(car(ep));
-                val = cons(atom("lambda"), cons(cdr(ep), cdr(args)));
-        } else if (issym(ep)) {
-                var = symp(ep);
-                val = cadr(args);
-        } else
-                everr("the expression couldn't be defined", car(args));
-
-        val = eval(val, envp);
+        var = (symb_t *)argv[0];
+        vproc = (evproc_t *)argv[1];
+	if (!(val = EVPROC(vproc, envp)))
+                valerr(var);
         if (type(val) == PROC && label(val) == NULL)
                 label(val) = strtoatm(var); /* label anonymous procedure */
         install(var, val, envp);
@@ -103,258 +475,121 @@ evdef(exp_t *ep, env_t *envp)
 
 /* Evaluate a set! expression. */
 static exp_t *
-evset(exp_t *ep, env_t *envp)
+evset(void **argv, env_t *envp)
 {
-        exp_t *var;
-        exp_t *val;
+        exp_t *var, *val;
         struct nlist *np;
 
-        chknum(ep, 3);
-        if (!issym(var = cadr(ep)))
-                everr("should be a symbol", var);
-        val = eval(caddr(ep), envp);
+        var = argv[0];
+        if (!(val = EVPROC((evproc_t *)argv[1], envp)))
+                valerr(symp(var));
         if (!(np = lookup(symp(var), envp)))
                 everr("unbound variable", var);
         np->defn = val;
         return NULL;
 }
 
-/* Set an expression to a new value. */
-enum place { CAR, CDR };
-
+/* Set the car or the cdr of an expression to a new value. */
 static exp_t *
-set(exp_t *ep, env_t *envp, enum place place)
+evsetpair(evproc_t **argv, env_t *envp)
 {
-        exp_t *var;
-        exp_t *val;
+        exp_t *var, *val;
 
-        chknum(ep, 3);
-        var = eval(cadr(ep), envp);
-        val = eval(caddr(ep), envp);
-        if (!ispair(var))
-                everr("should be a pair", cadr(ep));
-        else if (place == CAR)
+        if (!ispair(var = EVPROC(argv[1], envp)))
+                everr("should be a pair", var);
+        if (!(val = EVPROC(argv[2], envp)))
+                valerr(symp(var));
+        if ((enum place)argv[0] == CAR)
                 car(var) = val;
         else
                 cdr(var) = val;
         return NULL;
 }
 
-/* Evaluate a set-car! expression */
-static exp_t *
-evsetcar(exp_t *ep, env_t *envp)
-{
-        return set(ep, envp, CAR);
-}
-
-/* Evaluate a set-cdr! expression */
-static exp_t *
-evsetcdr(exp_t *ep, env_t *envp)
-{
-        return set(ep, envp, CDR);
-}
-
-/* Return the value of a variable if any */
-static exp_t *
-evvar(exp_t *ep, env_t *envp)
-{
-        struct nlist *np;
-
-        if ((np = lookup(symp(ep), envp)) == NULL)
-                everr("unbound variable", ep);
-        return np->defn;
-}
-
-/* Return the quoted expression */
-static exp_t *
-evquote(exp_t *ep)
-{
-        chknum(ep, 2);
-        return cadr(ep);
-}
-
 /* Evaluate an if expression */
 static exp_t *
-evif(exp_t *ep, env_t *envp)
+evif(evproc_t **argv, env_t *envp)
 {
-        exp_t *res;
+        evproc_t *pred, *res;
 
-        chknum(ep, 4);
-        ep = cdr(ep);
-        res = (iseq(false, eval(car(ep), envp)) ? caddr(ep): cadr(ep));
-        return eval(res, envp);
+        pred = argv[0];
+        res = (!iseq(false, EVPROC(pred, envp)) ? argv[1] : argv[2]);
+        return EVPROC(res, envp);
 }
 
 /* Evaluate a begin expression */
 static exp_t *
-evbegin(exp_t *ep, env_t *envp)
+evbegin(evproc_t **argv, env_t *envp)
 {
-        exp_t *rv = NULL;
-
-        for (ep = cdr(ep); !isnull(ep); ep = cdr(ep))
-                rv = eval(car(ep), envp);
-        return rv;
+        for (; *(argv+1); argv++)
+                EVPROC(argv[0], envp);
+        return EVPROC(argv[0], envp);
 }
 
 /* Evaluate a cond expression */
 static exp_t *
-evcond(exp_t *ep, env_t *envp)
+evcond(evproc_t **argv, env_t *envp)
 {
-        exp_t *_else_ = atom("else"), *arrow = atom("=>");
-        exp_t *cl, *clauses, *b;
+        exp_t *b;
 
-        /* Check the syntax. */
-        for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses)) {
-                if (!islist(cl = car(clauses)))
-                        everr("should be a list", cl);
-                if (iseq(_else_, car(cl)) && !isnull(cdr(clauses)))
-                        everr("else clause must be last", ep);
-                if (iseq(arrow, cadr(cl)))
-                        if (iseq(_else_, car(cl)))
-                                everr("illegal use of arrow", cl);
-                        else if (!isnull(cdddr(cl)))
-                                everr("bad clause form", cl);
-        }
-
-        /* Evaluate the expression. */
-        for (clauses = cdr(ep); !isnull(clauses); clauses = cdr(clauses))
-                if (iseq(_else_, car(cl)) ||
-                    !iseq(false, b = eval(car(cl), envp)))
-                        return iseq(arrow, cadr(cl)) ?
-                                apply(eval(caddr(cl), envp),
-                                      cons(b, null),
-                                      envp) :
-                                eval(cons(atom("begin"), cdr(cl)), envp);
+        for (; *argv; argv += 2)
+                if (iselse(*argv) || !iseq(false, b = EVPROC(*argv, envp)))
+                        return isarrow(*(argv+1)) ?
+                                apply(EVPROC(*(argv+2), envp), cons(b, null)) :
+                                EVPROC(*(argv+1), envp);
+                else if (isarrow(*(argv+1)))
+                        ++argv;
 
         return null;
 }
 
-/* Evaluate an and expression */
+/* Evaluate an `and' expression */
 static exp_t *
-evand(exp_t *ep, env_t *envp)
+evand(evproc_t **argv, env_t *envp)
 {
-        exp_t *res = true;
+        exp_t *pred;
 
-        for (ep = cdr(ep); !isnull(ep) && !iseq(false, res); ep = cdr(ep))
-                res = eval(car(ep), envp);
-        return res;
+        for (pred = true; *argv && !iseq(false, pred); argv++)
+                pred = EVPROC(*argv, envp);
+        return pred;
 }
 
-/* Evaluate an or expression */
+/* Evaluate an `or' expression */
 static exp_t *
-evor(exp_t *ep, env_t *envp)
+evor(evproc_t **argv, env_t *envp)
 {
-        exp_t *res = false;
+        exp_t *pred;
 
-        for (ep = cdr(ep); !isnull(ep) && iseq(false, res); ep = cdr(ep))
-                res = eval(car(ep), envp);
-        return res;
+        for (pred = false; *argv && iseq(false, pred); argv++)
+                pred = EVPROC(*argv, envp);
+        return pred;
 }
 
 /* Evaluate a lambda expression */
-static int chkpars(exp_t *);
-
 static exp_t *
-evlambda(exp_t *lp, env_t *envp)
+evlambda(void **argv, env_t *envp)
 {
-        exp_t *ep;
-
-        ep = cdr(lp);
-        if (isnull(ep) || !chkpars(car(ep)) || isnull(cdr(ep)))
-                everr("syntax error in", lp);
-        return proc(func(car(ep), cons(atom("begin"), cdr(ep)), envp));
-}
-
-/* Verify if the expression represents function's parameters */
-static int
-chkpars(exp_t *ep)
-{
-        if (!ispair(ep))
-                return isatom(ep);
-        for (; !isatom(ep); ep = cdr(ep))
-                if (!issym(car(ep))) {
-                        warnx("should be a symbol %s: ", tostr(car(ep)));
-                        return 0;
-                }
-        return 1;
+        return nproc(nfunc((exp_t *)argv[0], (evproc_t *)argv[1], envp));
 }
 
 /* Eval a let expression */
 static exp_t *
-evlet(exp_t *ep, env_t *envp)
+evlet(evproc_t **argv, env_t *envp)
 {
-        exp_t *binds, *name, *body, *plst, *vlst, *op;
-
-        if (isnull(cdr(ep)) || isnull(cddr(ep)))
-                everr("syntax error", ep);
-        if (issym(cadr(ep))) {
-                name = cadr(ep);
-                binds = caddr(ep);
-                body = cdddr(ep);
-        } else {
-                name = NULL;
-                binds = cadr(ep);
-                body = cddr(ep);
-        }
-
-        for (plst = vlst = null; ispair(binds); binds = cdr(binds))
-                if (issym(car(binds))) {
-                        plst = cons(car(binds), plst);
-                        vlst = cons(null, vlst);
-                } else if (ispair(car(binds)) &&
-                           ispair(cdar(binds)) &&
-                           isnull(cddar(binds))) {
-                        plst = cons(caar(binds), plst);
-                        vlst = cons(cadar(binds), vlst);
-                } else
-                        everr("syntax error", ep);
-
-        if (!isnull(binds))
-                everr("should be a list of bindings", binds);
-        op = cons(atom("lambda"), cons(nreverse(plst), body));
-        if (name != NULL) {     /* named let */
-                eval(cons(atom("define"),
-                          cons(name, cons(op, null))),
-                     envp);
-                op = name;
-        }
-
-        return eval(cons(op, nreverse(vlst)), envp);
+        if (argv[0])           /* named let */
+                EVPROC(argv[0], envp);
+        return EVPROC(argv[1], envp);
 }
 
-/* Apply a procedure to its arguments */
-exp_t *
-apply(exp_t *op, exp_t* args, env_t *envp)
-{
-        exp_t *parp;
-        exp_t *blist; /* binding list */
-
-        if (!isproc(op))
-                everr("expression is not a procedure", op);
-        if (procp(op)->tp == PRIM)    /* primitive */
-                return primp(op)(args, envp);
-
-        /* function */
-        for (parp = fpar(op), blist = null ; !isatom(parp);
-             parp = cdr(parp), args = cdr(args)) {
-                if (isnull(args))
-                        everr("too few arguments provided to", op);
-                blist = cons(cons(car(parp), car(args)), blist);
-        }
-        if (!isnull(parp))      /* variable length arguments */
-                blist = cons(cons(parp, args), blist);
-        else if (!isnull(args))
-                everr("too many arguments provided to", op);
-        return eval(fbody(op), extenv(blist, fenv(op)));
-}
-
-/* Return a list of evaluated expressions */
+/* Evaluate an application expression. */
 static exp_t *
-evmap(exp_t *lp, env_t *envp)
+evapp(evproc_t **argv, env_t *envp)
 {
-        exp_t *res;
+        evproc_t *op;
+        exp_t *args;
 
-        for (res = null; !isnull(lp); lp = cdr(lp))
-                res = cons(eval(car(lp), envp), res);
-        return nreverse(res);
+        op = *argv++;
+        for (args = null; *argv; argv++)
+                args = cons(EVPROC(*argv, envp), args);
+        return apply(EVPROC(op, envp), nreverse(args));
 }
