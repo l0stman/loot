@@ -326,6 +326,10 @@ evvar(exp_t **argv, env_t *envp)
         return np->defn;
 }
 
+#define valerr(var)	raise(&eval_error, filename, linenum,                  \
+                              "the expression assigned to %s returns no value",\
+                              var)
+
 /* Evaluate a define expression */
 static exp_t *
 evdef(void **argv, env_t *envp)
@@ -336,8 +340,9 @@ evdef(void **argv, env_t *envp)
 
         var = (symb_t *)argv[0];
         vproc = (evproc_t *)argv[1];
-        val = EVPROC(vproc, envp);
-        if (val && type(val) == PROC && label(val) == NULL)
+	if (!(val = EVPROC(vproc, envp)))
+                valerr(var);
+        if (type(val) == PROC && label(val) == NULL)
                 label(val) = strtoatm(var); /* label anonymous procedure */
         install(var, val, envp);
 
