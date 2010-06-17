@@ -1,28 +1,30 @@
 
-atom.c,278
+atom.c,239
 static struct atom 6,107
         struct atom *next;next7,128
         int len;8,155
         char *str;str9,172
 } *buckets[buckets10,191
 static unsigned long scatter[scatter12,210
-const char *strtoatm(strtoatm59,3596
-inttoatm(67,3761
-const char *natom(natom91,4287
+strtoatm(60,3605
+inttoatm(68,3754
+natom(94,4297
 
-atom.h,20
+atom.h,52
 #define ATOM_H2,15
+typedef const char symb_t;4,31
 
-env.c,138
-hash(9,135
-find(20,381
-lookup(32,723
-install(44,1041
-void63,1578
-newframe(90,2307
-newenv(102,2521
-extenv(114,2710
-fdump(130,3102
+env.c,168
+env_t *globenv;globenv5,55
+hash(11,201
+find(22,443
+lookup(34,781
+install(46,1095
+void65,1628
+newframe(92,2359
+newenv(104,2573
+extenv(116,2762
+fdump(132,3154
 
 env.h,426
 #define ENV_H2,14
@@ -39,8 +41,8 @@ struct nlist 16,385
         struct nlist *next;next17,419
         const char *name;name18,447
         exp_t *defn;defn19,504
-fframe(32,938
-eenv(39,1051
+fframe(33,955
+eenv(40,1068
 
 error.c,305
 err_quit(14,206
@@ -57,7 +59,7 @@ xrealloc(98,2232
 xfree(120,2837
 xfreeall(141,3321
 
-error.h,682
+error.h,660
 #define ERROR_H2,16
 #define MAXLINE 7,74
 typedef struct excpt 12,223
@@ -79,61 +81,84 @@ enum { ENTERED = 0, RAISED, HANDLED 25,476
 #define RETURN 32,755
 #define TRY 34,825
 #define CATCH(42,1167
-#define ELSE	47,1413
-#define WARN(52,1569
-#define ENDTRY 74,3084
+#define WARN(47,1413
+#define ENDTRY 69,2928
 
-eval.c,426
-const excpt_t eval_error 22,641
-eval(26,751
-chknum(65,2044
-evdef(77,2297
-evset(106,3205
-enum place 123,3631
-enum place { CAR,123,3631
-enum place { CAR, CDR 123,3631
-set(126,3672
-evsetcar(145,4120
-evsetcdr(152,4245
-evvar(159,4377
-evquote(170,4612
-evif(178,4731
-evbegin(190,4984
-evcond(201,5211
-evand(234,6545
-evor(245,6793
-evlambda(258,7073
-chkpars(270,7410
-evlet(284,7762
-apply(327,9219
-evmap(353,10156
+eval.c,921
+const excpt_t eval_error 7,91
+const excpt_t syntax_error 8,130
+static enum place 9,173
+static enum place { CAR,9,173
+static enum place { CAR, CDR 9,173
+static enum logic 10,205
+static enum logic { LAND,10,205
+static enum logic { LAND, LOR 10,205
+analyze(46,1417
+#define EVPROC(83,2549
+eval(87,2667
+apply(97,2838
+chklst(129,3888
+anself(141,4153
+anvar(152,4329
+anquote(163,4526
+#define nlambda(169,4624
+andef(173,4763
+anif(202,5633
+anbegin(218,5989
+#define nseq(239,6538
+anlambda(243,6651
+#define iselse(267,7431
+#define isarrow(268,7486
+ancond(272,7609
+anset(314,9158
+ansetpair(331,9552
+anlogic(346,9921
+anlet(368,10504
+anapp(414,12115
+evself(437,12690
+evvar(444,12811
+#define valerr(453,13009
+evdef(459,13253
+evset(478,13724
+evsetpair(494,14143
+evif(511,14577
+evbegin(522,14825
+evcond(531,15027
+evand(548,15535
+evor(559,15775
+evlambda(570,16015
+evlet(577,16172
+evapp(586,16394
 
-eval.h,41
+eval.h,64
 #define EVAL_H2,15
-#define everr(8,151
+#define everr(10,178
+#define anerr(11,256
 
-exp.c,383
+exp.c,432
 exp_t *false;false5,55
 exp_t *true;true6,69
 exp_t *null;null7,82
         exp_t **ep;ep10,112
-        const char *name;name11,132
-} cst[cst12,158
-instcst(21,325
-iseq(33,598
-atmtostr(40,732
-pairtostr(53,968
-proctostr(84,1822
-ftostr(101,2261
-rtostr(111,2456
-fxntostr(121,2655
-tostr(131,2843
-#define SIGN(150,3348
-#define ABS(151,3383
-gcd(154,3481
-nrat(169,3726
+        symb_t *name;name11,132
+} cst[cst12,154
+void *keywords[keywords18,239
+instcst(38,575
+initkeys(50,859
+iseq(60,1068
+atmtostr(67,1202
+pairtostr(80,1438
+proctostr(111,2292
+ftostr(128,2731
+rtostr(138,2926
+fxntostr(148,3125
+tostr(158,3313
+#define SIGN(177,3818
+#define ABS(178,3853
+gcd(181,3951
+nrat(196,4196
 
-exp.h,2069
+exp.h,2578
 #define EXP_H2,14
 enum type 6,48
 enum type { ATOM,6,48
@@ -152,7 +177,7 @@ enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM 6,48
 #define ratp(15,346
 typedef struct exp 17,382
         enum type            tp;18,403
-                const char  *sp;sp20,481
+                symb_t      *sp;sp20,481
                 struct cons *cp;cp21,553
                 struct proc *pp;pp22,610
                 int          fx;23,672
@@ -173,53 +198,74 @@ typedef struct exp 17,382
 struct cons 40,1192
         exp_t *car;car41,1219
         exp_t *cdr;cdr42,1239
-struct func 45,1263
-        exp_t *parp;parp46,1307
-        exp_t *bodyp;bodyp47,1372
-        struct env *envp;envp48,1431
-#define primp(51,1501
-#define funcp(52,1544
-#define fpar(53,1587
-#define fbody(54,1627
-#define fenv(55,1668
-enum ftype 57,1709
-enum ftype { FUNC,57,1709
-enum ftype { FUNC, PRIM 57,1709
-typedef struct proc 58,1736
-        enum ftype tp;59,1815
-        const char *label;label60,1875
-                exp_t *(*primp)primp62,1952
-                struct func *funcp;funcp63,2026
-        } u;64,2104
-} proc_t;65,2117
-#define num(67,2128
-#define den(68,2158
-typedef struct rat 70,2189
-        int num;71,2249
-        int den;72,2297
-} rat_t;73,2347
-isatom(85,2585
-ispair(91,2681
-isproc(97,2777
-isfloat(103,2873
-israt(109,2971
-isfxn(115,3066
-atom(122,3206
-cons(134,3398
-func(148,3631
-prim(167,4016
-proc(180,4259
-nfloat(192,4453
-nfixnum(204,4649
-isnull(216,4831
-islist(223,4985
-reverse(232,5141
-nreverse(243,5363
+typedef struct evproc 47,1320
+        exp_t *(*eval)eval48,1344
+        void **argv;argv49,1370
+} evproc_t;50,1391
+struct func 52,1404
+        exp_t      *parp;parp53,1464
+        evproc_t   *bodyp;bodyp54,1529
+        struct env *envp;envp55,1588
+#define ptype(58,1658
+#define primp(59,1690
+#define funcp(60,1733
+#define fpar(61,1776
+#define fbody(62,1816
+#define fenv(63,1857
+enum ftype 65,1898
+enum ftype { FUNC,65,1898
+enum ftype { FUNC, PRIM 65,1898
+typedef struct proc 66,1925
+        enum ftype tp;67,2004
+        symb_t *label;label68,2064
+                exp_t *(*primp)primp70,2141
+                struct func *funcp;funcp71,2215
+        } u;72,2293
+} proc_t;73,2306
+#define num(75,2317
+#define den(76,2347
+typedef struct rat 78,2378
+        int num;79,2438
+        int den;80,2486
+} rat_t;81,2536
+enum kindex 88,2652
+        DEFINE,89,2666
+        QUOTE,90,2682
+        IF,91,2697
+        BEGIN,92,2709
+        COND,93,2724
+        LAMBDA,94,2738
+        AND,95,2754
+        OR,96,2767
+        LET,97,2779
+        SET,98,2792
+        SETCAR,99,2805
+        SETCDR,100,2821
+        ELSE,101,2837
+        ARROW102,2851
+isatom(114,3089
+ispair(120,3185
+isproc(126,3281
+isfloat(132,3377
+israt(138,3475
+isfxn(144,3570
+atom(151,3710
+cons(163,3898
+nevproc(176,4109
+nfunc(188,4314
+nprim(207,4703
+nproc(220,4947
+nfloat(232,5142
+nfixnum(244,5338
+isnull(256,5520
+islist(263,5674
+reverse(272,5830
+nreverse(283,6052
 
 main.c,66
-const char *progname;progname8,120
-main(11,147
-initenv(31,652
+const char *progname;progname7,100
+main(10,127
+initenv(28,588
 
 parser.c,67
 parse(12,215
@@ -231,42 +277,42 @@ parser.h,22
 #define PARSER_H2,17
 
 prim.c,699
-        char *n;n40,1071
-        exp_t *(*pp)pp41,1088
-} plst[plst42,1112
-instprim(78,2003
-load(88,2217
-chkargs(143,3705
-foldl(159,4165
-add(171,4458
-prim_add(191,4927
-sub(198,5061
-prim_sub(218,5547
-prod(229,5865
-prim_prod(245,6224
-divs(252,6358
-prim_div(270,6807
-prim_eq(281,7145
-prim_sym(289,7319
-prim_pair(297,7485
-prim_numeq(305,7649
-prim_lt(313,7832
-prim_gt(321,8014
-prim_isnum(329,8171
-prim_cons(337,8333
-prim_car(345,8495
-prim_cdr(355,8739
-prim_apply(365,9001
-prim_load(388,9761
-prim_sin(405,10222
-prim_cos(412,10331
-prim_tan(419,10441
-prim_atan(426,10555
-prim_log(433,10677
-prim_exp(445,10983
-prim_pow(453,11132
-prim_write(493,12278
-prim_read(502,12468
+        char *n;n40,1053
+        exp_t *(*pp)pp41,1070
+} plst[plst42,1094
+instprim(78,1985
+load(88,2201
+chkargs(144,3707
+foldl(160,4167
+add(172,4460
+prim_add(192,4929
+sub(199,5063
+prim_sub(219,5549
+prod(230,5867
+prim_prod(246,6226
+divs(253,6360
+prim_div(271,6809
+prim_eq(282,7147
+prim_sym(290,7321
+prim_pair(298,7487
+prim_numeq(306,7651
+prim_lt(314,7834
+prim_gt(322,8016
+prim_isnum(330,8173
+prim_cons(338,8335
+prim_car(346,8497
+prim_cdr(356,8741
+prim_apply(366,9003
+prim_load(389,9744
+prim_sin(406,10186
+prim_cos(413,10295
+prim_tan(420,10405
+prim_atan(427,10519
+prim_log(434,10641
+prim_exp(446,10947
+prim_pow(454,11096
+prim_write(494,12242
+prim_read(503,12432
 
 prim.h,333
 #define PRIM_H2,15
@@ -284,62 +330,47 @@ typedef enum mode { NINTER, INTER } mode_t;33,1257
 
 reader.c,151
 const excpt_t read_error 4,41
-skip_spa(8,147
-skip_line(20,406
-skip(32,628
-read(60,1313
-read_pair(94,2229
-read_atm(150,3953
-read_quote(171,4504
+skip_spa(8,139
+skip_line(20,398
+skip(32,620
+read(59,1293
+read_pair(93,2209
+read_atm(149,3933
+read_quote(170,4484
 
 reader.h,43
 #define READER_H2,17
 #define UNGETC(4,35
 
-type.c,153
-char const *tagsyms[tagsyms5,56
-inittags(23,342
-intlen(33,564
-isintstr(49,896
-isratstr(56,1015
-isfloatstr(70,1377
-iscst(95,2123
-isself(102,2261
+type.c,98
+intlen(7,136
+isintstr(23,468
+isratstr(30,587
+isfloatstr(44,949
+iscst(69,1695
+isself(76,1833
 
-type.h,594
+type.h,318
 #define TYPE_H2,15
-enum tag 10,221
-        DEFINE,11,232
-        QUOTE,12,248
-        IF,13,263
-        BEGIN,14,275
-        COND,15,290
-        LAMBDA,16,304
-        AND,17,320
-        OR,18,333
-        LET,19,345
-        SET,20,358
-        SETCAR,21,371
-        SETCDR22,387
-isint(30,525
-isnum(37,632
-istag(44,802
-isdef(51,975
-issym(58,1100
-isstr(65,1244
-isvar(72,1375
-isquote(79,1481
-isif(86,1614
-iscond(93,1742
-isbool(100,1865
-isbegin(107,2022
-isand(114,2155
-isor(121,2283
-islambda(128,2412
-islet(135,2546
-isset(142,2675
-issetcar(149,2808
-issetcdr(156,2947
+isint(11,242
+isnum(18,349
+istag(25,519
+isdef(32,666
+issym(39,792
+isstr(46,936
+isvar(53,1067
+isquote(60,1173
+isif(67,1307
+iscond(74,1436
+isbool(81,1560
+isbegin(88,1717
+isand(95,1851
+isor(102,1980
+islambda(109,2110
+islet(116,2245
+isset(123,2375
+issetcar(130,2509
+issetcdr(137,2649
 
 extern.h,604
 #define EXTERN_H2,17
