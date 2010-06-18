@@ -46,7 +46,7 @@ struct cons {   /* pair */
 /* Represents an evaluation procedure (see analyze). */
 typedef struct evproc {
         exp_t *(*eval)();
-        void **argv;
+        void *argv;
 } evproc_t;
 
 struct func {                   /* Represents a function */
@@ -173,7 +173,7 @@ cons(exp_t *a, exp_t *b)
 }
 
 static inline evproc_t *
-nevproc(exp_t *(*eval)(), void **argv)
+nevproc(exp_t *(*eval)(), void *argv)
 {
         evproc_t *epp;
 

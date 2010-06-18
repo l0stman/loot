@@ -44,9 +44,9 @@ static evproc_t *
 analyze(exp_t *ep)
 {
         if (isself(ep))
-                return nevproc(evself, (void **)ep);
+                return nevproc(evself, ep);
         else if (isvar(ep))
-                return nevproc(evvar, (void **)ep);
+                return nevproc(evvar, ep);
         else if (isquote(ep))
                 return anquote(ep);
         else if (isdef(ep))
@@ -139,7 +139,7 @@ static evproc_t *
 anquote(exp_t *ep)
 {
         chklst(ep, 2);
-        return nevproc(evself, (void **)cadr(ep));
+        return nevproc(evself, cadr(ep));
 }
 
 #define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
@@ -186,7 +186,7 @@ anif(exp_t *ep)
         argv[1] = analyze(cadr(ep));
         argv[2] = analyze(caddr(ep));
 
-        return nevproc(evif, (void **)argv);
+        return nevproc(evif, argv);
 }
 
 /* Analyze the syntax of a begin expression. */
@@ -209,7 +209,7 @@ anbegin(exp_t *ep)
                 argv[argc++] = analyze(car(lp));
         argv[argc] = NULL;
 
-        return nevproc(evbegin, (void **)argv);
+        return nevproc(evbegin, argv);
 }
 
 #define nseq(ep)	(cons(keywords[BEGIN], ep))
@@ -314,7 +314,7 @@ ansetpair(exp_t *ep, enum place pl)
         argv[1] = analyze(cadr(ep));
         argv[2] = analyze(caddr(ep));
 
-        return nevproc(evsetpair, (void **)argv);
+        return nevproc(evsetpair, argv);
 }
 
 /* Analyze the syntax of an `or' or an `and' expression. */
@@ -336,7 +336,7 @@ anlogic(exp_t *ep, enum logic lg)
                 argv[argc++] = analyze(car(ep));
         argv[argc] = NULL;
 
-        return nevproc((lg == LOR ? evor : evand), (void **)argv);
+        return nevproc((lg == LOR ? evor : evand), argv);
 }
 
 /* Analyze the syntax of a `let' expression. */
@@ -382,7 +382,7 @@ anlet(exp_t *ep)
                 argv[0] = NULL;
         argv[1] = analyze(cons(op, nreverse(vals)));
 
-        return nevproc(evlet, (void **)argv);
+        return nevproc(evlet, argv);
 }
 
 /* Analyze the syntax of an application expression. */
