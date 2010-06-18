@@ -9,8 +9,8 @@ const excpt_t syntax_error = { "syntax" };
 static enum place { CAR, CDR };
 static enum logic { LAND, LOR };
 
-static exp_t *evself(exp_t **, env_t *);
-static exp_t *evvar(exp_t **, env_t *);
+static exp_t *evself(exp_t *, env_t *);
+static exp_t *evvar(exp_t *, env_t *);
 static exp_t *evdef(void **, env_t *);
 static exp_t *evif(evproc_t **, env_t *);
 static exp_t *evbegin(evproc_t **, env_t *);
@@ -24,8 +24,6 @@ static exp_t *evand(evproc_t **, env_t *);
 static exp_t *evproc(evproc_t **, env_t *);
 static exp_t *evlet(evproc_t **, env_t *);
 
-static evproc_t *anself(exp_t *);
-static evproc_t *anvar(exp_t *);
 static evproc_t *anquote(exp_t *);
 static evproc_t *andef(exp_t *);
 static evproc_t *anif(exp_t *);
@@ -46,9 +44,9 @@ static evproc_t *
 analyze(exp_t *ep)
 {
         if (isself(ep))
-                return anself(ep);
+                return nevproc(evself, (void **)ep);
         else if (isvar(ep))
-                return anvar(ep);
+                return nevproc(evvar, (void **)ep);
         else if (isquote(ep))
                 return anquote(ep);
         else if (isdef(ep))
@@ -136,34 +134,12 @@ chklst(exp_t *lp, int n)
                 anerr("bad syntax in", lp);
 }
 
-/* Analyze a self-evaluating expression. */
-static evproc_t *
-anself(exp_t *ep)
-{
-        void **argv;
-
-        NEW(argv);
-        argv[0] = (void *)ep;
-        return nevproc(evself, argv);
-}
-
-/* Analyze a variable. */
-static evproc_t *
-anvar(exp_t *ep)
-{
-        void **argv;
-
-        NEW(argv);
-        argv[0] = (void *)ep;
-        return nevproc(evvar, argv);
-}
-
 /* Analyze the syntax of a quoted expression. */
 static evproc_t *
 anquote(exp_t *ep)
 {
         chklst(ep, 2);
-        return nevproc(evself, (void *)&cadr(ep));
+        return nevproc(evself, (void **)cadr(ep));
 }
 
 #define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
@@ -434,19 +410,19 @@ anapp(exp_t *ep)
  * * * * * * * * * * * * * */
 
 static exp_t *
-evself(exp_t **args, env_t *envp)
+evself(exp_t *ep, env_t *envp)
 {
-        return *args;
+        return ep;
 }
 
 /* Return the value of a variable if any. */
 static exp_t *
-evvar(exp_t **argv, env_t *envp)
+evvar(exp_t *var, env_t *envp)
 {
         struct nlist *np;
 
-        if ((np = lookup(symp(argv[0]), envp)) == NULL)
-                everr("unbound variable", argv[0]);
+        if ((np = lookup(symp(var), envp)) == NULL)
+                everr("unbound variable", var);
         return np->defn;
 }
 
