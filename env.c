@@ -24,7 +24,7 @@ find(symb_t *s, frame_t *fp)
         struct nlist *np;
 
         for (np = fp->bucket[hash(s, fp->size)]; np != NULL; np = np->next)
-                if (strcmp(s, np->name) == 0)
+                if (s == np->name)
                         return np;    /* found */
         return NULL;          /* not found */
 }
