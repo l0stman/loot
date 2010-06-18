@@ -1,6 +1,5 @@
 * Prevent memory leaks
 * Implement infinite precision arithmetic.
-* Refactor using list operations: reverse, etc...
 * Implement the error primitive.
 * Don't implement strings as atoms.
 * Measure if we need to implement a frame as a hash table or a linked list
