@@ -15,22 +15,9 @@ static struct {
         {&null, "()"}
 };
 
-void *keywords[] = {
-        "define",
-        "quote",
-        "if",
-        "begin",
-        "cond",
-        "lambda",
-        "and",
-        "or",
-        "let",
-        "set!",
-        "set-car!",
-        "set-cdr!",
-        "else",
-        "=>"
-};
+#define X(k, s)	s
+void *keywords[] = { KEYWORDS };
+#undef	X
 
 /* Initiate the variables and install the constants in the
    environment */

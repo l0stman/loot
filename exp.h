@@ -84,23 +84,25 @@ extern exp_t *false;
 extern exp_t *true;
 extern exp_t *null;
 
-/* Index of keyword symbols in keywords. */
-enum kindex {
-        DEFINE,
-        QUOTE,
-        IF,
-        BEGIN,
-        COND,
-        LAMBDA,
-        AND,
-        OR,
-        LET,
-        SET,
-        SETCAR,
-        SETCDR,
-        ELSE,
-        ARROW
-};
+#define KEYWORDS                                \
+        	X(DEFINE, "define"),            \
+                X(QUOTE, "quote"),              \
+                X(IF, "if"),                    \
+                X(BEGIN, "begin"),              \
+                X(COND, "cond"),                \
+                X(LAMBDA, "lambda"),            \
+                X(AND, "and"),                  \
+                X(OR, "or"),                    \
+                X(LET, "let"),                  \
+                X(SET, "set!"),                 \
+                X(SETCAR, "set-car!"),          \
+                X(SETCDR, "set-cdr!"),          \
+                X(ELSE, "else"),                \
+                X(ARROW, "=>")
+
+#define X(k, s)	k
+enum kindex { KEYWORDS };  /* Index of keyword symbols in keywords. */
+#undef	X
 
 extern void *keywords[];
 extern void initkeys(void);
