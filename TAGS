@@ -18,13 +18,13 @@ env.c,168
 env_t *globenv;globenv5,55
 hash(11,201
 find(22,443
-lookup(34,781
-install(46,1095
-void65,1628
-newframe(92,2359
-newenv(104,2573
-extenv(116,2762
-fdump(132,3154
+lookup(34,770
+install(46,1084
+void65,1617
+newframe(92,2348
+newenv(104,2562
+extenv(116,2751
+fdump(132,3143
 
 env.h,426
 #define ENV_H2,14
@@ -84,7 +84,7 @@ enum { ENTERED = 0, RAISED, HANDLED 25,476
 #define WARN(47,1413
 #define ENDTRY 69,2928
 
-eval.c,921
+eval.c,888
 const excpt_t eval_error 7,91
 const excpt_t syntax_error 8,130
 static enum place 9,173
@@ -93,72 +93,72 @@ static enum place { CAR, CDR 9,173
 static enum logic 10,205
 static enum logic { LAND,10,205
 static enum logic { LAND, LOR 10,205
-analyze(46,1417
-#define EVPROC(83,2549
-eval(87,2667
-apply(97,2838
-chklst(129,3888
-anself(141,4153
-anvar(152,4329
-anquote(163,4526
-#define nlambda(169,4624
-andef(173,4763
-anif(202,5633
-anbegin(218,5989
-#define nseq(239,6538
-anlambda(243,6651
-#define iselse(267,7431
-#define isarrow(268,7486
-ancond(272,7609
-anset(314,9158
-ansetpair(331,9552
-anlogic(346,9921
-anlet(368,10504
-anapp(414,12115
-evself(437,12690
-evvar(444,12811
-#define valerr(453,13009
-evdef(459,13253
-evset(478,13724
-evsetpair(494,14143
-evif(511,14577
-evbegin(522,14825
-evcond(531,15027
-evand(548,15535
-evor(559,15775
-evlambda(570,16015
-evlet(577,16172
-evapp(586,16394
+analyze(44,1348
+#define EVPROC(81,2498
+eval(85,2616
+apply(95,2787
+chklst(127,3837
+anquote(139,4107
+#define nlambda(145,4196
+andef(149,4335
+anif(178,5205
+anbegin(194,5552
+#define nseq(215,6092
+anlambda(219,6205
+#define iselse(243,6985
+#define isarrow(244,7040
+ancond(248,7163
+anset(290,8712
+ansetpair(307,9106
+anlogic(322,9466
+anlet(344,10040
+anapp(390,11642
+evself(413,12217
+evvar(420,12332
+#define valerr(429,12520
+evdef(435,12764
+evset(454,13235
+evsetpair(470,13654
+evif(487,14088
+evbegin(498,14336
+evcond(507,14538
+evand(524,15046
+evor(535,15286
+evlambda(546,15526
+evlet(553,15683
+evapp(562,15905
 
 eval.h,64
 #define EVAL_H2,15
 #define everr(10,178
 #define anerr(11,256
 
-exp.c,432
+exp.c,464
 exp_t *false;false5,55
 exp_t *true;true6,69
 exp_t *null;null7,82
         exp_t **ep;ep10,112
         symb_t *name;name11,132
 } cst[cst12,154
-void *keywords[keywords18,239
-instcst(38,575
-initkeys(50,859
-iseq(60,1068
-atmtostr(67,1202
-pairtostr(80,1438
-proctostr(111,2292
-ftostr(128,2731
-rtostr(138,2926
-fxntostr(148,3125
-tostr(158,3313
-#define SIGN(177,3818
-#define ABS(178,3853
-gcd(181,3951
-nrat(196,4196
+#define X(18,239
+void *keywords[keywords19,257
+#undef	X20,290
+instcst(25,382
+initkeys(37,666
+iseq(47,875
+atmtostr(54,1009
+pairtostr(67,1245
+proctostr(98,2099
+ftostr(115,2538
+rtostr(125,2733
+fxntostr(135,2932
+tostr(145,3120
+#define SIGN(164,3625
+#define ABS(165,3660
+gcd(168,3758
+nrat(183,4003
 
-exp.h,2578
+exp.h,2361
 #define EXP_H2,14
 enum type 6,48
 enum type { ATOM,6,48
@@ -200,119 +200,100 @@ struct cons 40,1192
         exp_t *cdr;cdr42,1239
 typedef struct evproc 47,1320
         exp_t *(*eval)eval48,1344
-        void **argv;argv49,1370
-} evproc_t;50,1391
-struct func 52,1404
-        exp_t      *parp;parp53,1464
-        evproc_t   *bodyp;bodyp54,1529
-        struct env *envp;envp55,1588
-#define ptype(58,1658
-#define primp(59,1690
-#define funcp(60,1733
-#define fpar(61,1776
-#define fbody(62,1816
-#define fenv(63,1857
-enum ftype 65,1898
-enum ftype { FUNC,65,1898
-enum ftype { FUNC, PRIM 65,1898
-typedef struct proc 66,1925
-        enum ftype tp;67,2004
-        symb_t *label;label68,2064
-                exp_t *(*primp)primp70,2141
-                struct func *funcp;funcp71,2215
-        } u;72,2293
-} proc_t;73,2306
-#define num(75,2317
-#define den(76,2347
-typedef struct rat 78,2378
-        int num;79,2438
-        int den;80,2486
-} rat_t;81,2536
-enum kindex 88,2652
-        DEFINE,89,2666
-        QUOTE,90,2682
-        IF,91,2697
-        BEGIN,92,2709
-        COND,93,2724
-        LAMBDA,94,2738
-        AND,95,2754
-        OR,96,2767
-        LET,97,2779
-        SET,98,2792
-        SETCAR,99,2805
-        SETCDR,100,2821
-        ELSE,101,2837
-        ARROW102,2851
-isatom(114,3089
-ispair(120,3185
-isproc(126,3281
-isfloat(132,3377
-israt(138,3475
-isfxn(144,3570
-atom(151,3710
-cons(163,3898
-nevproc(176,4109
-nfunc(188,4314
-nprim(207,4703
-nproc(220,4947
-nfloat(232,5142
-nfixnum(244,5338
-isnull(256,5520
-islist(263,5674
-reverse(272,5830
-nreverse(283,6052
+        void *argv;argv49,1370
+} evproc_t;50,1390
+struct func 52,1403
+        exp_t      *parp;parp53,1463
+        evproc_t   *bodyp;bodyp54,1528
+        struct env *envp;envp55,1587
+#define ptype(58,1657
+#define primp(59,1689
+#define funcp(60,1732
+#define fpar(61,1775
+#define fbody(62,1815
+#define fenv(63,1856
+enum ftype 65,1897
+enum ftype { FUNC,65,1897
+enum ftype { FUNC, PRIM 65,1897
+typedef struct proc 66,1924
+        enum ftype tp;67,2003
+        symb_t *label;label68,2063
+                exp_t *(*primp)primp70,2140
+                struct func *funcp;funcp71,2214
+        } u;72,2292
+} proc_t;73,2305
+#define num(75,2316
+#define den(76,2346
+typedef struct rat 78,2377
+        int num;79,2437
+        int den;80,2485
+} rat_t;81,2535
+#define KEYWORDS 87,2607
+#define X(103,3332
+enum kindex 104,3350
+enum kindex { KEYWORDS 104,3350
+#undef	X105,3421
+isatom(116,3651
+ispair(122,3747
+isproc(128,3843
+isfloat(134,3939
+israt(140,4037
+isfxn(146,4132
+atom(153,4272
+cons(165,4460
+nevproc(178,4671
+nfunc(190,4875
+nprim(209,5264
+nproc(222,5508
+nfloat(234,5703
+nfixnum(246,5899
+isnull(258,6081
+islist(265,6235
+reverse(274,6391
+nreverse(285,6613
 
 main.c,66
 const char *progname;progname7,100
 main(10,127
 initenv(28,588
 
-parser.c,67
-parse(12,215
-parse_atm(19,365
-parse_pair(45,992
-carlen(74,1698
-
-parser.h,22
-#define PARSER_H2,17
-
 prim.c,699
-        char *n;n40,1053
-        exp_t *(*pp)pp41,1070
-} plst[plst42,1094
-instprim(78,1985
-load(88,2201
-chkargs(144,3707
-foldl(160,4167
-add(172,4460
-prim_add(192,4929
-sub(199,5063
-prim_sub(219,5549
-prod(230,5867
-prim_prod(246,6226
-divs(253,6360
-prim_div(271,6809
-prim_eq(282,7147
-prim_sym(290,7321
-prim_pair(298,7487
-prim_numeq(306,7651
-prim_lt(314,7834
-prim_gt(322,8016
-prim_isnum(330,8173
-prim_cons(338,8335
-prim_car(346,8497
-prim_cdr(356,8741
-prim_apply(366,9003
-prim_load(389,9744
-prim_sin(406,10186
-prim_cos(413,10295
-prim_tan(420,10405
-prim_atan(427,10519
-prim_log(434,10641
-prim_exp(446,10947
-prim_pow(454,11096
-prim_write(494,12242
-prim_read(503,12432
+        char *n;n39,1033
+        exp_t *(*pp)pp40,1050
+} plst[plst41,1074
+instprim(77,1965
+load(87,2181
+chkargs(142,3644
+foldl(158,4104
+add(170,4397
+prim_add(190,4866
+sub(197,5000
+prim_sub(217,5486
+prod(228,5804
+prim_prod(244,6163
+divs(251,6297
+prim_div(269,6746
+prim_eq(280,7084
+prim_sym(288,7258
+prim_pair(296,7424
+prim_numeq(304,7588
+prim_lt(312,7771
+prim_gt(320,7953
+prim_isnum(328,8110
+prim_cons(336,8272
+prim_car(344,8434
+prim_cdr(354,8678
+prim_apply(364,8940
+prim_load(387,9681
+prim_sin(404,10123
+prim_cos(411,10232
+prim_tan(418,10342
+prim_atan(425,10456
+prim_log(432,10578
+prim_exp(444,10884
+prim_pow(452,11033
+prim_write(492,12179
+prim_read(501,12369
 
 prim.h,333
 #define PRIM_H2,15
@@ -328,15 +309,18 @@ typedef enum mode { NINTER,33,1257
 typedef enum mode { NINTER, INTER 33,1257
 typedef enum mode { NINTER, INTER } mode_t;33,1257
 
-reader.c,151
-const excpt_t read_error 4,41
-skip_spa(8,139
-skip_line(20,398
-skip(32,620
-read(59,1293
-read_pair(93,2209
-read_atm(149,3933
-read_quote(170,4484
+reader.c,213
+const excpt_t read_error 6,76
+skip_spa(10,174
+skip_line(22,433
+skip(34,655
+read(61,1328
+nextc(94,2228
+#define doterr(102,2402
+read_pair(106,2532
+parse_atm(137,3285
+read_atm(161,3895
+read_quote(185,4526
 
 reader.h,43
 #define READER_H2,17
