@@ -50,7 +50,6 @@ skip(FILE *fp)
 
 /*
  * Read an expression from a file descriptor skipping blanks and comments.
- * Write the result into a buffer.
  */
 
 static exp_t *read_atm(FILE *, int);
