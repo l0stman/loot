@@ -1,5 +1,7 @@
 #include "extern.h"
+#include "exp.h"
 #include "reader.h"
+#include "type.h"
 
 const excpt_t read_error = { "read" };
 
@@ -51,15 +53,15 @@ skip(FILE *fp)
  * Write the result into a buffer.
  */
 
-static buf_t *read_atm(FILE *, int);
-static buf_t *read_pair(FILE *);
-static buf_t *read_quote(FILE *);
+static exp_t *read_atm(FILE *, int);
+static exp_t *read_pair(FILE *);
+static exp_t *read_quote(FILE *);
 
-buf_t *
+exp_t *
 read(FILE *fp)
 {
         int c;
-        buf_t *exp;
+        exp_t *exp;
 
         skip(fp);
         switch (c = fgetc(fp)) {
@@ -67,7 +69,6 @@ read(FILE *fp)
                 exp = NULL;
                 break;
         case '(':               /* compound expression */
-                skip(fp);
                 exp = read_pair(fp);
                 break;
         case ')':
@@ -88,68 +89,80 @@ read(FILE *fp)
         return exp;
 }
 
-/* Read a pair from fp and write to buf. */
-static buf_t *
+/* Return the next non-blank character from fp. */
+static inline int
+nextc(FILE *fp, int ln)
+{
+        skip(fp);
+        if (feof(fp))
+                raise(&read_error, filename, ln, "too many open parenthesis");
+        return fgetc(fp);
+}
+
+#define doterr(line)	raise(&read_error, filename, line, "Illegal use of .")
+
+/* Read a pair expression from fp. */
+static exp_t *
 read_pair(FILE *fp)
 {
-        int c, ln, isdot;
-        buf_t *bp, *exp;
+        int c, ln;
+        exp_t *car, *cdr;
 
         ln = linenum;
-        isdot = 0;              /* dotted pair notation? */
-        bp = binit();
-        bputc('(', bp);
-        while ((c = fgetc(fp)) != EOF && c != ')' && !isdot) {
-                if (c == '.')
-                        if ((c = fgetc(fp)) == EOF)
-                                goto err;
-                        else if (!issep(c)) {
-                                ungetc(c, fp);
-                                c = '.';
-                        } else {
-                                if (bp->len == 1)
-                                        goto err1;
-                                isdot = 1;
-                        }
-                if (c == '\n')
-                        ++linenum;
-                if (!isspace(c))
-                        UNGETC(c, fp);
-                if (!(exp = read(fp)))
-                        goto err;
-                if (isdot)
-                        bwrite(bp, " . ", 3);
-                else if (bp->len > 1 && !issep(*exp->buf))
-                        bputc(' ', bp);
-                bwrite(bp, exp->buf, exp->len);
-                bfree(exp);
-                skip(fp);
+        if ((c = nextc(fp, ln)) == ')')
+                return null;
+        ungetc(c, fp);
+        car = read(fp);
+        cdr = NULL;
+        if ((c = nextc(fp, ln)) == '.') {
+                if (issep(c = fgetc(fp))) {
+                        cdr = read(fp);
+                        if (nextc(fp, ln) != ')')
+                                doterr(ln);
+                } else {
+                        ungetc(c, fp);
+                        c = '.';
+                }
         }
-        if (c == EOF)
-                goto err;
-        else if (isdot && c != ')')
-                goto err1;
-        else
-                bputc(')', bp);
+        if (!cdr) {
+                UNGETC(c, fp);
+                cdr = read_pair(fp);
+        }
 
-#ifdef DEBUG_READER
-        printf("%.*s", bp->len, bp->buf);
-#endif
+        return cons(car, cdr);
+}
 
-        return bp;
-err:
-        raise(&read_error, filename, ln, "too many open parenthesis");
-err1:
-        raise(&read_error, filename, ln, "Illegal use of .");
-        return NULL;            /* not reached */
+/* Parse a non-pair expression */
+static exp_t *
+parse_atm(char *s, int len)
+{
+        exp_t *ep;
+        char *p, *endp;
+        int n, d;
+
+        p = sstrndup(s, len);
+        if (isfloatstr(p, len))
+                ep = nfloat(atof(p));
+        else if (isratstr(p, len)) {
+                n = strtol(p, &endp, 10);
+                if (*endp == '/') {
+                        d = strtol(++endp, NULL, 10);
+                        ep = nrat(n, d);
+                } else
+                        ep = nfixnum(n);
+        } else
+                ep = atom(p);
+        free(p);
+        return ep;
 }
 
 /* Read an atom from fp and write to buf. */
-static buf_t *
+static exp_t *
 read_atm(FILE *fp, int ch)
 {
         int ln = linenum, c = ch;
         buf_t *bp;
+        exp_t *ep;
 
         bp = binit();
         do
@@ -162,23 +175,18 @@ read_atm(FILE *fp, int ch)
                         bputc('"', bp);       /* writing the closing quote */
         else
                 ungetc(c, fp);
-        return bp;
+        ep = parse_atm(bp->buf, bp->len);
+        bfree(bp);
+        return ep;
 }
 
 /* Transform 'exp to (quote exp). */
-static buf_t *
+static exp_t *
 read_quote(FILE *fp)
 {
-        buf_t *bp, *res;
+        exp_t *ep;
 
-        if (!(bp = read(fp)))
+        if (!(ep = read(fp)))
                 RAISE(read_error, "unexpected end of file");
-        res = binit();
-        bwrite(res, "(quote", 6);
-        if (!issep(*bp->buf))
-                bputc(' ', res);
-        bwrite(res, bp->buf, bp->len);
-        bputc(')', res);
-        bfree(bp);
-        return res;
+        return cons(keywords[QUOTE], cons(ep, null));
 }
