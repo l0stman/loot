@@ -33,7 +33,7 @@
 
 #define NEW(p)	((p) = smalloc(sizeof *(p)))
 
-#define BSIZ	512
+#define BSIZ	32
 
 typedef struct buf {            /* adjustable buffer */
         char   *buf;
