@@ -7,6 +7,6 @@ extern.o: extern.c extern.h error.h
 main.o: main.c extern.h error.h exp.h atom.h env.h prim.h
 parser.o: parser.c extern.h error.h exp.h atom.h type.h parser.h
 prim.o: prim.c extern.h error.h exp.h atom.h type.h prim.h reader.h env.h \
-  eval.h parser.h
-reader.o: reader.c extern.h error.h reader.h
+  eval.h
+reader.o: reader.c extern.h error.h exp.h atom.h reader.h type.h
 type.o: type.c extern.h error.h exp.h atom.h type.h
