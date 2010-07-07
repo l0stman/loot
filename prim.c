@@ -7,7 +7,6 @@
 #include "reader.h"
 #include "env.h"
 #include "eval.h"
-#include "parser.h"
 
 static exp_t *prim_add(exp_t *);
 static exp_t *prim_sub(exp_t *);
@@ -88,7 +87,6 @@ int
 load(char *path, mode_t isinter)
 {
         FILE     *fp;
-        buf_t    *bp;
         exp_t    *ep;
         char     *file = filename;
         exfram_t *es   = exstack;
@@ -115,12 +113,12 @@ read:
                         printf("%s", INPR);
                         fflush(stdout);
                 }
-                if ((bp = read(fp)) == NULL) {
+                if ((ep = read(fp)) == NULL) {
                         xfreeall();
                         fclose(fp);
                         goto restore;
                 }
-                ep = eval(parse(bp->buf, bp->len), globenv);
+                ep = eval(ep, globenv);
                 if (isinter && ep != NULL) {
                         printf("%s%s\n", OUTPR, tostr(ep));
                         fflush(stdout);
@@ -502,8 +500,5 @@ prim_write(exp_t *args)
 static exp_t *
 prim_read(void)
 {
-        buf_t *bp;
-
-        bp = read(stdin);
-        return parse(bp->buf, bp->len);
+        return read(stdin);
 }
