@@ -48,13 +48,15 @@ skip(FILE *fp)
                 }
 }
 
-/*
- * Read an expression from a file descriptor skipping blanks and comments.
- */
-
 static exp_t *read_atm(FILE *, int);
 static exp_t *read_pair(FILE *);
 static exp_t *read_quote(FILE *);
+
+#define doterr(line)	raise(&read_error, filename, line, "Illegal use of .")
+
+/*
+ * Read an expression from a file descriptor skipping blanks and comments.
+ */
 
 exp_t *
 read(FILE *fp)
@@ -78,7 +80,7 @@ read(FILE *fp)
                 break;
         case '.':
                 if ((c = fgetc(fp)) == EOF || issep(c))
-                        RAISE(read_error, "Illegal use of .");
+                        doterr(linenum);
                 ungetc(c, fp);
                 c = '.';
         default:                /* atom */
@@ -97,8 +99,6 @@ nextc(FILE *fp, int ln)
                 raise(&read_error, filename, ln, "too many open parenthesis");
         return fgetc(fp);
 }
-
-#define doterr(line)	raise(&read_error, filename, line, "Illegal use of .")
 
 /* Read a pair expression from fp. */
 static exp_t *
