@@ -113,7 +113,7 @@ read_pair(FILE *fp)
         ungetc(c, fp);
         car = read(fp);
         cdr = NULL;
-        if ((c = nextc(fp, ln)) == '.') {
+        if ((c = nextc(fp, ln)) == '.')
                 if (issep(c = fgetc(fp))) {
                         cdr = read(fp);
                         if (nextc(fp, ln) != ')')
@@ -122,7 +122,6 @@ read_pair(FILE *fp)
                         ungetc(c, fp);
                         c = '.';
                 }
-        }
         if (!cdr) {
                 UNGETC(c, fp);
                 cdr = read_pair(fp);
