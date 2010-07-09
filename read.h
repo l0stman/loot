@@ -1,5 +1,5 @@
-#ifndef READER_H
-#define READER_H
+#ifndef READ_H
+#define READ_H
 
 #define UNGETC(c, fp)	do {                            \
                 if (c != EOF && ungetc(c, fp) == EOF)   \
@@ -9,4 +9,4 @@
 extern const excpt_t read_error;
 extern exp_t *read(FILE *fp);
 
-#endif /* !READER_H */
+#endif /* !READ_H */

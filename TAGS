@@ -44,45 +44,20 @@ struct nlist 16,385
 fframe(33,955
 eenv(40,1068
 
-error.c,305
-err_quit(14,206
-err_sys(30,512
-exfram_t *exstack exstack41,729
-void raise(44,863
-typedef struct list 74,1795
-        void *p;p75,1817
-        struct list *next;next76,1834
-} list_t;77,1861
-static list_t *alloc alloc79,1872
-xalloc(86,2052
-xrealloc(98,2232
-xfree(120,2837
-xfreeall(141,3321
-
-error.h,660
-#define ERROR_H2,16
-#define MAXLINE 7,74
-typedef struct excpt 12,223
-        const char *reason;reason13,246
-} excpt_t;14,274
-typedef struct exfram 16,286
-        struct exfram *prev;prev17,310
-        jmp_buf env;18,339
-        const char *file;file19,360
-        int line;20,386
-        const excpt_t *exception;exception21,404
-        const char *msg;msg22,438
-} exfram_t;23,463
-enum { ENTERED 25,476
-enum { ENTERED = 0, RAISED,25,476
-enum { ENTERED = 0, RAISED, HANDLED 25,476
-#define RAISE(30,610
-#define RERAISE 31,674
-#define RETURN 32,755
-#define TRY 34,825
-#define CATCH(42,1167
-#define WARN(47,1413
-#define ENDTRY 69,2928
+err.c,305
+err_quit(14,204
+err_sys(30,510
+exfram_t *exstack exstack41,727
+void raise(44,861
+typedef struct list 74,1793
+        void *p;p75,1815
+        struct list *next;next76,1832
+} list_t;77,1859
+static list_t *alloc alloc79,1870
+xalloc(86,2050
+xrealloc(98,2230
+xfree(120,2835
+xfreeall(141,3319
 
 eval.c,888
 const excpt_t eval_error 7,91
@@ -257,43 +232,77 @@ const char *progname;progname7,100
 main(10,127
 initenv(28,588
 
+extern.h,604
+#define EXTERN_H2,17
+#define inline 6,70
+#define inline8,121
+#define INPR 22,340
+#define OUTPR 23,391
+#define PREFIX 24,436
+#define LOOTRC 25,461
+#define LIBNAM 26,489
+#define NELEMS(27,517
+#define MAXDIG 30,635
+#define FMAXDIG 31,654
+#define IMAXDIG 32,679
+#define NEW(34,699
+#define BSIZ	36,744
+typedef struct buf 38,761
+        char   *buf;buf39,817
+        int     len;40,838
+        size_t  size;41,897
+} buf_t;42,954
+issep(55,1246
+isstop(62,1388
+bresize(69,1519
+binit(79,1750
+#define bwrite(90,1925
+_bwrite(94,2041
+#define bputc(102,2248
+_bputc(106,2360
+bfree(115,2563
+
 prim.c,699
-        char *n;n39,1033
-        exp_t *(*pp)pp40,1050
-} plst[plst41,1074
-instprim(77,1965
-load(87,2181
-chkargs(142,3644
-foldl(158,4104
-add(170,4397
-prim_add(190,4866
-sub(197,5000
-prim_sub(217,5486
-prod(228,5804
-prim_prod(244,6163
-divs(251,6297
-prim_div(269,6746
-prim_eq(280,7084
-prim_sym(288,7258
-prim_pair(296,7424
-prim_numeq(304,7588
-prim_lt(312,7771
-prim_gt(320,7953
-prim_isnum(328,8110
-prim_cons(336,8272
-prim_car(344,8434
-prim_cdr(354,8678
-prim_apply(364,8940
-prim_load(387,9681
-prim_sin(404,10123
-prim_cos(411,10232
-prim_tan(418,10342
-prim_atan(425,10456
-prim_log(432,10578
-prim_exp(444,10884
-prim_pow(452,11033
-prim_write(492,12179
-prim_read(501,12369
+        char *n;n39,1031
+        exp_t *(*pp)pp40,1048
+} plst[plst41,1072
+instprim(77,1963
+load(87,2179
+chkargs(142,3642
+foldl(158,4102
+add(170,4395
+prim_add(190,4864
+sub(197,4998
+prim_sub(217,5484
+prod(228,5802
+prim_prod(244,6161
+divs(251,6295
+prim_div(269,6744
+prim_eq(280,7082
+prim_sym(288,7256
+prim_pair(296,7422
+prim_numeq(304,7586
+prim_lt(312,7769
+prim_gt(320,7951
+prim_isnum(328,8108
+prim_cons(336,8270
+prim_car(344,8432
+prim_cdr(354,8676
+prim_apply(364,8938
+prim_load(387,9679
+prim_sin(404,10121
+prim_cos(411,10230
+prim_tan(418,10340
+prim_atan(425,10454
+prim_log(432,10576
+prim_exp(444,10882
+prim_pow(452,11031
+prim_write(492,12177
+prim_read(501,12367
+
+read.h,41
+#define READ_H2,15
+#define UNGETC(4,31
 
 prim.h,333
 #define PRIM_H2,15
@@ -309,22 +318,43 @@ typedef enum mode { NINTER,33,1257
 typedef enum mode { NINTER, INTER 33,1257
 typedef enum mode { NINTER, INTER } mode_t;33,1257
 
-reader.c,213
-const excpt_t read_error 6,76
-skip_spa(10,174
-skip_line(22,433
-skip(34,655
-read(61,1328
-nextc(94,2228
-#define doterr(102,2402
-read_pair(106,2532
-parse_atm(137,3285
-read_atm(161,3895
-read_quote(185,4526
+err.h,658
+#define ERR_H2,14
+#define MAXLINE 7,70
+typedef struct excpt 12,219
+        const char *reason;reason13,242
+} excpt_t;14,270
+typedef struct exfram 16,282
+        struct exfram *prev;prev17,306
+        jmp_buf env;18,335
+        const char *file;file19,356
+        int line;20,382
+        const excpt_t *exception;exception21,400
+        const char *msg;msg22,434
+} exfram_t;23,459
+enum { ENTERED 25,472
+enum { ENTERED = 0, RAISED,25,472
+enum { ENTERED = 0, RAISED, HANDLED 25,472
+#define RAISE(30,606
+#define RERAISE 31,670
+#define RETURN 32,751
+#define TRY 34,821
+#define CATCH(42,1163
+#define WARN(47,1409
+#define ENDTRY 69,2924
 
-reader.h,43
-#define READER_H2,17
-#define UNGETC(4,35
+read.c,212
+const excpt_t read_error 6,74
+skip_spa(10,172
+skip_line(22,431
+skip(34,653
+#define doterr(55,1200
+read(62,1368
+nextc(95,2246
+read_pair(105,2473
+parse_atm(135,3214
+read_atm(159,3824
+read_quote(183,4455
 
 type.c,98
 intlen(7,136
@@ -355,36 +385,6 @@ islet(116,2245
 isset(123,2375
 issetcar(130,2509
 issetcdr(137,2649
-
-extern.h,604
-#define EXTERN_H2,17
-#define inline 6,70
-#define inline8,121
-#define INPR 22,342
-#define OUTPR 23,393
-#define PREFIX 24,438
-#define LOOTRC 25,463
-#define LIBNAM 26,491
-#define NELEMS(27,519
-#define MAXDIG 30,637
-#define FMAXDIG 31,656
-#define IMAXDIG 32,681
-#define NEW(34,701
-#define BSIZ	36,746
-typedef struct buf 38,764
-        char   *buf;buf39,820
-        int     len;40,841
-        size_t  size;41,900
-} buf_t;42,957
-issep(55,1249
-isstop(62,1391
-bresize(69,1522
-binit(79,1753
-#define bwrite(90,1928
-_bwrite(94,2044
-#define bputc(102,2251
-_bputc(106,2363
-bfree(115,2566
 
 extern.c,131
 int   linenum 3,21

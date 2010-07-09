@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "error.h"
+#include "err.h"
 
 #define INPR      "USER> "      /* input prompt */
 #define OUTPR     "--> "        /* output */

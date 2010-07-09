@@ -1,5 +1,5 @@
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef ERR_H
+#define ERR_H
 
 #include <assert.h>
 #include <setjmp.h>
@@ -77,4 +77,4 @@ void *xrealloc(void *, size_t);
 void xfree(void *);
 void xfreeall(void);
 
-#endif /* !ERROR_H */
+#endif /* !ERR_H */

@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "extern.h"
-#include "error.h"
+#include "err.h"
 
 /*
  * Fatal error unrelated to a system call.
