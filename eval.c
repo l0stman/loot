@@ -142,29 +142,54 @@ anquote(exp_t *ep)
         return nevproc(evself, cadr(ep));
 }
 
-static void bind(symb_t **, exp_t **, exp_t *);
+#define nset(var, val)	(cons(keywords[SET], cons(var, cons(val, null))))
+#define nlet(binds, body) (cons(keywords[LET], cons(binds, body)))
+#define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
+#define PUSH(x, lst)	((lst) = cons(x, lst))
+
+static void bind(exp_t **, exp_t **, exp_t *);
+static void scan_defs(exp_t **, exp_t **, exp_t **, exp_t *);
 
 /* Analyze the syntax of a define expression. */
 static evproc_t *
 andef(exp_t *ep)
 {
-        symb_t *var;
-        exp_t *val;
+        exp_t *var, *val;
         void **argv;
 
         bind(&var, &val, ep);
+        if (islambda(val)) {
+                /* Make the internal definitions simultaneous. */
+                exp_t *vars, *vals, *body;
+                scan_defs(&vars, &vals, &body, cddr(val));
+                if (!isnull(vars)) {
+                        exp_t *binds, *v;
+                        body = nreverse(body);
+                        for (v = vars; !isnull(v); v = cdr(v)) {
+                                PUSH(nset(car(v), car(vals)), body);
+                                vals = cdr(vals);
+                        }
+                        for (binds = null; !isnull(vars); vars = cdr(vars))
+                                PUSH(cons(car(vars),
+                                          cons(cons(keywords[QUOTE],
+                                                    cons(atom("undefined"),
+                                                         null)),
+                                               null)),
+                                     binds);
+                        val = nlambda(cadr(val), cons(nlet(binds, body), null));
+                }
+        }
+
         argv = smalloc(2*sizeof(*argv));
-        argv[0] = (void *)var;
+        argv[0] = (void *)symp(var);
         argv[1] = (void *)analyze(val);
 
         return nevproc(evdef, argv);
 }
 
-#define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
-
 /* Bind the variable and the value of a define expression. */
 static void
-bind(symb_t **varp, exp_t **valp, exp_t *lst)
+bind(exp_t **varp, exp_t **valp, exp_t *lst)
 {
         exp_t *ep;
 
@@ -173,13 +198,34 @@ bind(symb_t **varp, exp_t **valp, exp_t *lst)
         if (ispair(ep = cadr(lst))) { /* lambda shortcut */
                 if (!issym(car(ep)))
                         anerr("should be a symbol", car(ep));
-                *varp = symp(car(ep));
+                *varp = car(ep);
                 *valp = nlambda(cdr(ep), cddr(lst));
         } else if (issym(ep)) {
-                *varp = symp(ep);
+                *varp = ep;
                 *valp = caddr(lst);
         } else
                 anerr("the expression couldn't be defined", ep);
+}
+
+/*
+ * Bind the variables and values of the definitions in ep to *varsp
+ * and *valsp, and the remaining body to *bodyp
+ */
+static void
+scan_defs(exp_t **varsp, exp_t **valsp, exp_t **bodyp, exp_t *ep)
+{
+        exp_t *var, *val, *body;
+
+        *varsp = *valsp = *bodyp = null;
+        for (body = ep; ispair(body); body = cdr(body))
+                if (isdef(car(body))) {
+                        bind(&var, &val, car(body));
+                        PUSH(var, *varsp);
+                        PUSH(val, *valsp);
+                } else
+                        PUSH(car(body), *bodyp);
+        if (!isnull(body))
+                anerr("should be a list", ep);
 }
 
 /* Analyze the syntax of an if expression. */
@@ -430,7 +476,7 @@ evvar(exp_t *var, env_t *envp)
 {
         struct nlist *np;
 
-        if ((np = lookup(symp(var), envp)) == NULL)
+        if (!(np = lookup(symp(var), envp)))
                 everr("unbound variable", var);
         return np->defn;
 }
