@@ -152,9 +152,7 @@ andef(exp_t *ep)
         exp_t *val;
         void **argv;
 
-        if (isnull(cdr(ep)) || isatom(cadr(ep)))
-                chklst(ep, 3);
-        bind(&var, &val, cdr(ep));
+        bind(&var, &val, ep);
         argv = smalloc(2*sizeof(*argv));
         argv[0] = (void *)var;
         argv[1] = (void *)analyze(val);
@@ -166,18 +164,20 @@ andef(exp_t *ep)
 
 /* Bind the variable and the value of a define expression. */
 static void
-bind(symb_t **varp, exp_t **valp, exp_t *args)
+bind(symb_t **varp, exp_t **valp, exp_t *lst)
 {
         exp_t *ep;
 
-        if (ispair(ep = car(args))) { /* lambda shortcut */
+        if (isnull(cdr(lst)) || isatom(cadr(lst)))
+                chklst(lst, 3);
+        if (ispair(ep = cadr(lst))) { /* lambda shortcut */
                 if (!issym(car(ep)))
                         anerr("should be a symbol", car(ep));
                 *varp = symp(car(ep));
-                *valp = nlambda(cdr(ep), cdr(args));
+                *valp = nlambda(cdr(ep), cddr(lst));
         } else if (issym(ep)) {
                 *varp = symp(ep);
-                *valp = cadr(args);
+                *valp = caddr(lst);
         } else
                 anerr("the expression couldn't be defined", ep);
 }
