@@ -90,6 +90,8 @@ eval(exp_t *exp, env_t *envp)
         return EVPROC(epp, envp);
 }
 
+#define push(x, lst)	((lst) = cons(x, lst))
+
 /* Apply a procedure to its arguments. */
 exp_t *
 apply(exp_t *op, exp_t *args)
@@ -108,10 +110,10 @@ apply(exp_t *op, exp_t *args)
              pars = cdr(pars), args = cdr(args)) {
                 if (isnull(args))
                         everr("too few arguments provided to", op);
-                binds = cons(cons(car(pars), car(args)), binds);
+                push(cons(car(pars), car(args)), binds);
         }
         if (!isnull(pars))      /* variable length arguments */
-                binds = cons(cons(pars, args), binds);
+                push(cons(pars, args), binds);
         else if (!isnull(args))
                 everr("too many arguments provided to", op);
 
@@ -141,8 +143,6 @@ anquote(exp_t *ep)
         chklst(ep, 2);
         return nevproc(evself, cadr(ep));
 }
-
-#define PUSH(x, lst)	((lst) = cons(x, lst))
 
 static void bind(exp_t **, exp_t **, exp_t *);
 
@@ -267,11 +267,11 @@ anlambda(exp_t *ep)
                 exp_t *binds, *v;
                 body = nreverse(body);
                 for (v = vars; !isnull(v); v = cdr(v)) {
-                        PUSH(nset(car(v), car(vals)), body);
+                        push(nset(car(v), car(vals)), body);
                         vals = cdr(vals);
                 }
                 for (binds = null; !isnull(vars); vars = cdr(vars))
-                        PUSH(cons(car(vars),
+                        push(cons(car(vars),
                                   cons(nquote(undefined), null)),
                              binds);
                 ep = nlambda(cadr(ep), cons(nlet(binds, body), null));
@@ -297,10 +297,10 @@ scan_defs(exp_t **varsp, exp_t **valsp, exp_t **bodyp, exp_t *ep)
         for (body = ep; ispair(body); body = cdr(body))
                 if (isdef(car(body))) {
                         bind(&var, &val, car(body));
-                        PUSH(var, *varsp);
-                        PUSH(val, *valsp);
+                        push(var, *varsp);
+                        push(val, *valsp);
                 } else
-                        PUSH(car(body), *bodyp);
+                        push(car(body), *bodyp);
         if (!isnull(body))
                 anerr("should be a list", ep);
 }
@@ -427,11 +427,11 @@ anlet(exp_t *ep)
 
         for (pars = vals = null; ispair(binds); binds = cdr(binds))
                 if (issym(bd = car(binds))) {
-                        pars = cons(bd, pars);
-                        vals = cons(null, vals);
+                        push(bd, pars);
+                        push(null, vals);
                 } else if (ispair(bd) && ispair(cdr(bd)) && isnull(cddr(bd))) {
-                        pars = cons(car(bd), pars);
-                        vals = cons(cadr(bd), vals);
+                        push(car(bd), pars);
+                        push(cadr(bd), vals);
                 } else
                         anerr("bad binding syntax", ep);
         if (!isnull(binds))
@@ -631,6 +631,6 @@ evapp(evproc_t **argv, env_t *envp)
 
         op = *argv++;
         for (args = null; *argv; argv++)
-                args = cons(EVPROC(*argv, envp), args);
+                push(EVPROC(*argv, envp), args);
         return apply(EVPROC(op, envp), nreverse(args));
 }
