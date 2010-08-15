@@ -144,7 +144,7 @@ anquote(exp_t *ep)
         return nevproc(evself, cadr(ep));
 }
 
-static void bind(exp_t **, exp_t **, exp_t *);
+static inline void bind(exp_t **, exp_t **, exp_t *);
 
 /* Analyze the syntax of a define expression. */
 static evproc_t *
@@ -164,7 +164,7 @@ andef(exp_t *ep)
 #define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
 
 /* Bind the variable and the value of a define expression. */
-static void
+static inline void
 bind(exp_t **varp, exp_t **valp, exp_t *lst)
 {
         exp_t *ep;
