@@ -144,6 +144,7 @@ anquote(exp_t *ep)
 
 #define nset(var, val)	(cons(keywords[SET], cons(var, cons(val, null))))
 #define nlet(binds, body) (cons(keywords[LET], cons(binds, body)))
+#define nquote(exp)	(cons(keywords[QUOTE], cons(exp, null)))
 #define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
 #define PUSH(x, lst)	((lst) = cons(x, lst))
 
@@ -171,10 +172,7 @@ andef(exp_t *ep)
                         }
                         for (binds = null; !isnull(vars); vars = cdr(vars))
                                 PUSH(cons(car(vars),
-                                          cons(cons(keywords[QUOTE],
-                                                    cons(atom("undefined"),
-                                                         null)),
-                                               null)),
+                                          cons(nquote(undefined), null)),
                                      binds);
                         val = nlambda(cadr(val), cons(nlet(binds, body), null));
                 }
@@ -476,7 +474,7 @@ evvar(exp_t *var, env_t *envp)
 {
         struct nlist *np;
 
-        if (!(np = lookup(symp(var), envp)))
+        if (!(np = lookup(symp(var), envp)) || np->defn == undefined)
                 everr("unbound variable", var);
         return np->defn;
 }
