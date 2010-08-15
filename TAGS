@@ -44,22 +44,7 @@ struct nlist 16,385
 fframe(33,955
 eenv(40,1068
 
-err.c,305
-err_quit(14,204
-err_sys(30,510
-exfram_t *exstack exstack41,727
-void raise(44,861
-typedef struct list 74,1793
-        void *p;p75,1815
-        struct list *next;next76,1832
-} list_t;77,1859
-static list_t *alloc alloc79,1870
-xalloc(86,2050
-xrealloc(98,2230
-xfree(120,2835
-xfreeall(141,3319
-
-eval.c,888
+eval.c,1019
 const excpt_t eval_error 7,91
 const excpt_t syntax_error 8,130
 static enum place 9,173
@@ -71,67 +56,74 @@ static enum logic { LAND, LOR 10,205
 analyze(44,1348
 #define EVPROC(81,2498
 eval(85,2616
-apply(95,2787
-chklst(127,3837
-anquote(139,4107
-#define nlambda(145,4196
-andef(149,4335
-anif(178,5205
-anbegin(194,5552
-#define nseq(215,6092
-anlambda(219,6205
-#define iselse(243,6985
-#define isarrow(244,7040
-ancond(248,7163
-anset(290,8712
-ansetpair(307,9106
-anlogic(322,9466
-anlet(344,10040
-anapp(390,11642
-evself(413,12217
-evvar(420,12332
-#define valerr(429,12520
-evdef(435,12764
-evset(454,13235
-evsetpair(470,13654
-evif(487,14088
-evbegin(498,14336
-evcond(507,14538
-evand(524,15046
-evor(535,15286
-evlambda(546,15526
-evlet(553,15683
-evapp(562,15905
+#define push(93,2737
+apply(97,2832
+chklst(129,3866
+anquote(141,4136
+andef(151,4340
+#define nlambda(164,4596
+bind(168,4742
+anif(188,5380
+anbegin(204,5727
+#define nseq(225,6267
+#define nset(226,6322
+#define nlet(227,6398
+#define nquote(228,6466
+anlambda(247,6990
+scan_defs(292,8611
+#define iselse(308,9138
+#define isarrow(309,9193
+ancond(313,9316
+anset(355,10865
+ansetpair(372,11259
+anlogic(387,11619
+anlet(409,12193
+anapp(455,13767
+evself(478,14342
+evvar(485,14457
+#define valerr(494,14663
+evdef(500,14907
+evset(519,15378
+evsetpair(535,15797
+evif(552,16231
+evbegin(563,16479
+evcond(572,16681
+evand(589,17189
+evor(600,17429
+evlambda(611,17669
+evlet(618,17826
+evapp(627,18048
 
 eval.h,64
 #define EVAL_H2,15
 #define everr(10,178
 #define anerr(11,256
 
-exp.c,464
+exp.c,498
 exp_t *false;false5,55
 exp_t *true;true6,69
 exp_t *null;null7,82
-        exp_t **ep;ep10,112
-        symb_t *name;name11,132
-} cst[cst12,154
-#define X(18,239
-void *keywords[keywords19,257
-#undef	X20,290
-instcst(25,382
-initkeys(37,666
-iseq(47,875
-atmtostr(54,1009
-pairtostr(67,1245
-proctostr(98,2099
-ftostr(115,2538
-rtostr(125,2733
-fxntostr(135,2932
-tostr(145,3120
-#define SIGN(164,3625
-#define ABS(165,3660
-gcd(168,3758
-nrat(183,4003
+exp_t *undefined;undefined8,95
+        exp_t **ep;ep11,180
+        symb_t *name;name12,200
+} cst[cst13,222
+#define X(19,308
+void *keywords[keywords20,326
+#undef	X21,359
+instcst(26,451
+initkeys(39,776
+iseq(49,985
+atmtostr(56,1119
+pairtostr(69,1355
+proctostr(100,2209
+ftostr(117,2648
+rtostr(127,2843
+fxntostr(137,3042
+tostr(147,3230
+#define SIGN(166,3735
+#define ABS(167,3770
+gcd(170,3868
+nrat(185,4113
 
 exp.h,2361
 #define EXP_H2,14
@@ -203,64 +195,49 @@ typedef struct rat 78,2377
         int num;79,2437
         int den;80,2485
 } rat_t;81,2535
-#define KEYWORDS 87,2607
-#define X(103,3332
-enum kindex 104,3350
-enum kindex { KEYWORDS 104,3350
-#undef	X105,3421
-isatom(116,3651
-ispair(122,3747
-isproc(128,3843
-isfloat(134,3939
-israt(140,4037
-isfxn(146,4132
-atom(153,4272
-cons(165,4460
-nevproc(178,4671
-nfunc(190,4875
-nprim(209,5264
-nproc(222,5508
-nfloat(234,5703
-nfixnum(246,5899
-isnull(258,6081
-islist(265,6235
-reverse(274,6391
-nreverse(285,6613
+#define KEYWORDS 88,2632
+#define X(104,3357
+enum kindex 105,3375
+enum kindex { KEYWORDS 105,3375
+#undef	X106,3446
+isatom(117,3676
+ispair(123,3772
+isproc(129,3868
+isfloat(135,3964
+israt(141,4062
+isfxn(147,4157
+atom(154,4297
+cons(166,4485
+nevproc(179,4696
+nfunc(191,4900
+nprim(210,5289
+nproc(223,5533
+nfloat(235,5728
+nfixnum(247,5924
+isnull(259,6106
+islist(266,6260
+reverse(275,6416
+nreverse(286,6638
 
 main.c,66
 const char *progname;progname7,100
 main(10,127
 initenv(28,588
 
-extern.h,604
-#define EXTERN_H2,17
-#define inline 6,70
-#define inline8,121
-#define INPR 22,340
-#define OUTPR 23,391
-#define PREFIX 24,436
-#define LOOTRC 25,461
-#define LIBNAM 26,489
-#define NELEMS(27,517
-#define MAXDIG 30,635
-#define FMAXDIG 31,654
-#define IMAXDIG 32,679
-#define NEW(34,699
-#define BSIZ	36,744
-typedef struct buf 38,761
-        char   *buf;buf39,817
-        int     len;40,838
-        size_t  size;41,897
-} buf_t;42,954
-issep(55,1246
-isstop(62,1388
-bresize(69,1519
-binit(79,1750
-#define bwrite(90,1925
-_bwrite(94,2041
-#define bputc(102,2248
-_bputc(106,2360
-bfree(115,2563
+err.c,305
+err_quit(14,204
+err_sys(30,510
+exfram_t *exstack exstack41,727
+void raise(44,861
+typedef struct list 74,1793
+        void *p;p75,1815
+        struct list *next;next76,1832
+} list_t;77,1859
+static list_t *alloc alloc79,1870
+xalloc(86,2050
+xrealloc(98,2230
+xfree(120,2835
+xfreeall(141,3319
 
 prim.c,699
         char *n;n39,1031
@@ -300,24 +277,6 @@ prim_pow(452,11031
 prim_write(492,12177
 prim_read(501,12367
 
-read.h,41
-#define READ_H2,15
-#define UNGETC(4,31
-
-prim.h,333
-#define PRIM_H2,15
-#define VALUE(4,31
-#define compare(7,157
-#define CHKNUM(10,269
-#define NUMER(16,584
-#define DENOM(17,640
-#define CHKCMP(20,732
-#define CALL(27,1004
-typedef enum mode 33,1257
-typedef enum mode { NINTER,33,1257
-typedef enum mode { NINTER, INTER 33,1257
-typedef enum mode { NINTER, INTER } mode_t;33,1257
-
 err.h,658
 #define ERR_H2,14
 #define MAXLINE 7,70
@@ -343,18 +302,28 @@ enum { ENTERED = 0, RAISED, HANDLED 25,472
 #define WARN(47,1409
 #define ENDTRY 69,2924
 
-read.c,212
-const excpt_t read_error 6,74
-skip_spa(10,172
-skip_line(22,431
-skip(34,653
-#define doterr(55,1200
-read(62,1368
-nextc(95,2246
-read_pair(105,2473
-parse_atm(135,3214
-read_atm(159,3824
-read_quote(183,4455
+prim.h,333
+#define PRIM_H2,15
+#define VALUE(4,31
+#define compare(7,157
+#define CHKNUM(10,269
+#define NUMER(16,584
+#define DENOM(17,640
+#define CHKCMP(20,732
+#define CALL(27,1004
+typedef enum mode 33,1257
+typedef enum mode { NINTER,33,1257
+typedef enum mode { NINTER, INTER 33,1257
+typedef enum mode { NINTER, INTER } mode_t;33,1257
+
+extern.c,131
+int   linenum 3,21
+char *filename filename4,75
+smalloc(8,168
+scalloc(19,344
+srealloc(30,538
+sstrdup(41,732
+sstrndup(52,878
 
 type.c,98
 intlen(7,136
@@ -386,11 +355,49 @@ isset(123,2375
 issetcar(130,2509
 issetcdr(137,2649
 
-extern.c,131
-int   linenum 3,21
-char *filename filename4,75
-smalloc(8,168
-scalloc(19,344
-srealloc(30,538
-sstrdup(41,732
-sstrndup(52,878
+extern.h,604
+#define EXTERN_H2,17
+#define inline 6,70
+#define inline8,121
+#define INPR 22,340
+#define OUTPR 23,391
+#define PREFIX 24,436
+#define LOOTRC 25,461
+#define LIBNAM 26,489
+#define NELEMS(27,517
+#define MAXDIG 30,635
+#define FMAXDIG 31,654
+#define IMAXDIG 32,679
+#define NEW(34,699
+#define BSIZ	36,744
+typedef struct buf 38,761
+        char   *buf;buf39,817
+        int     len;40,838
+        size_t  size;41,897
+} buf_t;42,954
+issep(55,1246
+isstop(62,1388
+bresize(69,1519
+binit(79,1750
+#define bwrite(90,1925
+_bwrite(94,2041
+#define bputc(102,2248
+_bputc(106,2360
+bfree(115,2563
+
+read.c,212
+const excpt_t read_error 6,74
+skip_spa(10,172
+skip_line(22,431
+skip(34,653
+#define doterr(55,1200
+read(62,1368
+nextc(95,2246
+read_pair(105,2473
+parse_atm(135,3214
+read_atm(159,3824
+read_quote(183,4455
+
+read.h,41
+#define READ_H2,15
+#define UNGETC(4,31
