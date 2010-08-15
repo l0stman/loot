@@ -142,35 +142,44 @@ anquote(exp_t *ep)
         return nevproc(evself, cadr(ep));
 }
 
-#define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
+static void bind(symb_t **, exp_t **, exp_t *);
 
 /* Analyze the syntax of a define expression. */
 static evproc_t *
 andef(exp_t *ep)
 {
         symb_t *var;
-        evproc_t *vproc;
-        exp_t *lst;
+        exp_t *val;
         void **argv;
 
         if (isnull(cdr(ep)) || isatom(cadr(ep)))
                 chklst(ep, 3);
-        lst = cdr(ep);
-        if (ispair(ep = car(lst))) { /* lambda shortcut */
-                if (!issym(car(ep)))
-                        anerr("should be a symbol", car(ep));
-                var = symp(car(ep));
-                vproc = analyze(nlambda(cdr(ep), cdr(lst)));
-        } else if (issym(ep)) {
-                var = symp(ep);
-                vproc = analyze(cadr(lst));
-        } else
-                anerr("the expression couldn't be defined", car(lst));
+        bind(&var, &val, cdr(ep));
         argv = smalloc(2*sizeof(*argv));
         argv[0] = (void *)var;
-        argv[1] = (void *)vproc;
+        argv[1] = (void *)analyze(val);
 
         return nevproc(evdef, argv);
+}
+
+#define nlambda(pars, body)	(cons(keywords[LAMBDA], cons(pars, body)))
+
+/* Bind the variable and the value of a define expression. */
+static void
+bind(symb_t **varp, exp_t **valp, exp_t *args)
+{
+        exp_t *ep;
+
+        if (ispair(ep = car(args))) { /* lambda shortcut */
+                if (!issym(car(ep)))
+                        anerr("should be a symbol", car(ep));
+                *varp = symp(car(ep));
+                *valp = nlambda(cdr(ep), cdr(args));
+        } else if (issym(ep)) {
+                *varp = symp(ep);
+                *valp = cadr(args);
+        } else
+                anerr("the expression couldn't be defined", ep);
 }
 
 /* Analyze the syntax of an if expression. */
