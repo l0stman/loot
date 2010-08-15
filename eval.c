@@ -274,7 +274,7 @@ anlambda(exp_t *ep)
                         push(cons(car(vars),
                                   cons(nquote(undefined), null)),
                              binds);
-                ep = nlambda(cadr(ep), cons(nlet(binds, body), null));
+                cddr(ep) = cons(nlet(binds, body), null);
         }
 
         argv = smalloc(2*sizeof(*argv));
