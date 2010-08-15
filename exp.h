@@ -83,6 +83,7 @@ typedef struct rat {            /* represents a rational */
 extern exp_t *false;
 extern exp_t *true;
 extern exp_t *null;
+extern exp_t *undefined;
 
 #define KEYWORDS                                \
         	X(DEFINE, "define"),            \

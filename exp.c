@@ -5,6 +5,7 @@
 exp_t *false;
 exp_t *true;
 exp_t *null;
+exp_t *undefined;               /* value of undefined variables. */
 
 static struct {
         exp_t **ep;
@@ -12,7 +13,7 @@ static struct {
 } cst[] = {
         {&false, "#f"},
         {&true, "#t"},
-        {&null, "()"}
+        {&null, "()"},
 };
 
 #define X(k, s)	s
@@ -26,6 +27,7 @@ instcst(struct env *envp)
 {
         register int i;
 
+        undefined = atom("*undefined*");
         for (i = 0; i < NELEMS(cst); i++) {
                 *cst[i].ep = atom(cst[i].name);
                 install(cst[i].name, *cst[i].ep, envp);
