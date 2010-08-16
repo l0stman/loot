@@ -11,6 +11,9 @@
   (or (null? x)
       (and (pair? x) (list? (cdr x)))))
 
+(define (boolean? x)
+  (or (eq? x #t) (eq? x #f)))
+
 (define (<= x y)
   (or (= x y) (< x y)))
 

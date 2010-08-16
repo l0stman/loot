@@ -19,6 +19,7 @@ static exp_t *prim_numeq(exp_t *);
 static exp_t *prim_lt(exp_t *);
 static exp_t *prim_gt(exp_t *);
 static exp_t *prim_isnum(exp_t *);
+static exp_t *prim_isproc(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
@@ -44,18 +45,19 @@ static struct {
         {"-", prim_sub},
         {"*", prim_prod},
         {"/", prim_div},
+        {"=", prim_numeq},
+        {"<", prim_lt},
+        {">", prim_gt},
         /* pair */
         {"cons", prim_cons},
         {"car", prim_car},
         {"cdr", prim_cdr},
-        /* test */
+        /* predicate */
         {"eq?", prim_eq},
         {"symbol?", prim_sym},
         {"pair?", prim_pair},
-        {"=", prim_numeq},
-        {"<", prim_lt},
-        {">", prim_gt},
         {"number?", prim_isnum},
+        {"procedure?", prim_isproc},
         /* math */
         {"sin", prim_sin},
         {"cos", prim_cos},
@@ -329,6 +331,14 @@ prim_isnum(exp_t *args)
 {
         chkargs("number?", args, 1);
         return isnum(car(args)) ? true: false;
+}
+
+/* Test if the argument is a procedure. */
+static exp_t *
+prim_isproc(exp_t *args)
+{
+        chkargs("procedure?", args, 1);
+        return isproc(car(args)) ? true: false;
 }
 
 /* Return a pair of expression */
