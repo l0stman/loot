@@ -6,5 +6,4 @@
   except maybe for the global environment.
 * Check that the lvalue is not NULL when analyzing the expression.
 * Implement vectors.
-* Atoms are case-insensitives.
 * Implement a syntax table instead of a simple disptching.
