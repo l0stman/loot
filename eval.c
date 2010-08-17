@@ -584,7 +584,7 @@ evcond(evproc_t **argv, env_t *envp)
                 else if (isarrow(*(argv+1)))
                         ++argv;
 
-        return null;
+        return NULL;
 }
 
 /* Evaluate an `and' expression */
