@@ -188,13 +188,16 @@ static evproc_t *
 anif(exp_t *ep)
 {
         evproc_t **argv;
+        exp_t *p;
 
-        chklst(ep, 4);
+        if (isnull(p = cdr(ep)) || isnull(p = cdr(p)) ||
+            !isnull(p = cdr(p)) && !isnull(cdr(p)))
+                anerr("bad syntax in", ep);
         ep = cdr(ep);
         argv = smalloc(3*sizeof(*argv));
         argv[0] = analyze(car(ep));
         argv[1] = analyze(cadr(ep));
-        argv[2] = analyze(caddr(ep));
+        argv[2] = analyze(!isnull(p) ? car(p) : NULL);
 
         return nevproc(evif, argv);
 }
