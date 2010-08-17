@@ -7,3 +7,6 @@
 * Check that the lvalue is not NULL when analyzing the expression.
 * Implement vectors.
 * Implement a syntax table instead of a simple disptching.
+* Implement some contruction like let, cond, case, ... as macros.
+* Implement the do iteration.
+* Implement quasiquote.
