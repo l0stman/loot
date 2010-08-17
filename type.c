@@ -68,7 +68,7 @@ isfloatstr(const char *s, int len)
 static inline int
 iscst(exp_t *ep)
 {
-        return iseq(ep, false) || iseq(ep, true) || isnull(ep);
+        return iseq(ep, false) || iseq(ep, true);
 }
 
 /* Test if the expression is self-evaluating */

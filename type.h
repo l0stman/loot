@@ -38,7 +38,7 @@ isdef(exp_t *ep)
 static inline int
 issym(exp_t *ep)
 {
-        return isatom(ep) && symp(ep) != NULL && !isself(ep);
+        return isatom(ep) && !isself(ep) && !isnull(ep);
 }
 
 /* Test if the expression is a string. */

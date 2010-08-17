@@ -13,7 +13,6 @@ static struct {
 } cst[] = {
         {&false, "#f"},
         {&true, "#t"},
-        {&null, "()"},
 };
 
 #define X(k, s)	s
@@ -27,6 +26,7 @@ instcst(struct env *envp)
 {
         register int i;
 
+        null = atom("()");
         undefined = atom("*undefined*");
         for (i = 0; i < NELEMS(cst); i++) {
                 *cst[i].ep = atom(cst[i].name);
