@@ -7,31 +7,18 @@ exp_t *true;
 exp_t *null;
 exp_t *undefined;               /* value of undefined variables. */
 
-static struct {
-        exp_t **ep;
-        symb_t *name;
-} cst[] = {
-        {&false, "#f"},
-        {&true, "#t"},
-};
-
 #define X(k, s)	s
 void *keywords[] = { KEYWORDS };
 #undef	X
 
-/* Initiate the variables and install the constants in the
-   environment */
+/* Initialize the global variables. */
 void
 instcst(struct env *envp)
 {
-        register int i;
-
+        true = atom("#t");
+        false = atom("#f");
         null = atom("()");
         undefined = atom("*undefined*");
-        for (i = 0; i < NELEMS(cst); i++) {
-                *cst[i].ep = atom(cst[i].name);
-                install(cst[i].name, *cst[i].ep, envp);
-        }
 }
 
 /* Transform the strings in keywords into symbol expressions. */
