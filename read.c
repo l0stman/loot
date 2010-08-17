@@ -164,7 +164,7 @@ read_atm(FILE *fp, int ch)
 
         bp = binit();
         do
-                bputc(c, bp);
+                bputc(tolower(c), bp);
         while ((c = fgetc(fp)) != EOF && !isstop(ch, c));
         if (ch == '"')
                 if (c == EOF)
