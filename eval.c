@@ -6,8 +6,8 @@
 
 const excpt_t eval_error = { "eval" };
 const excpt_t syntax_error = { "syntax" };
-static enum place { CAR, CDR };
-static enum logic { LAND, LOR };
+enum place { CAR, CDR };
+enum logic { LAND, LOR };
 
 static exp_t *evself(exp_t *, env_t *);
 static exp_t *evvar(exp_t *, env_t *);
@@ -21,7 +21,6 @@ static exp_t *evset(void **, env_t *);
 static exp_t *evsetpair(evproc_t **, env_t *);
 static exp_t *evor(evproc_t **, env_t *);
 static exp_t *evand(evproc_t **, env_t *);
-static exp_t *evproc(evproc_t **, env_t *);
 static exp_t *evlet(evproc_t **, env_t *);
 
 static evproc_t *anquote(exp_t *);
