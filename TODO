@@ -10,3 +10,4 @@
 * Implement some contruction like let, cond, case, ... as macros.
 * Implement the do iteration.
 * Implement quasiquote.
+* Internal definitions may only occur at the begining of the body in R5RS.
