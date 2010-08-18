@@ -56,7 +56,7 @@ void raise(const excpt_t *e, const char *file, int line, const char *fmt, ...)
                 if (e->reason)
                         fprintf(stderr, " %s: %s", e->reason, msg);
                 else
-                        fprintf(stderr, " at 0x%p: %s", e, msg);
+                        fprintf(stderr, " at 0x%p: %s", (void *)e, msg);
                 if (file && line > 0)
                         fprintf(stderr, " raised in %s at line %d", file, line);
                 fprintf(stderr, "\naborting...\n");

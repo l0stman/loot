@@ -56,7 +56,7 @@ void raise(const excpt_t *, const char *, int, const char *, ...);
 	        else                                               	       \
         	        fprintf(stderr, "%s: exception at 0x%p: %s",	       \
                                 progname,                                      \
-                                &(e),                                          \
+                                (void *)&(e),                                  \
                                 exfram.msg);                                   \
         	if (exfram.file && exfram.line > 0)                            \
                 	fprintf(stderr, " raised in %s at line %d\n",          \
