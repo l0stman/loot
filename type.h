@@ -138,4 +138,25 @@ issetcdr(exp_t *ep)
 {
         return istag(ep, keywords[SETCDR]);
 }
+
+/* Test if an expression is a quasi-quote expression */
+static inline int
+isqquote(exp_t *ep)
+{
+        return istag(ep, keywords[QQUOTE]);
+}
+
+/* Test if an expression is an unquote expression */
+static inline int
+isunquote(exp_t *ep)
+{
+        return istag(ep, keywords[UNQUOTE]);
+}
+
+/* Test if an expression is an unquote-splicing expression */
+static inline int
+issplice(exp_t *ep)
+{
+        return istag(ep, keywords[SPLICE]);
+}
 #endif /* !TYPE_H */

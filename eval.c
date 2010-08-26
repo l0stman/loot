@@ -460,6 +460,8 @@ anapp(exp_t *ep)
         exp_t *p;
         register int argc;
 
+        if (isunquote(ep) || issplice(ep))
+                anerr("should be in a quasiquote", ep);
         for (argc = 1, p = ep; ispair(p); p = cdr(p))
                 ++argc;
         if (!isnull(p))

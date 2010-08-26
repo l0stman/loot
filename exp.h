@@ -10,8 +10,8 @@ enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM };
 #define pairp(ep)       (ep)->u.cp
 #define procp(ep)       (ep)->u.pp
 #define label(ep)       (ep)->u.pp->label
-#define flt(ep)	        (ep)->u.ft
-#define fixnum(ep)	(ep)->u.fx
+#define flt(ep)         (ep)->u.ft
+#define fixnum(ep)      (ep)->u.fx
 #define ratp(ep)        (ep)->u.rp
 
 typedef struct exp {
@@ -55,7 +55,7 @@ struct func {                   /* Represents a function */
         struct env *envp;       /* environment of the function */
 };
 
-#define ptype(ep)	procp(ep)->tp
+#define ptype(ep)       procp(ep)->tp
 #define primp(ep)       procp(ep)->u.primp
 #define funcp(ep)       procp(ep)->u.funcp
 #define fpar(ep)        funcp(ep)->parp
@@ -86,7 +86,7 @@ extern exp_t *null;
 extern exp_t *undefined;
 
 #define KEYWORDS                                \
-        	X(DEFINE, "define"),            \
+                X(DEFINE, "define"),            \
                 X(QUOTE, "quote"),              \
                 X(IF, "if"),                    \
                 X(BEGIN, "begin"),              \
@@ -99,14 +99,14 @@ extern exp_t *undefined;
                 X(SETCAR, "set-car!"),          \
                 X(SETCDR, "set-cdr!"),          \
                 X(ELSE, "else"),                \
-                X(ARROW, "=>"),			\
+                X(ARROW, "=>"),                 \
                 X(QQUOTE, "quasiquote"),        \
-		X(UNQUOTE, "unquote"),          \
+                X(UNQUOTE, "unquote"),          \
                 X(SPLICE, "unquote-splicing")
 
-#define X(k, s)	k
+#define X(k, s) k
 enum kindex { KEYWORDS };  /* Index of keyword symbols in keywords. */
-#undef	X
+#undef  X
 
 extern void *keywords[];
 extern void initkeys(void);
