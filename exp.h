@@ -99,7 +99,10 @@ extern exp_t *undefined;
                 X(SETCAR, "set-car!"),          \
                 X(SETCDR, "set-cdr!"),          \
                 X(ELSE, "else"),                \
-                X(ARROW, "=>")
+                X(ARROW, "=>"),			\
+                X(QQUOTE, "quasiquote"),        \
+		X(UNQUOTE, "unquote"),          \
+                X(SPLICE, "unquote-splicing")
 
 #define X(k, s)	k
 enum kindex { KEYWORDS };  /* Index of keyword symbols in keywords. */

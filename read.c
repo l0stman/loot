@@ -53,6 +53,8 @@ static exp_t *read_pair(FILE *);
 static exp_t *read_quote(FILE *, exp_t *);
 
 #define doterr(line)	raise(&read_error, filename, line, "Illegal use of .")
+#define eoferr()	RAISE(read_error, "unexpected end of file");
+
 
 /*
  * Read an expression from a file descriptor skipping blanks and comments.
@@ -77,6 +79,23 @@ read(FILE *fp)
                 break;
         case '\'':              /* quoted expression */
                 exp = read_quote(fp, keywords[QUOTE]);
+                break;
+        case '`':
+                exp = read_quote(fp, keywords[QQUOTE]);
+                break;
+        case ',':
+                switch (c = fgetc(fp)) {
+                case EOF:
+                        eoferr();
+                        break;
+                case '@':
+                        exp = read_quote(fp, keywords[SPLICE]);
+                        break;
+                default:
+                        ungetc(c, fp);
+                        exp = read_quote(fp, keywords[UNQUOTE]);
+                        break;
+                }
                 break;
         case '.':
                 if ((c = fgetc(fp)) == EOF || issep(c))
@@ -185,6 +204,6 @@ read_quote(FILE *fp, exp_t *keyword)
         exp_t *ep;
 
         if (!(ep = read(fp)))
-                RAISE(read_error, "unexpected end of file");
+                eoferr();
         return cons(keyword, cons(ep, null));
 }
