@@ -50,7 +50,7 @@ skip(FILE *fp)
 
 static exp_t *read_atm(FILE *, int);
 static exp_t *read_pair(FILE *);
-static exp_t *read_quote(FILE *);
+static exp_t *read_quote(FILE *, exp_t *);
 
 #define doterr(line)	raise(&read_error, filename, line, "Illegal use of .")
 
@@ -76,7 +76,7 @@ read(FILE *fp)
                 RAISE(read_error, "unexpected )");
                 break;
         case '\'':              /* quoted expression */
-                exp = read_quote(fp);
+                exp = read_quote(fp, keywords[QUOTE]);
                 break;
         case '.':
                 if ((c = fgetc(fp)) == EOF || issep(c))
@@ -178,13 +178,13 @@ read_atm(FILE *fp, int ch)
         return ep;
 }
 
-/* Transform 'exp to (quote exp). */
+/* Enclose the following expression exp into (keyword exp). */
 static exp_t *
-read_quote(FILE *fp)
+read_quote(FILE *fp, exp_t *keyword)
 {
         exp_t *ep;
 
         if (!(ep = read(fp)))
                 RAISE(read_error, "unexpected end of file");
-        return cons(keywords[QUOTE], cons(ep, null));
+        return cons(keyword, cons(ep, null));
 }
