@@ -77,16 +77,17 @@ analyze(exp_t *ep)
         return NULL;            /* not reached */
 }
 
-#define EVPROC(epp, envp)	((epp)->eval((epp)->argv, envp))
+static inline exp_t *
+evproc(evproc_t *epp, env_t *envp)
+{
+        return epp->eval(epp->argv, envp);
+}
 
 /* Evaluate the expression in the environment. */
 exp_t *
 eval(exp_t *exp, env_t *envp)
 {
-        evproc_t *epp;
-
-        epp = analyze(exp);
-        return EVPROC(epp, envp);
+        return evproc(analyze(exp), envp);
 }
 
 #define push(x, lst)	((lst) = cons(x, lst))
@@ -116,7 +117,7 @@ apply(exp_t *op, exp_t *args)
         else if (!isnull(args))
                 everr("too many arguments provided to", op);
 
-        return EVPROC(fbody(op), extenv(binds, fenv(op)));
+        return evproc(fbody(op), extenv(binds, fenv(op)));
 }
 
 /* * * * * * * * * * * * * * * *
@@ -509,7 +510,7 @@ evdef(void **argv, env_t *envp)
 
         var = (symb_t *)argv[0];
         vproc = (evproc_t *)argv[1];
-	if (!(val = EVPROC(vproc, envp)))
+	if (!(val = evproc(vproc, envp)))
                 valerr(var);
         if (type(val) == PROC && label(val) == NULL)
                 label(val) = strtoatm(var); /* label anonymous procedure */
@@ -526,7 +527,7 @@ evset(void **argv, env_t *envp)
         struct nlist *np;
 
         var = argv[0];
-        if (!(val = EVPROC((evproc_t *)argv[1], envp)))
+        if (!(val = evproc((evproc_t *)argv[1], envp)))
                 valerr(symp(var));
         if (!(np = lookup(symp(var), envp)))
                 everr("unbound variable", var);
@@ -540,9 +541,9 @@ evsetpair(evproc_t **argv, env_t *envp)
 {
         exp_t *var, *val;
 
-        if (!ispair(var = EVPROC(argv[1], envp)))
+        if (!ispair(var = evproc(argv[1], envp)))
                 everr("should be a pair", var);
-        if (!(val = EVPROC(argv[2], envp)))
+        if (!(val = evproc(argv[2], envp)))
                 valerr(symp(var));
         if ((enum place)argv[0] == CAR)
                 car(var) = val;
@@ -558,8 +559,8 @@ evif(evproc_t **argv, env_t *envp)
         evproc_t *pred, *res;
 
         pred = argv[0];
-        res = (!iseq(false, EVPROC(pred, envp)) ? argv[1] : argv[2]);
-        return EVPROC(res, envp);
+        res = (!iseq(false, evproc(pred, envp)) ? argv[1] : argv[2]);
+        return evproc(res, envp);
 }
 
 /* Evaluate a begin expression */
@@ -567,8 +568,8 @@ static exp_t *
 evbegin(evproc_t **argv, env_t *envp)
 {
         for (; *(argv+1); argv++)
-                EVPROC(argv[0], envp);
-        return EVPROC(argv[0], envp);
+                evproc(argv[0], envp);
+        return evproc(argv[0], envp);
 }
 
 /* Evaluate a cond expression */
@@ -578,10 +579,10 @@ evcond(evproc_t **argv, env_t *envp)
         exp_t *b;
 
         for (; *argv; argv += 2)
-                if (iselse(*argv) || !iseq(false, b = EVPROC(*argv, envp)))
+                if (iselse(*argv) || !iseq(false, b = evproc(*argv, envp)))
                         return isarrow(*(argv+1)) ?
-                                apply(EVPROC(*(argv+2), envp), cons(b, null)) :
-                                EVPROC(*(argv+1), envp);
+                                apply(evproc(*(argv+2), envp), cons(b, null)) :
+                                evproc(*(argv+1), envp);
                 else if (isarrow(*(argv+1)))
                         ++argv;
 
@@ -595,7 +596,7 @@ evand(evproc_t **argv, env_t *envp)
         exp_t *pred;
 
         for (pred = true; *argv && !iseq(false, pred); argv++)
-                pred = EVPROC(*argv, envp);
+                pred = evproc(*argv, envp);
         return pred;
 }
 
@@ -606,7 +607,7 @@ evor(evproc_t **argv, env_t *envp)
         exp_t *pred;
 
         for (pred = false; *argv && iseq(false, pred); argv++)
-                pred = EVPROC(*argv, envp);
+                pred = evproc(*argv, envp);
         return pred;
 }
 
@@ -622,8 +623,8 @@ static exp_t *
 evlet(evproc_t **argv, env_t *envp)
 {
         if (argv[0])           /* named let */
-                EVPROC(argv[0], envp);
-        return EVPROC(argv[1], envp);
+                evproc(argv[0], envp);
+        return evproc(argv[1], envp);
 }
 
 /* Evaluate an application expression. */
@@ -635,6 +636,6 @@ evapp(evproc_t **argv, env_t *envp)
 
         op = *argv++;
         for (args = null; *argv; argv++)
-                push(EVPROC(*argv, envp), args);
-        return apply(EVPROC(op, envp), nreverse(args));
+                push(evproc(*argv, envp), args);
+        return apply(evproc(op, envp), nreverse(args));
 }
