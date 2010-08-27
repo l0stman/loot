@@ -6,6 +6,8 @@ exp_t *false;
 exp_t *true;
 exp_t *null;
 exp_t *undefined;               /* value of undefined variables. */
+exp_t *unquote;
+exp_t *splice;
 
 #define X(k, s)	s
 void *keywords[] = { KEYWORDS };
@@ -19,6 +21,8 @@ instcst(struct env *envp)
         false = atom("#f");
         null = atom("()");
         undefined = atom("*undefined*");
+        unquote = atom("*unquote*");
+        splice = atom("*splice*");
 }
 
 /* Transform the strings in keywords into symbol expressions. */

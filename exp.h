@@ -84,6 +84,8 @@ extern exp_t *false;
 extern exp_t *true;
 extern exp_t *null;
 extern exp_t *undefined;
+extern exp_t *unquote;
+extern exp_t *splice;
 
 #define KEYWORDS                                \
                 X(DEFINE, "define"),            \
