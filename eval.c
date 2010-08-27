@@ -22,6 +22,7 @@ static exp_t *evsetpair(evproc_t **, env_t *);
 static exp_t *evor(evproc_t **, env_t *);
 static exp_t *evand(evproc_t **, env_t *);
 static exp_t *evlet(evproc_t **, env_t *);
+static exp_t *evqquote(evproc_t **, env_t *);
 
 static evproc_t *anquote(exp_t *);
 static evproc_t *andef(exp_t *);
@@ -34,6 +35,7 @@ static evproc_t *anset(exp_t *);
 static evproc_t *ansetpair(exp_t *, enum place);
 static evproc_t *anlogic(exp_t *, enum logic);
 static evproc_t *anlet(exp_t *);
+static evproc_t *anqquote(exp_t *);
 
 /*
  * Check the syntax of the expression and return a corresponding
@@ -473,6 +475,79 @@ anapp(exp_t *ep)
         argv[argc] = NULL;
 
         return nevproc(evapp, argv);
+}
+
+static void anqquote1(exp_t *, int , void **, int *);
+static int cunq(exp_t *, int);
+
+/* Analyze the syntax of a quasi-quote expression.
+ *
+ * We store the expression that serve as a template as the first
+ * argument passed to evqquote.  We then traverse the template in
+ * deep-first order and stores the analyzed expressions of unquote and
+ * unquote-splicing as remaining arguments.  Their place in the
+ * template is then replaced respectively by the variables ``unquote''
+ * and ``splice''.  Note that only the ``unquotes'' which are at the
+ * same level as the outermost quasi-quote that are concerned here.
+ * Each time we enter a quasi-quote, the level is incremented by one
+ * and each time we enter an ``unquote'' it's decreased by one.
+ */
+static evproc_t *
+anqquote(exp_t *ep)
+{
+        void **argv;
+        int i;
+        register int argc;
+
+        chklst(ep, 2);
+        if (issplice(cadr(ep)))
+                anerr("syntax error", ep);
+        if (!(argc = cunq(cadr(ep), 1))) /* normal quote */
+                return nevproc(evself, cadr(ep));
+        argv = smalloc((argc+1)*sizeof(*argv));
+        argv[0] = cadr(ep);
+        i = 0;
+        anqquote1(cadr(ep), 1, argv+1, &i);
+        return nevproc(evqquote, argv);
+}
+
+/* Return the number of unquote and unquote-splicing in the expression. */
+static int
+cunq(exp_t *ep, int depth)
+{
+        int count;
+
+        for (count = 0; ispair(ep); ep = cdr(ep))
+                if ((isunquote(ep) || issplice(ep)) && --depth == 0){
+                        count++;
+                        break;
+                } else {
+                        if (isqquote(ep))
+                                depth++;
+                        count += cunq(car(ep), depth);
+                }
+        return count;
+}
+
+static void
+anqquote1(exp_t *ep, int depth, void **argv, int *ip)
+{
+        if (!ispair(ep))
+                return;
+        if (isqquote(ep)) {
+                depth++;
+                ep = cdr(ep);
+        }
+        if (!isunquote(car(ep)) && !issplice(car(ep)))
+                anqquote1(car(ep), depth, argv, ip);
+        else if (depth == 1) {
+                chklst(car(ep), 2);
+                argv[(*ip)++] = analyze(cadar(ep));
+                car(ep) = isunquote(car(ep)) ? unquote : splice;
+        } else
+                anqquote1(cadar(ep), depth-1, argv, ip);
+
+        anqquote1(cdr(ep), depth, argv, ip);
 }
 
 /* * * * * * * * * * * * * *
