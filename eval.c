@@ -547,7 +547,7 @@ anqquote1(exp_t *ep, int depth, void **argv, int *argcp)
                 argv[(*argcp)++] = analyze(cadar(ep));
                 car(ep) = isunquote(car(ep)) ? unquote : splice;
         } else
-                anqquote1(cadar(ep), depth-1, argv, argcp);
+                anqquote1(cdar(ep), depth-1, argv, argcp);
 
         anqquote1(cdr(ep), depth, argv, argcp);
 }
