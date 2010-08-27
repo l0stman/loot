@@ -490,14 +490,14 @@ static int cunq(exp_t *, int);
  * and ``splice''.  Note that only the ``unquotes'' which are at the
  * same level as the outermost quasi-quote that are concerned here.
  * Each time we enter a quasi-quote, the level is incremented by one
- * and each time we enter an ``unquote'' it's decreased by one.
+ * and each time we enter an ``unquote'' or ``unquote-splicing'' it's
+ * decreased by one.
  */
 static evproc_t *
 anqquote(exp_t *ep)
 {
         void **argv;
-        int i;
-        register int argc;
+        int argc;
 
         chklst(ep, 2);
         if (issplice(cadr(ep)))
@@ -506,8 +506,8 @@ anqquote(exp_t *ep)
                 return nevproc(evself, cadr(ep));
         argv = smalloc((argc+1)*sizeof(*argv));
         argv[0] = cadr(ep);
-        i = 0;
-        anqquote1(cadr(ep), 1, argv+1, &i);
+        argc = 1;
+        anqquote1(cadr(ep), 1, argv, &argc);
         return nevproc(evqquote, argv);
 }
 
@@ -530,7 +530,7 @@ cunq(exp_t *ep, int depth)
 }
 
 static void
-anqquote1(exp_t *ep, int depth, void **argv, int *ip)
+anqquote1(exp_t *ep, int depth, void **argv, int *argcp)
 {
         if (!ispair(ep))
                 return;
@@ -539,15 +539,15 @@ anqquote1(exp_t *ep, int depth, void **argv, int *ip)
                 ep = cdr(ep);
         }
         if (!isunquote(car(ep)) && !issplice(car(ep)))
-                anqquote1(car(ep), depth, argv, ip);
+                anqquote1(car(ep), depth, argv, argcp);
         else if (depth == 1) {
                 chklst(car(ep), 2);
-                argv[(*ip)++] = analyze(cadar(ep));
+                argv[(*argcp)++] = analyze(cadar(ep));
                 car(ep) = isunquote(car(ep)) ? unquote : splice;
         } else
-                anqquote1(cadar(ep), depth-1, argv, ip);
+                anqquote1(cadar(ep), depth-1, argv, argcp);
 
-        anqquote1(cdr(ep), depth, argv, ip);
+        anqquote1(cdr(ep), depth, argv, argcp);
 }
 
 /* * * * * * * * * * * * * *
