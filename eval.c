@@ -72,6 +72,8 @@ analyze(exp_t *ep)
                 return anlogic(ep, LAND);
         else if (islet(ep))
                 return anlet(ep);
+        else if (isqquote(ep))
+                return anqquote(ep);
         else if (ispair(ep))    /* application */
                 return anapp(ep);
         else
@@ -484,8 +486,8 @@ static int cunq(exp_t *, int);
  *
  * We store the expression that serve as a template as the first
  * argument passed to evqquote.  We then traverse the template in
- * deep-first order and stores the analyzed expressions of unquote and
- * unquote-splicing as remaining arguments.  Their place in the
+ * deep-first order and stores the analyzed expressions of `unquote'
+ * and `unquote-splicing' as remaining arguments.  Their place in the
  * template is then replaced respectively by the variables ``unquote''
  * and ``splice''.  Note that only the ``unquotes'' which are at the
  * same level as the outermost quasi-quote that are concerned here.
@@ -713,4 +715,43 @@ evapp(evproc_t **argv, env_t *envp)
         for (args = null; *argv; argv++)
                 push(evproc(*argv, envp), args);
         return apply(evproc(op, envp), nreverse(args));
+}
+
+static exp_t *evqquote1(exp_t *, evproc_t **, int *, env_t *);
+
+/* Evaluate a quasi-quote expression. */
+static exp_t *
+evqquote(evproc_t **argv, env_t *envp)
+{
+        int argc;
+
+        argc = 1;
+        return evqquote1((exp_t *)argv[0], argv, &argc, envp);
+}
+
+/*
+ * Traverse the template expression in deep-first order.  Each time we
+ * encounter the expression `unquote` or `splice', we replace them by
+ * the value returned by the evaluation procedure stored in `argv' at
+ * the index `*argcp'.
+ */
+static exp_t *
+evqquote1(exp_t *template, evproc_t **argv, int *argcp, env_t *envp)
+{
+        exp_t *res, *car, *cdr;
+
+        if (ispair(template)) {
+                car = evqquote1(car(template), argv, argcp, envp);
+                cdr = evqquote1(cdr(template), argv, argcp, envp);
+                if (car(template) == splice) {
+                        if (!islist(car))
+                                everr("should be a list", car);
+                        res = nconc(car, cdr);
+                } else
+                        res = cons(car,  cdr);
+        } else if (template == unquote || template == splice)
+                res = evproc(argv[(*argcp)++], envp);
+        else
+                res = template;
+        return res;
 }
