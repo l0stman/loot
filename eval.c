@@ -534,22 +534,20 @@ cunq(exp_t *ep, int depth)
 static void
 anqquote1(exp_t *ep, int depth, void **argv, int *argcp)
 {
-        if (!ispair(ep))
-                return;
-        if (isqquote(ep)) {
-                depth++;
-                ep = cdr(ep);
+        for (; ispair(ep); ep = cdr(ep)) {
+                if (isqquote(ep)) {
+                        depth++;
+                        ep = cdr(ep);
+                }
+                if (!isunquote(car(ep)) && !issplice(car(ep)))
+                        anqquote1(car(ep), depth, argv, argcp);
+                else if (depth == 1) {
+                        chklst(car(ep), 2);
+                        argv[(*argcp)++] = analyze(cadar(ep));
+                        car(ep) = isunquote(car(ep)) ? unquote : splice;
+                } else
+                        anqquote1(cdar(ep), depth-1, argv, argcp);
         }
-        if (!isunquote(car(ep)) && !issplice(car(ep)))
-                anqquote1(car(ep), depth, argv, argcp);
-        else if (depth == 1) {
-                chklst(car(ep), 2);
-                argv[(*argcp)++] = analyze(cadar(ep));
-                car(ep) = isunquote(car(ep)) ? unquote : splice;
-        } else
-                anqquote1(cdar(ep), depth-1, argv, argcp);
-
-        anqquote1(cdr(ep), depth, argv, argcp);
 }
 
 /* * * * * * * * * * * * * *
