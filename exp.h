@@ -299,4 +299,18 @@ nreverse(exp_t *lp)
         }
         return tail;
 }
+
+/* Concatenate two lists. */
+static inline exp_t *
+nconc(exp_t *lp1, exp_t *lp2)
+{
+        exp_t *p;
+
+        if (isnull(lp1))
+                return lp2;
+        for (p = lp1; !isnull(cdr(p)); p = cdr(p))
+                ;
+        cdr(p) = lp2;
+        return lp1;
+}
 #endif /* !EXP_H */
