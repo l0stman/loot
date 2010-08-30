@@ -520,7 +520,7 @@ cunq(exp_t *ep, int depth)
         int count;
 
         for (count = 0; ispair(ep); ep = cdr(ep))
-                if ((isunquote(ep) || issplice(ep)) && --depth == 0){
+                if ((isunquote(ep) || issplice(ep)) && --depth == 0) {
                         count++;
                         break;
                 } else {
