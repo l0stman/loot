@@ -64,7 +64,7 @@ static exp_t *read_char(FILE *);
 exp_t *
 read(FILE *fp)
 {
-        int c;
+        int c, ch;
         exp_t *exp;
 
         skip(fp);
@@ -102,6 +102,15 @@ read(FILE *fp)
                 switch (c = fgetc(fp)) {
                 case EOF:
                         eoferr();
+                        break;
+                case 't':
+                case 'f':
+                        if ((ch = fgetc(fp)) == EOF)
+                                eoferr();
+                        if (!issep(ch))
+                                readerr("bad syntax #%c...", ch);
+                        ungetc(ch, fp);
+                        exp = (c == 't' ? true : false);
                         break;
                 case '\\':      /* character? */
                         exp = read_char(fp);
