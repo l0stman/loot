@@ -108,7 +108,7 @@ read(FILE *fp)
                         if ((ch = fgetc(fp)) == EOF)
                                 eoferr();
                         if (!issep(ch))
-                                readerr("bad syntax #%c...", ch);
+                                readerr("bad syntax #%c...", c);
                         ungetc(ch, fp);
                         exp = (c == 't' ? true : false);
                         break;
