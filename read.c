@@ -51,10 +51,11 @@ skip(FILE *fp)
 static exp_t *read_atm(FILE *, int);
 static exp_t *read_pair(FILE *);
 static exp_t *read_quote(FILE *, exp_t *);
+static exp_t *read_char(FILE *);
 
 #define doterr(line)	raise(&read_error, filename, line, "Illegal use of .")
-#define eoferr()	RAISE(read_error, "unexpected end of file");
-
+#define eoferr()	RAISE(read_error, "unexpected end of file")
+#define readerr(fmt, s) raise(&read_error, filename, linenum, fmt, s)
 
 /*
  * Read an expression from a file descriptor skipping blanks and comments.
@@ -97,6 +98,19 @@ read(FILE *fp)
                         break;
                 }
                 break;
+        case '#':
+                switch (c = fgetc(fp)) {
+                case EOF:
+                        eoferr();
+                        break;
+                case '\\':      /* character? */
+                        exp = read_char(fp);
+                        break;
+                default:
+                        readerr("bad syntax #%c", c);
+                        break;
+                }
+                break;
         case '.':
                 if ((c = fgetc(fp)) == EOF || issep(c))
                         doterr(linenum);
@@ -106,6 +120,38 @@ read(FILE *fp)
                 exp = read_atm(fp, c);
                 break;
         }
+        return exp;
+}
+
+/* Read a character from fp. */
+static exp_t *
+read_char(FILE *fp)
+{
+        buf_t *bp;
+        exp_t *exp;
+        register int c;
+
+        if ((c = fgetc(fp)) == EOF)
+                eoferr();
+        bp = binit();
+        do
+                bputc(c, bp);
+        while ((c = fgetc(fp)) != EOF && !issep(c));
+        ungetc(c, fp);
+        if (bp->len == 1 && isprint(bp->buf[0]))
+                exp = nchar(bp->buf[0]);
+        else if (bp->len == 7 &&
+                 !strncmp("newline", bp->buf, 7))
+                exp = nchar('\n');
+        else if (bp->len == 5 &&
+                 !strncmp("space", bp->buf, 5))
+                exp = nchar(' ');
+        else {
+                bputc('\0', bp);
+                readerr("bad character constant #\\%s",
+                        bp->buf);
+        }
+        bfree(bp);
         return exp;
 }
 

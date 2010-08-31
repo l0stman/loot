@@ -267,6 +267,18 @@ nfixnum(int i)
         return ep;
 }
 
+/* Return an expression representing a character */
+static inline exp_t *
+nchar(char c)
+{
+        exp_t *ep;
+
+        NEW(ep);
+        type(ep) = CHAR;
+        char(ep) = c;
+        return ep;
+}
+
 /* Test if the expression is null */
 static inline int
 isnull(const exp_t *ep)
