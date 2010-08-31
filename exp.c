@@ -133,6 +133,26 @@ fxntostr(const exp_t *ep)
         return buf;
 }
 
+/* Return a string representing a char. */
+static char *
+ctostr(const exp_t *ep)
+{
+        static char buf[10];
+
+        switch (char(ep)) {
+        case '\n':
+                sprintf(buf, "#\\newline");
+                break;
+        case ' ':
+                sprintf(buf, "#\\space");
+                break;
+        default:
+                sprintf(buf, "#\\%c", char(ep));
+                break;
+        }
+        return buf;
+}
+
 /* Return a string representing the expression */
 char *
 tostr(const exp_t *ep)
@@ -149,6 +169,8 @@ tostr(const exp_t *ep)
                 return rtostr(ep);
         else if (isfxn(ep))
                 return fxntostr(ep);
+        else if (ischar(ep))
+                return ctostr(ep);
         else
                 err_quit("tostr: unknown expression");
         return NULL;
