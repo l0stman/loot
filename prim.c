@@ -20,6 +20,8 @@ static exp_t *prim_lt(exp_t *);
 static exp_t *prim_gt(exp_t *);
 static exp_t *prim_isnum(exp_t *);
 static exp_t *prim_isproc(exp_t *);
+static exp_t *prim_isbool(exp_t *);
+static exp_t *prim_ischar(exp_t *);
 static exp_t *prim_cons(exp_t *);
 static exp_t *prim_car(exp_t *);
 static exp_t *prim_cdr(exp_t *);
@@ -58,6 +60,8 @@ static struct {
         {"pair?", prim_pair},
         {"number?", prim_isnum},
         {"procedure?", prim_isproc},
+        {"boolean?", prim_isbool},
+        {"char?", prim_ischar},
         /* math */
         {"sin", prim_sin},
         {"cos", prim_cos},
@@ -339,6 +343,22 @@ prim_isproc(exp_t *args)
 {
         chkargs("procedure?", args, 1);
         return isproc(car(args)) ? true: false;
+}
+
+/* Test if the argument is a boolean. */
+static exp_t *
+prim_isbool(exp_t *args)
+{
+        chkargs("boolean?", args, 1);
+        return isbool(car(args)) ? true: false;
+}
+
+/* Test if the argument is a character. */
+static exp_t *
+prim_ischar(exp_t *args)
+{
+        chkargs("char?", args, 1);
+        return ischar(car(args)) ? true: false;
 }
 
 /* Return a pair of expression */
