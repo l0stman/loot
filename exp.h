@@ -3,7 +3,7 @@
 
 #include "atom.h"
 
-enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM };
+enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM, CHAR };
 
 #define type(ep)        (ep)->tp
 #define symp(ep)        (ep)->u.sp
@@ -13,6 +13,7 @@ enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM };
 #define flt(ep)         (ep)->u.ft
 #define fixnum(ep)      (ep)->u.fx
 #define ratp(ep)        (ep)->u.rp
+#define char(ep)        (ep)->u.ch
 
 typedef struct exp {
         enum type            tp; /* type of the expression */
@@ -23,6 +24,7 @@ typedef struct exp {
                 int          fx; /* represents a fixnum */
                 struct rat  *rp; /* pointer to a rational */
                 double       ft; /* represents a float */
+                char         ch; /* represents a character */
         } u;
 } exp_t;
 
@@ -152,6 +154,12 @@ static inline int
 isfxn(const exp_t *ep)
 {
         return (ep != NULL && type(ep) == FIXNUM);
+}
+
+static inline int
+ischar(const exp_t *ep)
+{
+        return ep && type(ep) == CHAR;
 }
 
 /* Return an atom whose symbol is s */
