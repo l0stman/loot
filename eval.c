@@ -272,7 +272,6 @@ anlambda(exp_t *ep)
         scan_defs(&vars, &vals, &body, cddr(ep));
         if (!isnull(vars)) {
                 exp_t *binds, *v;
-                body = nreverse(body);
                 for (v = vars; !isnull(v); v = cdr(v)) {
                         push(nset(car(v), car(vals)), body);
                         vals = cdr(vals);
@@ -293,21 +292,24 @@ anlambda(exp_t *ep)
 
 /*
  * Bind the variables and values of the definitions in ep to *varsp
- * and *valsp, and the remaining body to *bodyp
+ * and *valsp in reverse order, and the remaining body to *bodyp.
  */
 static void
 scan_defs(exp_t **varsp, exp_t **valsp, exp_t **bodyp, exp_t *ep)
 {
         exp_t *var, *val, *body;
 
-        *varsp = *valsp = *bodyp = null;
-        for (body = ep; ispair(body); body = cdr(body))
-                if (isdef(car(body))) {
-                        bind(&var, &val, car(body));
-                        push(var, *varsp);
-                        push(val, *valsp);
-                } else
-                        push(car(body), *bodyp);
+        *varsp = *valsp = null;
+        for (body = ep; ispair(body) && isdef(car(body)); body = cdr(body)) {
+                bind(&var, &val, car(body));
+                push(var, *varsp);
+                push(val, *valsp);
+        }
+        *bodyp = body;
+        for (body = cdr(body); ispair(body); body = cdr(body))
+                if (isdef(car(body)))
+                        anerr("should be at the beginning of the body",
+                              car(body));
         if (!isnull(body))
                 anerr("should be a list", ep);
 }
