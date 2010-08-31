@@ -17,8 +17,8 @@ void *keywords[] = { KEYWORDS };
 void
 instcst(struct env *envp)
 {
-        true = atom("#t");
-        false = atom("#f");
+        true = bool("#t");
+        false = bool("#f");
         null = atom("()");
         undefined = atom("*undefined*");
         unquote = atom("*unquote*");
@@ -157,7 +157,7 @@ ctostr(const exp_t *ep)
 char *
 tostr(const exp_t *ep)
 {
-        if (isatom(ep))
+        if (isatom(ep) || isbool(ep))
                 return atmtostr(ep);
         else if (ispair(ep))
                 return pairtostr(ep);

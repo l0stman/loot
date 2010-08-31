@@ -3,7 +3,7 @@
 
 #include "atom.h"
 
-enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM, CHAR };
+enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM, CHAR, BOOL };
 
 #define type(ep)        (ep)->tp
 #define symp(ep)        (ep)->u.sp
@@ -162,6 +162,12 @@ ischar(const exp_t *ep)
         return ep && type(ep) == CHAR;
 }
 
+static inline int
+isbool(const exp_t *ep)
+{
+        return ep && type(ep) == BOOL;
+}
+
 /* Return an atom whose symbol is s */
 static inline exp_t *
 atom(symb_t *s)
@@ -170,6 +176,18 @@ atom(symb_t *s)
 
         NEW(ep);
         ep->tp = ATOM;
+        ep->u.sp = strtoatm(s);
+        return ep;
+}
+
+/* Return a boolean whose symbol is s. */
+static inline exp_t *
+bool(symb_t *s)
+{
+        exp_t *ep;
+
+        NEW(ep);
+        ep->tp = BOOL;
         ep->u.sp = strtoatm(s);
         return ep;
 }
