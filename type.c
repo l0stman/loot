@@ -64,16 +64,9 @@ isfloatstr(const char *s, int len)
         return 0;
 }
 
-/* Test if the expression is constant. */
-static inline int
-iscst(exp_t *ep)
-{
-        return iseq(ep, false) || iseq(ep, true);
-}
-
 /* Test if the expression is self-evaluating */
 int
 isself(exp_t *ep)
 {
-        return ep == NULL || isnum(ep) || isstr(ep) || iscst(ep);
+        return ep == NULL || isnum(ep) || isstr(ep) || isbool(ep) || ischar(ep);
 }
