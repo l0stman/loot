@@ -519,15 +519,18 @@ cunq(exp_t *ep, int depth)
 {
         int count;
 
-        for (count = 0; ispair(ep); ep = cdr(ep))
-                if ((isunquote(ep) || issplice(ep)) && --depth == 0) {
-                        count++;
-                        break;
-                } else {
-                        if (isqquote(ep))
-                                depth++;
-                        count += cunq(car(ep), depth);
+        for (count = 0; ispair(ep); ep = cdr(ep)) {
+                if (isqquote(ep)) {
+                        depth++;
+                        ep = cdr(ep);
                 }
+                if (!isunquote(car(ep)) && !issplice(car(ep)))
+                        count += cunq(car(ep), depth);
+                else if (depth == 1)
+                        count++;
+                else
+                        count += cunq(cdar(ep), depth-1);
+        }
         return count;
 }
 
