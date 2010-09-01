@@ -10,8 +10,7 @@ static exp_t *read_pair(FILE *);
 static exp_t *read_char(FILE *);
 static exp_t *read_quote(FILE *);
 static exp_t *read_qquote(FILE *);
-static exp_t *read_splice(FILE *);
-static exp_t *read_unquote(FILE *);
+static exp_t *read_comma(FILE *);
 
 /* Syntax table. */
 static exp_t *(*stab[128])() = {
@@ -54,12 +53,12 @@ static exp_t *(*stab[128])() = {
         /* 36 $   */ NULL,
         /* 37 %   */ NULL,
         /* 38 &   */ NULL,
-        /* 39 '   */ NULL,
+        /* 39 '   */ read_quote,
         /* 40 (   */ read_pair,
         /* 41 )   */ NULL,
         /* 42 *   */ NULL,
         /* 43 +   */ NULL,
-        /* 44 ,   */ NULL,
+        /* 44 ,   */ read_comma,
         /* 45 -   */ NULL,
         /* 46 .   */ NULL,
         /* 47 /   */ NULL,
@@ -111,7 +110,7 @@ static exp_t *(*stab[128])() = {
         /* 93 ]   */ NULL,
         /* 94 ^   */ NULL,
         /* 95 _   */ NULL,
-        /* 96 `   */ NULL
+        /* 96 `   */ read_qquote
 };
 
 /* skip spaces in the input stream. */
@@ -189,18 +188,7 @@ read(FILE *fp)
                 exp = read_qquote(fp);
                 break;
         case ',':
-                switch (c = fgetc(fp)) {
-                case EOF:
-                        eoferr();
-                        break;
-                case '@':
-                        exp = read_splice(fp);
-                        break;
-                default:
-                        ungetc(c, fp);
-                        exp = read_unquote(fp);
-                        break;
-                }
+                exp = read_comma(fp);
                 break;
         case '#':
                 switch (c = fgetc(fp)) {
@@ -381,16 +369,24 @@ read_qquote(FILE *fp)
         return enclose(fp, keywords[QQUOTE]);
 }
 
-/* Read an unquote expression. */
+/* Read a comma expression. */
 static exp_t *
-read_unquote(FILE *fp)
+read_comma(FILE *fp)
 {
-        return enclose(fp, keywords[UNQUOTE]);
-}
+        int c;
+        exp_t *exp;
 
-/* Read an unquote-splicing expression. */
-static exp_t *
-read_splice(FILE *fp)
-{
-        return enclose(fp, keywords[SPLICE]);
+        switch (c = fgetc(fp)) {
+        case EOF:
+                eoferr();
+                break;
+        case '@':
+                exp = enclose(fp, keywords[SPLICE]);
+                break;
+        default:
+                ungetc(c, fp);
+                exp = enclose(fp, keywords[UNQUOTE]);
+                break;
+        }
+        return exp;
 }
