@@ -142,7 +142,7 @@ skipline(FILE *fp)
 }
 
 /* skip blanks and comments from fp. */
-static void
+static int
 skip(FILE *fp)
 {
         register int c;
@@ -155,10 +155,9 @@ skip(FILE *fp)
                         c = skipsp(fp);
                 } else if (c == ';')  /* comment */
                         c = skipline(fp);
-                else {
-                        ungetc(c, fp);
+                else
                         break;
-                }
+        return c;
 }
 
 #define doterr(line)	raise(&read_error, filename, line, "Illegal use of .")
@@ -176,8 +175,7 @@ read(FILE *fp)
         exp_t *(*read_syn)();
         int c;
 
-        skip(fp);
-        if ((c = fgetc(fp)) == EOF)
+        if ((c = skip(fp)) == EOF)
                 exp = NULL;
         else if ((read_syn = stab[c & 127]) != NULL)
                 exp = read_syn(fp);
@@ -191,10 +189,11 @@ read(FILE *fp)
 static inline int
 nextc(FILE *fp, int ln)
 {
-        skip(fp);
-        if (feof(fp))
+        int c;
+
+        if ((c = skip(fp)) == EOF)
                 raise(&read_error, filename, ln, "too many open parenthesis");
-        return fgetc(fp);
+        return c;
 }
 
 /* Read a pair expression from fp. */
