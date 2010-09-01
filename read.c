@@ -118,7 +118,7 @@ static exp_t *(*stab[128])() = {
 
 /* skip spaces in the input stream. */
 static inline int
-skip_spa(FILE *fp)
+skipsp(FILE *fp)
 {
         register int c;
 
@@ -130,7 +130,7 @@ skip_spa(FILE *fp)
 
 /* skip the current line in the input stream. */
 static inline int
-skip_line(FILE *fp)
+skipline(FILE *fp)
 {
         register int c;
 
@@ -152,9 +152,9 @@ skip(FILE *fp)
                 if (isspace(c)) {
                         if (c == '\n')
                                 ++linenum;
-                        c = skip_spa(fp);
+                        c = skipsp(fp);
                 } else if (c == ';')  /* comment */
-                        c = skip_line(fp);
+                        c = skipline(fp);
                 else {
                         ungetc(c, fp);
                         break;
