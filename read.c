@@ -171,14 +171,14 @@ exp_t *
 read(FILE *fp)
 {
         exp_t *exp;
-        exp_t *(*synfn)();
+        exp_t *(*read_syn)();
         int c;
 
         skip(fp);
         if ((c = fgetc(fp)) == EOF)
                 exp = NULL;
-        else if ((synfn = stab[c & 127]) != NULL)
-                exp = synfn(fp);
+        else if ((read_syn = stab[c & 127]) != NULL)
+                exp = read_syn(fp);
         else
                 exp = read_atm(fp, c);
 
