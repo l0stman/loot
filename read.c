@@ -11,6 +11,9 @@ static exp_t *read_char(FILE *);
 static exp_t *read_quote(FILE *);
 static exp_t *read_qquote(FILE *);
 static exp_t *read_comma(FILE *);
+static exp_t *read_sharp(FILE *);
+static exp_t *read_rparen(FILE *);
+static exp_t *read_dot(FILE *);
 
 /* Syntax table. */
 static exp_t *(*stab[128])() = {
@@ -49,13 +52,13 @@ static exp_t *(*stab[128])() = {
         /* 32 SP  */ NULL,
         /* 33 !   */ NULL,
         /* 34 "   */ NULL,
-        /* 35 #   */ NULL,
+        /* 35 #   */ read_sharp,
         /* 36 $   */ NULL,
         /* 37 %   */ NULL,
         /* 38 &   */ NULL,
         /* 39 '   */ read_quote,
         /* 40 (   */ read_pair,
-        /* 41 )   */ NULL,
+        /* 41 )   */ read_rparen,
         /* 42 *   */ NULL,
         /* 43 +   */ NULL,
         /* 44 ,   */ read_comma,
@@ -167,7 +170,7 @@ skip(FILE *fp)
 exp_t *
 read(FILE *fp)
 {
-        int c, ch;
+        int c;
         exp_t *exp;
 
         skip(fp);
@@ -179,7 +182,7 @@ read(FILE *fp)
                 exp = read_pair(fp);
                 break;
         case ')':
-                RAISE(read_error, "unexpected )");
+                exp = read_rparen(fp);
                 break;
         case '\'':              /* quoted expression */
                 exp = read_quote(fp);
@@ -191,32 +194,11 @@ read(FILE *fp)
                 exp = read_comma(fp);
                 break;
         case '#':
-                switch (c = fgetc(fp)) {
-                case EOF:
-                        eoferr();
-                        break;
-                case 't':
-                case 'f':
-                        if ((ch = fgetc(fp)) == EOF)
-                                eoferr();
-                        if (!issep(ch))
-                                readerr("bad syntax #%c...", c);
-                        ungetc(ch, fp);
-                        exp = (c == 't' ? true : false);
-                        break;
-                case '\\':      /* character? */
-                        exp = read_char(fp);
-                        break;
-                default:
-                        readerr("bad syntax #%c", c);
-                        break;
-                }
+                exp = read_sharp(fp);
                 break;
         case '.':
-                if ((c = fgetc(fp)) == EOF || issep(c))
-                        doterr(linenum);
-                ungetc(c, fp);
-                c = '.';
+                exp = read_dot(fp);
+                break;
         default:                /* atom */
                 exp = read_atm(fp, c);
                 break;
@@ -389,4 +371,54 @@ read_comma(FILE *fp)
                 break;
         }
         return exp;
+}
+
+/* Read a sharp expression. */
+static exp_t *
+read_sharp(FILE *fp)
+{
+        exp_t *exp;
+        int c, ch;
+
+        switch (c = fgetc(fp)) {
+        case EOF:
+                eoferr();
+                break;
+        case 't':
+        case 'f':
+                if ((ch = fgetc(fp)) == EOF)
+                        eoferr();
+                if (!issep(ch))
+                        readerr("bad syntax #%c...", c);
+                ungetc(ch, fp);
+                exp = (c == 't' ? true : false);
+                break;
+        case '\\':      /* character? */
+                exp = read_char(fp);
+                break;
+        default:
+                readerr("bad syntax #%c", c);
+                break;
+        }
+        return exp;
+}
+
+/* Read a right parenthesis. */
+static exp_t *
+read_rparen(FILE *fp)
+{
+        RAISE(read_error, "unexpected )");
+        return NULL;            /* not reached */
+}
+
+/* Read a dot expression. */
+static exp_t *
+read_dot(FILE *fp)
+{
+        int c;
+
+        if ((c = fgetc(fp)) == EOF || issep(c))
+                doterr(linenum);
+        ungetc(c, fp);
+        return read_atm(fp, '.');
 }
