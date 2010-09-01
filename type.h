@@ -76,13 +76,6 @@ iscond(exp_t *ep)
         return istag(ep, keywords[COND]);
 }
 
-/* Test if an expression is a boolean */
-static inline int
-isbool(exp_t *ep)
-{
-        return ep != NULL && (iseq(true, ep) || iseq(false, ep));
-}
-
 /* Test if an expression is a begin expression */
 static inline int
 isbegin(exp_t *ep)
