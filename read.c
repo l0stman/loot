@@ -171,18 +171,15 @@ skip(FILE *fp)
 exp_t *
 read(FILE *fp)
 {
-        exp_t *exp;
         exp_t *(*read_syn)();
         int c;
 
         if ((c = skip(fp)) == EOF)
-                exp = NULL;
+                return NULL;
         else if ((read_syn = stab[c & 127]) != NULL)
-                exp = read_syn(fp);
+                return read_syn(fp);
         else
-                exp = read_atm(fp, c);
-
-        return exp;
+                return read_atm(fp, c);
 }
 
 /* Return the next non-blank character from fp. */
