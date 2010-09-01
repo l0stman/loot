@@ -117,7 +117,7 @@ static exp_t *(*stab[128])() = {
 };
 
 /* skip spaces in the input stream. */
-static inline void
+static inline int
 skip_spa(FILE *fp)
 {
         register int c;
@@ -125,11 +125,11 @@ skip_spa(FILE *fp)
         while ((c = fgetc(fp)) != EOF && isspace(c))
                 if (c == '\n')
                         ++linenum;
-        ungetc(c, fp);
+        return c;
 }
 
 /* skip the current line in the input stream. */
-static inline void
+static inline int
 skip_line(FILE *fp)
 {
         register int c;
@@ -138,6 +138,7 @@ skip_line(FILE *fp)
                 ;
         if (c == '\n')
                 ++linenum;
+        return fgetc(fp);
 }
 
 /* skip blanks and comments from fp. */
@@ -146,13 +147,14 @@ skip(FILE *fp)
 {
         register int c;
 
-        while ((c = fgetc(fp)) != EOF)
+        c = fgetc(fp);
+        while (c != EOF)
                 if (isspace(c)) {
                         if (c == '\n')
                                 ++linenum;
-                        skip_spa(fp);
-                } else if (c == ';')    /* comment */
-                        skip_line(fp);
+                        c = skip_spa(fp);
+                } else if (c == ';')  /* comment */
+                        c = skip_line(fp);
                 else {
                         ungetc(c, fp);
                         break;
