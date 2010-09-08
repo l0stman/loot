@@ -52,7 +52,7 @@ static exp_t *(*stab[128])() = {
         /* 31 US  */ NULL,
         /* 32 SP  */ NULL,
         /* 33 !   */ NULL,
-        /* 34 "   */ NULL,
+        /* 34 "   */ read_str,
         /* 35 #   */ read_sharp,
         /* 36 $   */ NULL,
         /* 37 %   */ NULL,
@@ -248,25 +248,19 @@ parse_atm(char *s, int len)
         return ep;
 }
 
-/* Read an atom from fp and write to buf. */
+/* Read an atom from fp. */
 static exp_t *
-read_atm(FILE *fp, int ch)
+read_atm(FILE *fp, int c)
 {
-        int ln = linenum, c = ch;
         buf_t *bp;
         exp_t *ep;
 
         bp = binit();
         do
                 bputc(tolower(c), bp);
-        while ((c = fgetc(fp)) != EOF && !isstop(ch, c));
-        if (ch == '"')
-                if (c == EOF)
-                        raise(&read_error, filename, ln, "unmatched quote");
-                else
-                        bputc('"', bp);       /* writing the closing quote */
-        else
-                ungetc(c, fp);
+        while ((c = fgetc(fp)) != EOF && !issep(c));
+        ungetc(c, fp);
+
         ep = parse_atm(bp->buf, bp->len);
         bfree(bp);
         return ep;
