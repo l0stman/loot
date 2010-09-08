@@ -58,12 +58,6 @@ issep(int c)
                 c == ')' || c == '"' || c == '\'');
 }
 
-static inline int
-isstop(char a, char b)
-{
-        return a == '"' ? b == '"': issep(b);
-}
-
 /* Resize the buffer to nbytes. */
 static inline buf_t *
 bresize(buf_t *bp, size_t nbytes)
