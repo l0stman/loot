@@ -423,9 +423,7 @@ prim_load(exp_t *args)
         chkargs("load", args, 1);
         if (!isstr(car(args)))
                 everr("load: should be a string", car(args));
-        path = (char *)symp(car(args));
-        /* dump the quotes around the path name */
-        path = sstrndup(path+1, strlen(path+1)-1);
+        path = sstrndup(str(car(args)), slen(car(args)));
         load(path, NINTER);
         free(path);
         return NULL;
