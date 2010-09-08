@@ -313,6 +313,20 @@ nchar(char c)
         return ep;
 }
 
+/* Return an expression representing a string. */
+static inline exp_t *
+nstr(const char *s, size_t len)
+{
+        exp_t *ep;
+
+        NEW(ep);
+        type(ep) = STRING;
+        NEW(strp(ep));
+        str(ep) = strndup(s, len);
+        slen(ep) = len;
+        return ep;
+}
+
 /* Test if the expression is null */
 static inline int
 isnull(const exp_t *ep)
