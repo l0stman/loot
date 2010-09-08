@@ -14,6 +14,7 @@ static exp_t *read_comma(FILE *);
 static exp_t *read_sharp(FILE *);
 static exp_t *read_rparen(FILE *);
 static exp_t *read_dot(FILE *);
+static exp_t *read_str(FILE *);
 
 /* Syntax table. */
 static exp_t *(*stab[128])() = {
@@ -267,6 +268,25 @@ read_atm(FILE *fp, int ch)
         else
                 ungetc(c, fp);
         ep = parse_atm(bp->buf, bp->len);
+        bfree(bp);
+        return ep;
+}
+
+/* Read a string from fp.*/
+static exp_t *
+read_str(FILE *fp)
+{
+        register int c;
+        int ln = linenum;
+        buf_t *bp;
+        exp_t *ep;
+
+        bp = binit();
+        while ((c = fgetc(fp)) != EOF && c != '"')
+                bputc(c, bp);
+        if (c == EOF)
+                raise(&read_error, filename, ln, "unmatched quote");
+        ep = nstr(bp->buf, bp->len);
         bfree(bp);
         return ep;
 }
