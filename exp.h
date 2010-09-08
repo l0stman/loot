@@ -3,7 +3,7 @@
 
 #include "atom.h"
 
-enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM, CHAR, BOOL };
+enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM, CHAR, BOOL, STRING };
 
 #define type(ep)        (ep)->tp
 #define symp(ep)        (ep)->u.sp
@@ -14,6 +14,7 @@ enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM, CHAR, BOOL };
 #define fixnum(ep)      (ep)->u.fx
 #define ratp(ep)        (ep)->u.rp
 #define char(ep)        (ep)->u.ch
+#define strp(ep)        (ep)->u.str
 
 typedef struct exp {
         enum type            tp; /* type of the expression */
@@ -25,6 +26,7 @@ typedef struct exp {
                 struct rat  *rp; /* pointer to a rational */
                 double       ft; /* represents a float */
                 char         ch; /* represents a character */
+                struct str  *str; /* pointer to a string */
         } u;
 } exp_t;
 
@@ -81,6 +83,14 @@ typedef struct rat {            /* represents a rational */
         int num;                /* numerator */
         int den;                /* denominator */
 } rat_t;
+
+#define str(ep)  strp(ep)->s
+#define slen(ep) strp(ep)->len
+
+typedef struct str {            /* represents a string */
+        char   *s;
+        size_t *len;
+} str_t;
 
 extern exp_t *false;
 extern exp_t *true;
@@ -166,6 +176,12 @@ static inline int
 isbool(const exp_t *ep)
 {
         return ep && type(ep) == BOOL;
+}
+
+static inline int
+isstr(const exp_t *ep)
+{
+        return ep && type(ep) == STRING;
 }
 
 /* Return an atom whose symbol is s */

@@ -41,13 +41,6 @@ issym(exp_t *ep)
         return isatom(ep) && !isself(ep) && !isnull(ep);
 }
 
-/* Test if the expression is a string. */
-static inline int
-isstr(exp_t *ep)
-{
-        return isatom(ep) && *symp(ep) == '"';
-}
-
 /* Test if the expression is a variable. */
 static inline int
 isvar(exp_t *ep)
