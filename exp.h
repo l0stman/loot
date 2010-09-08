@@ -89,7 +89,7 @@ typedef struct rat {            /* represents a rational */
 
 typedef struct str {            /* represents a string */
         char   *s;
-        size_t *len;
+        size_t len;
 } str_t;
 
 extern exp_t *false;
