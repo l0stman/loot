@@ -418,14 +418,10 @@ prim_apply(exp_t *args)
 static exp_t *
 prim_load(exp_t *args)
 {
-        char *path;
-
         chkargs("load", args, 1);
         if (!isstr(car(args)))
                 everr("load: should be a string", car(args));
-        path = sstrndup(str(car(args)), slen(car(args)));
-        load(path, NINTER);
-        free(path);
+        load(str(car(args)), NINTER);
         return NULL;
 }
 
