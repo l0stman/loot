@@ -153,13 +153,6 @@ ctostr(const exp_t *ep)
         return buf;
 }
 
-/* Return a string representing a string expression. */
-static char *
-stostr(const exp_t *ep)
-{
-        return sstrndup(str(ep), slen(ep));
-}
-
 /* Return a string representing the expression */
 char *
 tostr(const exp_t *ep)
@@ -179,7 +172,7 @@ tostr(const exp_t *ep)
         else if (ischar(ep))
                 return ctostr(ep);
         else if (isstr(ep))
-                return stostr(ep);
+                return str(ep);
         else
                 err_quit("tostr: unknown expression");
         return NULL;
