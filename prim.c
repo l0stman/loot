@@ -137,7 +137,7 @@ read:
         xfreeall();
         goto read;
 restore:
-        if (fp != stdin)
+        if (fp && fp != stdin)
                 fclose(fp);
         filename = file;
         linenum = line;
