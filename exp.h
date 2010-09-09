@@ -322,7 +322,7 @@ nstr(const char *s, size_t len)
         NEW(ep);
         type(ep) = STRING;
         NEW(strp(ep));
-        str(ep) = strndup(s, len);
+        str(ep) = sstrndup(s, len);
         slen(ep) = len;
         return ep;
 }
