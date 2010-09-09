@@ -104,7 +104,7 @@ eval.h,64
 #define everr(10,178
 #define anerr(11,256
 
-exp.c,507
+exp.c,490
 exp_t *false;false5,55
 exp_t *true;true6,69
 exp_t *null;null7,82
@@ -124,12 +124,11 @@ ftostr(108,2468
 rtostr(118,2663
 fxntostr(128,2862
 ctostr(138,3050
-stostr(158,3495
-tostr(165,3625
-#define SIGN(188,4271
-#define ABS(189,4306
-gcd(192,4404
-nrat(207,4649
+tostr(158,3482
+#define SIGN(181,4125
+#define ABS(182,4160
+gcd(185,4258
+nrat(200,4503
 
 exp.h,2957
 #define EXP_H2,14
@@ -239,11 +238,11 @@ nfloat(282,6793
 nfixnum(294,6989
 nchar(306,7190
 nstr(318,7384
-isnull(332,7641
-islist(339,7795
-reverse(348,7951
-nreverse(359,8173
-nconc(373,8452
+isnull(332,7642
+islist(339,7796
+reverse(348,7952
+nreverse(359,8174
+nconc(373,8453
 
 main.c,66
 const char *progname;progname7,100
@@ -271,40 +270,40 @@ prim.c,766
 } plst[plst44,1180
 instprim(83,2180
 load(93,2396
-chkargs(150,3912
-foldl(166,4372
-add(178,4665
-prim_add(198,5134
-sub(205,5268
-prim_sub(225,5754
-prod(236,6072
-prim_prod(252,6431
-divs(259,6565
-prim_div(277,7014
-prim_eq(288,7352
-prim_sym(296,7526
-prim_pair(304,7692
-prim_numeq(312,7856
-prim_lt(320,8039
-prim_gt(328,8221
-prim_isnum(336,8378
-prim_isproc(344,8549
-prim_isbool(352,8723
-prim_ischar(360,8897
-prim_cons(368,9059
-prim_car(376,9221
-prim_cdr(386,9465
-prim_apply(396,9727
-prim_load(419,10468
-prim_sin(434,10826
-prim_cos(441,10935
-prim_tan(448,11045
-prim_atan(455,11159
-prim_log(462,11281
-prim_exp(474,11587
-prim_pow(482,11736
-prim_write(522,12882
-prim_read(531,13072
+chkargs(150,3918
+foldl(166,4378
+add(178,4671
+prim_add(198,5140
+sub(205,5274
+prim_sub(225,5760
+prod(236,6078
+prim_prod(252,6437
+divs(259,6571
+prim_div(277,7020
+prim_eq(288,7358
+prim_sym(296,7532
+prim_pair(304,7698
+prim_numeq(312,7862
+prim_lt(320,8045
+prim_gt(328,8227
+prim_isnum(336,8384
+prim_isproc(344,8555
+prim_isbool(352,8729
+prim_ischar(360,8903
+prim_cons(368,9065
+prim_car(376,9227
+prim_cdr(386,9471
+prim_apply(396,9733
+prim_load(419,10474
+prim_sin(430,10743
+prim_cos(437,10852
+prim_tan(444,10962
+prim_atan(451,11076
+prim_log(458,11198
+prim_exp(470,11504
+prim_pow(478,11653
+prim_write(518,12799
+prim_read(527,12989
 
 err.h,658
 #define ERR_H2,14
@@ -427,14 +426,14 @@ read_pair(199,5008
 parse_atm(229,5749
 read_atm(253,6342
 read_str(271,6684
-enclose(290,7151
-read_quote(301,7358
-read_qquote(308,7481
-read_comma(315,7600
-read_sharp(337,8057
-read_char(367,8795
-read_rparen(396,9584
-read_dot(404,9748
+enclose(289,7088
+read_quote(300,7300
+read_qquote(307,7413
+read_comma(314,7522
+read_sharp(336,7959
+read_char(366,8697
+read_rparen(395,9486
+read_dot(403,9650
 
 read.h,41
 #define READ_H2,15
