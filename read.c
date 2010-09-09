@@ -285,29 +285,28 @@ read_str(FILE *fp)
         return ep;
 }
 
-/* Enclose the following expression exp into (keyword exp). */
 static inline exp_t *
-enclose(FILE *fp, exp_t *keyword)
+enclose(FILE *fp, enum kindex ki)
 {
         exp_t *ep;
 
         if (!(ep = read(fp)))
                 eoferr();
-        return cons(keyword, cons(ep, null));
+        return cons(keywords[ki], cons(ep, null));
 }
 
 /* Read a quote expression. */
 static exp_t *
 read_quote(FILE *fp)
 {
-        return enclose(fp, keywords[QUOTE]);
+        return enclose(fp, QUOTE);
 }
 
 /* Read a quasi-quote expression. */
 static exp_t *
 read_qquote(FILE *fp)
 {
-        return enclose(fp, keywords[QQUOTE]);
+        return enclose(fp, QQUOTE);
 }
 
 /* Read a comma expression. */
@@ -322,11 +321,11 @@ read_comma(FILE *fp)
                 eoferr();
                 break;
         case '@':
-                exp = enclose(fp, keywords[SPLICE]);
+                exp = enclose(fp, SPLICE);
                 break;
         default:
                 ungetc(c, fp);
-                exp = enclose(fp, keywords[UNQUOTE]);
+                exp = enclose(fp, UNQUOTE);
                 break;
         }
         return exp;
