@@ -271,10 +271,8 @@ anlambda(exp_t *ep)
         scan_defs(&vars, &vals, &body, cddr(ep));
         if (!isnull(vars)) {
                 exp_t *binds, *v;
-                for (v = vars; !isnull(v); v = cdr(v)) {
+                for (v = vars; !isnull(v); v = cdr(v), vals = cdr(vals))
                         push(nset(car(v), car(vals)), body);
-                        vals = cdr(vals);
-                }
                 for (binds = null; !isnull(vars); vars = cdr(vars))
                         push(cons(car(vars),
                                   cons(nquote(undefined), null)),
