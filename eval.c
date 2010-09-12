@@ -6,8 +6,8 @@
 
 const excpt_t eval_error = { "eval" };
 const excpt_t syntax_error = { "syntax" };
-enum place { CAR, CDR };
-enum logic { LAND, LOR };
+typedef enum { CAR, CDR } place_t;
+typedef enum { LAND, LOR } logic_t;
 
 static exp_t *evself(exp_t *, env_t *);
 static exp_t *evvar(exp_t *, env_t *);
@@ -32,8 +32,8 @@ static evproc_t *anlambda(exp_t *);
 static evproc_t *anapp(exp_t *);
 static evproc_t *ancond(exp_t *);
 static evproc_t *anset(exp_t *);
-static evproc_t *ansetpair(exp_t *, enum place);
-static evproc_t *anlogic(exp_t *, enum logic);
+static evproc_t *ansetpair(exp_t *, place_t);
+static evproc_t *anlogic(exp_t *, logic_t);
 static evproc_t *anlet(exp_t *);
 static evproc_t *anqquote(exp_t *);
 
@@ -375,7 +375,7 @@ anset(exp_t *ep)
 
 /* Analyze the syntax of a set-car! or set-cdr! expression. */
 static evproc_t *
-ansetpair(exp_t *ep, enum place pl)
+ansetpair(exp_t *ep, place_t pl)
 {
         evproc_t **argv;
 
@@ -390,7 +390,7 @@ ansetpair(exp_t *ep, enum place pl)
 
 /* Analyze the syntax of an `or' or an `and' expression. */
 static evproc_t *
-anlogic(exp_t *ep, enum logic lg)
+anlogic(exp_t *ep, logic_t lg)
 {
         evproc_t **argv;
         register int argc;
@@ -622,7 +622,7 @@ evsetpair(evproc_t **argv, env_t *envp)
                 everr("should be a pair", var);
         if (!(val = evproc(argv[2], envp)))
                 valerr(symp(var));
-        if ((enum place)argv[0] == CAR)
+        if ((place_t)argv[0] == CAR)
                 car(var) = val;
         else
                 cdr(var) = val;
