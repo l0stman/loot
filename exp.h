@@ -3,7 +3,22 @@
 
 #include "atom.h"
 
-enum type { ATOM, PAIR, PROC, FLOAT, RAT, FIXNUM, CHAR, BOOL, STRING };
+#define TYPES                                   \
+                X(atom, ATOM) SEP               \
+                X(pair, PAIR) SEP               \
+                X(proc, PROC) SEP               \
+                X(float, FLOAT) SEP             \
+                X(rat, RAT) SEP                 \
+                X(fxn, FIXNUM) SEP              \
+                X(char, CHAR) SEP               \
+                X(bool, BOOL) SEP               \
+                X(str, STRING)
+
+#define X(a, b) b
+#define SEP     ,
+enum type { TYPES };
+#undef SEP
+#undef X
 
 #define type(ep)        (ep)->tp
 #define symp(ep)        (ep)->u.sp
@@ -130,59 +145,16 @@ extern char *tostr(const exp_t *);
 extern void instcst(struct env *);
 extern exp_t *nrat(int, int);
 
-static inline int
-isatom(const exp_t *ep)
-{
-        return (ep != NULL && type(ep) == ATOM);
-}
-
-static inline int
-ispair(const exp_t *ep)
-{
-        return (ep != NULL && type(ep) == PAIR);
-}
-
-static inline int
-isproc(const exp_t *ep)
-{
-        return (ep != NULL && type(ep) == PROC);
-}
-
-static inline int
-isfloat(const exp_t *ep)
-{
-        return (ep != NULL && type(ep) == FLOAT);
-}
-
-static inline int
-israt(const exp_t *ep)
-{
-        return (ep != NULL  && type(ep) == RAT);
-}
-
-static inline int
-isfxn(const exp_t *ep)
-{
-        return (ep != NULL && type(ep) == FIXNUM);
-}
-
-static inline int
-ischar(const exp_t *ep)
-{
-        return ep && type(ep) == CHAR;
-}
-
-static inline int
-isbool(const exp_t *ep)
-{
-        return ep && type(ep) == BOOL;
-}
-
-static inline int
-isstr(const exp_t *ep)
-{
-        return ep && type(ep) == STRING;
-}
+#define X(NAME, TYPE)                           \
+        static inline int                       \
+        is##NAME(const exp_t *ep)               \
+        {                                       \
+                return ep && type(ep) == TYPE;  \
+        }
+#define SEP
+TYPES
+#undef X
+#undef SEP
 
 /* Return an atom whose symbol is s */
 static inline exp_t *
