@@ -494,7 +494,7 @@ prim_pow(exp_t *args)
                         u = -e;
                 else
                         u = e;
-                res = atom("1");
+                res = nfixnum(1);
                 b = car(args);
                 while (u) {
                         if (u & 1) {
@@ -506,7 +506,7 @@ prim_pow(exp_t *args)
                         }
                 }
                 if (e < 0)
-                        res = divs(atom("1"), res);
+                        res = divs(nfixnum(1), res);
         } else
                 res = nfloat(pow(VALUE(car(args)),
                                  VALUE(cadr(args))));
