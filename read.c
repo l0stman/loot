@@ -64,7 +64,7 @@ static exp_t *(*stab[128])() = {
         /* 43 +   */ NULL,
         /* 44 ,   */ read_comma,
         /* 45 -   */ NULL,
-        /* 46 .   */ NULL,
+        /* 46 .   */ read_dot,
         /* 47 /   */ NULL,
         /* 48 0   */ NULL,
         /* 49 1   */ NULL,
