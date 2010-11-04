@@ -194,8 +194,8 @@ anif(exp_t *ep)
         evproc_t **argv;
         exp_t *p;
 
-        if (isnull(cdr(ep)) || isnull(cddr(p)) ||
-            !isnull(p = cdddr(p)) && !isnull(cdr(p)))
+        if (isnull(cdr(ep)) || isnull(cddr(ep)) ||
+            !isnull(p = cdddr(ep)) && !isnull(cdr(p)))
                 anerr("bad syntax in", ep);
         argv = smalloc(3*sizeof(*argv));
         argv[0] = analyze(cadr(ep));
