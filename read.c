@@ -324,7 +324,8 @@ read_comma(FILE *fp)
                 exp = enclose(fp, SPLICE);
                 break;
         default:
-                ungetc(c, fp);
+                if (!isspace(c))
+                        ungetc(c, fp);
                 exp = enclose(fp, UNQUOTE);
                 break;
         }
