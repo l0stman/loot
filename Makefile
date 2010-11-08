@@ -4,7 +4,7 @@ CFLAGS		= -O0 -g -Wall -ansi -pedantic
 LDFLAGS		= -lm
 
 OBJS		= main.o err.o read.o extern.o exp.o type.o eval.o env.o \
-		  prim.o atom.o
+		  prim.o atom.o stream.o
 PROGNAME	= loot
 
 PREF		= ${HOME}

@@ -8,4 +8,5 @@ main.o: main.c extern.h err.h exp.h atom.h env.h prim.h
 prim.o: prim.c extern.h err.h exp.h atom.h type.h prim.h read.h env.h \
   eval.h
 read.o: read.c extern.h err.h exp.h atom.h read.h type.h
+stream.o: stream.c extern.h err.h stream.h
 type.o: type.c extern.h err.h exp.h atom.h type.h
