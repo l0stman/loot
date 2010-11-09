@@ -234,7 +234,7 @@ read_atm(stream *sp, char c)
         return ep;
 }
 
-/* Read a string from fp.*/
+/* Read a string from the input stream.*/
 static exp_t *
 read_str(stream *sp)
 {
@@ -332,7 +332,7 @@ read_sharp(stream *sp)
         return exp;
 }
 
-/* Read a character from fp. */
+/* Read a character from the input stream. */
 static exp_t *
 read_char(stream *sp)
 {
