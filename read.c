@@ -165,7 +165,7 @@ read_pair(stream *sp)
         ln = linenum;
         TRY
                 if ((c = getch(sp)) == ')')
-                        return null;
+                        RETURN(null);
                 sungetc(c, sp);
                 car = read(sp);
                 cdr = NULL;
