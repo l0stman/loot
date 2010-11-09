@@ -35,10 +35,11 @@ sgetc(stream *sp)
 static inline void
 sungetc(int c, stream *sp)
 {
-        assert(!isspace(c));
-        if (ungetc(c, sp->fp) == EOF)
-                err_sys("sungetc");
-        sp->col--;
+        if (!isspace(c)) {
+                if (ungetc(c, sp->fp) == EOF)
+                        err_sys("sungetc");
+                sp->col--;
+        }
 }
 
 #endif  /* !STREAM_H */

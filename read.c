@@ -227,8 +227,7 @@ read_atm(stream *sp, char c)
                 while (!issep(c = sgetc(sp)));
         CATCH(eof_error);
         ENDTRY;
-        if (!isspace(c))
-                sungetc(c, sp);
+        sungetc(c, sp);
 
         ep = parse_atm(bp->buf, bp->len);
         bfree(bp);
@@ -293,8 +292,7 @@ read_comma(stream *sp)
 
         TRY
                 if ((c = sgetc(sp)) != '@') {
-                        if (!isspace(c))
-                                sungetc(c, sp);
+                        sungetc(c, sp);
                         exp = enclose(sp, UNQUOTE);
                 } else
                         exp = enclose(sp, SPLICE);
@@ -317,8 +315,7 @@ read_sharp(stream *sp)
                 case 'f':
                         if (!issep(ch = sgetc(sp)))
                                 readerr("bad syntax #%c...", c);
-                        if (!isspace(ch))
-                                sungetc(ch, sp);
+                        sungetc(ch, sp);
                         exp = (c == 't' ? true : false);
                         break;
                 case '\\':      /* character? */
@@ -350,8 +347,7 @@ read_char(stream *sp)
         CATCH(eof_error)
                 eoferr();
         ENDTRY;
-        if (!isspace(c))
-                sungetc(c, sp);
+        sungetc(c, sp);
         if (bp->len == 1 && isprint(bp->buf[0]))
                 exp = nchar(bp->buf[0]);
         else if (bp->len == 7 && !strncmp("newline", bp->buf, 7))
