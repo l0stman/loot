@@ -5,16 +5,16 @@
 
 const excpt_t read_error = { "read" };
 
-static exp_t *read_atm(FILE *, int);
-static exp_t *read_pair(FILE *);
-static exp_t *read_char(FILE *);
-static exp_t *read_quote(FILE *);
-static exp_t *read_qquote(FILE *);
-static exp_t *read_comma(FILE *);
-static exp_t *read_sharp(FILE *);
-static exp_t *read_rparen(FILE *);
-static exp_t *read_dot(FILE *);
-static exp_t *read_str(FILE *);
+static exp_t *read_atm(stream *, char);
+static exp_t *read_pair(stream *);
+static exp_t *read_char(stream *);
+static exp_t *read_quote(stream *);
+static exp_t *read_qquote(stream *);
+static exp_t *read_comma(stream *);
+static exp_t *read_sharp(stream *);
+static exp_t *read_rparen(stream *);
+static exp_t *read_dot(stream *);
+static exp_t *read_str(stream *);
 
 /* Syntax table. */
 static exp_t *(*stab[128])() = {
@@ -117,47 +117,23 @@ static exp_t *(*stab[128])() = {
         /* 96 `   */ read_qquote
 };
 
-/* skip spaces in the input stream. */
-static inline int
-skipsp(FILE *fp)
+/*
+ * Return the next character from the input stream skipping comments
+ * and white-spaces.
+ */
+static char
+getch(stream *sp)
 {
-        register int c;
+        register char c;
 
-        while ((c = fgetc(fp)) != EOF && isspace(c))
-                if (c == '\n')
-                        ++linenum;
-        return c;
-}
-
-/* skip the current line in the input stream. */
-static inline int
-skipline(FILE *fp)
-{
-        register int c;
-
-        while ((c = fgetc(fp)) != EOF && c != '\n')
-                ;
-        if (c == '\n')
-                ++linenum;
-        return fgetc(fp);
-}
-
-/* skip blanks and comments from fp. */
-static int
-skip(FILE *fp)
-{
-        register int c;
-
-        c = fgetc(fp);
-        while (c != EOF)
-                if (isspace(c)) {
-                        if (c == '\n')
-                                ++linenum;
-                        c = skipsp(fp);
-                } else if (c == ';')  /* comment */
-                        c = skipline(fp);
-                else
+        for (;;) {
+                while (isspace(c = sgetc(sp)))
+                        ;
+                if (c != ';')
                         break;
+                while ((c = sgetc(sp)) != '\n') /* comment */
+                        ;
+        }
         return c;
 }
 
@@ -166,60 +142,49 @@ skip(FILE *fp)
 #define readerr(fmt, s) raise(&read_error, filename, linenum, fmt, s)
 
 /*
- * Read an expression from a file descriptor skipping blanks and comments.
+ * Read an expression from an input stream.
  */
-
 exp_t *
-read(FILE *fp)
+read(stream *sp)
 {
         exp_t *(*read_syn)();
-        int c;
+        unsigned char c;
 
-        if ((c = skip(fp)) == EOF)
-                return NULL;
-        else if ((read_syn = stab[c & 127]) != NULL)
-                return read_syn(fp);
-        else
-                return read_atm(fp, c);
+        return (c = getch(sp)) < NELEMS(stab) && (read_syn = stab[c]) != NULL ?
+                read_syn(sp) : read_atm(sp, c);
 }
 
-/* Return the next non-blank character from fp. */
-static inline int
-nextc(FILE *fp, int ln)
-{
-        int c;
-
-        if ((c = skip(fp)) == EOF)
-                raise(&read_error, filename, ln, "too many open parenthesis");
-        return c;
-}
-
-/* Read a pair expression from fp. */
+/* Read a pair expression from the input stream. */
 static exp_t *
-read_pair(FILE *fp)
+read_pair(stream *sp)
 {
-        int c, ln;
         exp_t *car, *cdr;
+        char c;
+        int ln;
 
         ln = linenum;
-        if ((c = nextc(fp, ln)) == ')')
-                return null;
-        ungetc(c, fp);
-        car = read(fp);
-        cdr = NULL;
-        if ((c = nextc(fp, ln)) == '.')
-                if (issep(c = fgetc(fp))) {
-                        cdr = read(fp);
-                        if (nextc(fp, ln) != ')')
-                                doterr(ln);
-                } else {
-                        ungetc(c, fp);
-                        c = '.';
+        TRY
+                if ((c = getch(sp)) == ')')
+                        return null;
+                sungetc(c, sp);
+                car = read(sp);
+                cdr = NULL;
+                if ((c = getch(sp)) == '.')
+                        if (issep(c = sgetc(sp))) {
+                                cdr = read(sp);
+                                if (getch(sp) != ')')
+                                        doterr(ln);
+                        } else {
+                                sungetc(c, sp);
+                                c = '.';
+                        }
+                if (!cdr) {
+                        sungetc(c, sp);
+                        cdr = read_pair(sp);
                 }
-        if (!cdr) {
-                UNGETC(c, fp);
-                cdr = read_pair(fp);
-        }
+        CATCH(eof_error)
+                raise(&read_error, filename, ln, "too many open parenthesis");
+        ENDTRY;
 
         return cons(car, cdr);
 }
@@ -248,18 +213,22 @@ parse_atm(char *s, int len)
         return ep;
 }
 
-/* Read an atom from fp. */
+/* Read an atom from sp. */
 static exp_t *
-read_atm(FILE *fp, int c)
+read_atm(stream *sp, char c)
 {
         buf_t *bp;
         exp_t *ep;
 
         bp = binit();
-        do
-                bputc(tolower(c), bp);
-        while ((c = fgetc(fp)) != EOF && !issep(c));
-        ungetc(c, fp);
+        TRY
+                do
+                        bputc(tolower(c), bp);
+                while (!issep(c = sgetc(sp)));
+        CATCH(eof_error);
+        ENDTRY;
+        if (!isspace(c))
+                sungetc(c, sp);
 
         ep = parse_atm(bp->buf, bp->len);
         bfree(bp);
@@ -268,115 +237,121 @@ read_atm(FILE *fp, int c)
 
 /* Read a string from fp.*/
 static exp_t *
-read_str(FILE *fp)
+read_str(stream *sp)
 {
-        register int c;
+        register char c;
         int ln = linenum;
         buf_t *bp;
         exp_t *ep;
 
         bp = binit();
-        while ((c = fgetc(fp)) != EOF && c != '"')
-                bputc(c, bp);
-        if (c == EOF)
+        TRY
+                while ((c = sgetc(sp)) != '"')
+                        bputc(c, bp);
+        CATCH(eof_error)
                 raise(&read_error, filename, ln, "unmatched quote");
+        ENDTRY;
+
         ep = nstr(bp->buf, bp->len);
         bfree(bp);
         return ep;
 }
 
 static inline exp_t *
-enclose(FILE *fp, enum kindex ki)
+enclose(stream *sp, enum kindex ki)
 {
         exp_t *ep;
 
-        if (!(ep = read(fp)))
+        TRY
+                ep = read(sp);
+        CATCH(eof_error)
                 eoferr();
+        ENDTRY;
         return cons(keywords[ki], cons(ep, null));
 }
 
 /* Read a quote expression. */
 static exp_t *
-read_quote(FILE *fp)
+read_quote(stream *sp)
 {
-        return enclose(fp, QUOTE);
+        return enclose(sp, QUOTE);
 }
 
 /* Read a quasi-quote expression. */
 static exp_t *
-read_qquote(FILE *fp)
+read_qquote(stream *sp)
 {
-        return enclose(fp, QQUOTE);
+        return enclose(sp, QQUOTE);
 }
 
 /* Read a comma expression. */
 static exp_t *
-read_comma(FILE *fp)
+read_comma(stream *sp)
 {
-        int c;
+        char c;
         exp_t *exp;
 
-        switch (c = fgetc(fp)) {
-        case EOF:
+        TRY
+                if ((c = sgetc(sp)) != '@') {
+                        if (!isspace(c))
+                                sungetc(c, sp);
+                        exp = enclose(sp, UNQUOTE);
+                } else
+                        exp = enclose(sp, SPLICE);
+        CATCH(eof_error)
                 eoferr();
-                break;
-        case '@':
-                exp = enclose(fp, SPLICE);
-                break;
-        default:
-                if (!isspace(c))
-                        ungetc(c, fp);
-                exp = enclose(fp, UNQUOTE);
-                break;
-        }
+        ENDTRY;
         return exp;
 }
 
 /* Read a sharp expression. */
 static exp_t *
-read_sharp(FILE *fp)
+read_sharp(stream *sp)
 {
         exp_t *exp;
-        int c, ch;
+        char c, ch;
 
-        switch (c = fgetc(fp)) {
-        case EOF:
+        TRY
+                switch (c = sgetc(sp)) {
+                case 't':
+                case 'f':
+                        if (!issep(ch = sgetc(sp)))
+                                readerr("bad syntax #%c...", c);
+                        if (!isspace(ch))
+                                sungetc(ch, sp);
+                        exp = (c == 't' ? true : false);
+                        break;
+                case '\\':      /* character? */
+                        exp = read_char(sp);
+                        break;
+                default:
+                        readerr("bad syntax #%c", c);
+                        break;
+                }
+        CATCH(eof_error)
                 eoferr();
-                break;
-        case 't':
-        case 'f':
-                if ((ch = fgetc(fp)) == EOF)
-                        eoferr();
-                if (!issep(ch))
-                        readerr("bad syntax #%c...", c);
-                ungetc(ch, fp);
-                exp = (c == 't' ? true : false);
-                break;
-        case '\\':      /* character? */
-                exp = read_char(fp);
-                break;
-        default:
-                readerr("bad syntax #%c", c);
-                break;
-        }
+        ENDTRY;
+
         return exp;
 }
 
 /* Read a character from fp. */
 static exp_t *
-read_char(FILE *fp)
+read_char(stream *sp)
 {
         buf_t *bp;
         exp_t *exp;
-        register int c;
+        register char c;
 
-        if ((c = fgetc(fp)) == EOF)
-                eoferr();
         bp = binit();
-        do
-                bputc(c, bp);
-        while ((c = fgetc(fp)) != EOF && !issep(c));
-        ungetc(c, fp);
+        TRY
+                while (!issep(c = sgetc(sp)))
+                        bputc(c, bp);
+        CATCH(eof_error)
+                eoferr();
+        ENDTRY;
+        if (!isspace(c))
+                sungetc(c, sp);
         if (bp->len == 1 && isprint(bp->buf[0]))
                 exp = nchar(bp->buf[0]);
         else if (bp->len == 7 && !strncmp("newline", bp->buf, 7))
@@ -393,7 +368,7 @@ read_char(FILE *fp)
 
 /* Read a right parenthesis. */
 static exp_t *
-read_rparen(FILE *fp)
+read_rparen(stream *sp)
 {
         RAISE(read_error, "unexpected )");
         return NULL;            /* not reached */
@@ -401,12 +376,16 @@ read_rparen(FILE *fp)
 
 /* Read a dot expression. */
 static exp_t *
-read_dot(FILE *fp)
+read_dot(stream *sp)
 {
-        int c;
+        char c;
 
-        if ((c = fgetc(fp)) == EOF || issep(c))
+        TRY
+                if (issep(c = sgetc(sp)))
+                        doterr(linenum);
+        CATCH(eof_error)
                 doterr(linenum);
-        ungetc(c, fp);
-        return read_atm(fp, '.');
+        ENDTRY;
+        sungetc(c, sp);
+        return read_atm(sp, '.');
 }
