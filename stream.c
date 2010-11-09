@@ -1,7 +1,7 @@
 #include "extern.h"
 #include "stream.h"
 
-const stream *sstdin;           /* standard input stream */
+stream *sstdin;           /* standard input stream */
 const excpt_t eof_error = { "eof" };
 
 /* Return a new stream. */

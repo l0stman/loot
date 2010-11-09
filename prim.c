@@ -92,26 +92,17 @@ instprim(env_t *envp)
 int
 load(char *path, mode_t isinter)
 {
-        FILE     *fp;
+        stream   *sp;
         exp_t    *ep;
-        char     *file = filename;
-        exfram_t *es   = exstack;
-        int       line = linenum;
-        int	  rc   = 0;
+        int	  rc = 0;
 
-        exstack = NULL;
-        linenum = 1;
         if (path != NULL) {
-                filename = basename(path);
-                if ((fp = fopen(path, "r")) == NULL) {
-                        warn("Can't open file %s", path);
+                if ((sp = sopen(path)) == NULL) {
                         rc = 1;
-                        goto restore;
+                        goto cleanup;
                 }
-        } else  {
-                filename = NULL;
-                fp = stdin;
-        }
+        } else
+                sp = sstdin;
 
 read:
         TRY
@@ -119,12 +110,7 @@ read:
                         printf("%s", INPR);
                         fflush(stdout);
                 }
-                if ((ep = read(fp)) == NULL) {
-                        xfreeall();
-                        fclose(fp);
-                        goto restore;
-                }
-                ep = eval(ep, globenv);
+                ep = eval(read(sp), globenv);
                 if (isinter && ep != NULL) {
                         printf("%s%s\n", OUTPR, tostr(ep));
                         fflush(stdout);
@@ -132,16 +118,16 @@ read:
         WARN(read_error);
         WARN(syntax_error);
         WARN(eval_error);
+        CATCH(eof_error)
+                goto cleanup;
         ENDTRY;
 
         xfreeall();
         goto read;
-restore:
-        if (fp && fp != stdin)
-                fclose(fp);
-        filename = file;
-        linenum = line;
-        exstack = es;
+cleanup:
+        xfreeall();
+        if (sp && sp != sstdin)
+                sclose(sp);
         return rc;
 }
 
