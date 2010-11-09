@@ -512,5 +512,5 @@ prim_write(exp_t *args)
 static exp_t *
 prim_read(void)
 {
-        return read(stdin);
+        return read(sstdin);
 }
