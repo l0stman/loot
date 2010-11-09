@@ -9,3 +9,4 @@
 * Implement the do iteration.
 * Implement a buffered I/O.
 * Implement ports: position in the file should be included in it.
+* Some variables location could be known at analyze time.
