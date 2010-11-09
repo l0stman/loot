@@ -15,11 +15,12 @@ typedef struct excpt {
 
 typedef struct exfram {
         struct exfram *prev;
-        jmp_buf env;
-        const char *file;
-        int line;
+        jmp_buf        env;
+        const char    *file;
+        unsigned       line;
+        unsigned       col;
         const excpt_t *exception;
-        const char *msg;
+        const char    *msg;
 } exfram_t;
 
 enum { ENTERED = 0, RAISED, HANDLED };
@@ -44,27 +45,25 @@ void raise(const excpt_t *, const char *, int, const char *, ...);
                         } else if (exfram.exception == &(e)) { \
                                 exflag = HANDLED;
 
-#define WARN(e)                                 			       \
-        if (exflag == ENTERED)                  			       \
-                exstack = exstack->prev;        			       \
-        } else if (exfram.exception == &(e)) {  			       \
-        	if (e.reason)                          		       	       \
-                	fprintf(stderr, "%s: %s: %s",                          \
-                                progname,                                      \
-                                e.reason,                                      \
-                                exfram.msg);                                   \
-	        else                                               	       \
-        	        fprintf(stderr, "%s: exception at 0x%p: %s",	       \
-                                progname,                                      \
-                                (void *)&(e),                                  \
-                                exfram.msg);                                   \
-        	if (exfram.file && exfram.line > 0)                            \
-                	fprintf(stderr, " raised in %s at line %d\n",          \
-                                exfram.file,                                   \
-                                exfram.line);                                  \
-                else                                                           \
-                        fprintf(stderr, "\n");                                 \
-                exflag = HANDLED;
+#define WARN(e)                                                 \
+        if (exflag == ENTERED)                                  \
+                exstack = exstack->prev;                        \
+        } else if (exfram.exception == &(e)) {                  \
+        if (e.reason)                                           \
+                fprintf(stderr, "%s: %s: %s",                   \
+                        progname,                               \
+                        e.reason,                               \
+                        exfram.msg);                            \
+        else                                                    \
+                fprintf(stderr, "%s: exception at 0x%p: %s",    \
+                        progname,                               \
+                        (void *)&(e),                           \
+                        exfram.msg);                            \
+        fprintf(stderr, " raised in %s at %d:%d\n",             \
+                exfram.file,                                    \
+                exfram.line,                                    \
+                exfram.col);                                    \
+        exflag = HANDLED;
 
 #define ENDTRY  if (exflag == ENTERED)                  \
                         exstack = exstack->prev;        \
