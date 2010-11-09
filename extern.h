@@ -1,14 +1,6 @@
 #ifndef EXTERN_H
 #define EXTERN_H
 
-#ifndef HAS_INLINE
-#ifdef __GNUC__
-#define inline  __inline__
-#else   /* !__GNUC__ */
-#define inline
-#endif  /* __GNUC__ */
-#endif  /* !HAS_INLINE */
-
 #include <ctype.h>
 #include <err.h>
 #include <limits.h>

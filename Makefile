@@ -1,5 +1,5 @@
 CC		= clang
-CFLAGS		= -O0 -g -Wall -ansi -pedantic
+CFLAGS		= -O0 -g -Wall -std=c99 -pedantic
 #CFLAGS		= -O3 -Wall -ansi -pedantic -DNDEBUG
 LDFLAGS		= -lm
 
