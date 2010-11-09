@@ -22,7 +22,7 @@ sgetc(stream *sp)
         int c;
 
         if ((c = fgetc(sp->fp)) == EOF)
-                raise(&eof_error, sp->name, sp->line, "end of file");
+                raise(&eof_error, sp->name, sp->line, sp->col, "end of file");
         if (c == '\n') {
                 sp->line++;
                 sp->col = 0;

@@ -1,7 +1,7 @@
 atom.o: atom.c extern.h err.h atom.h
 env.o: env.c extern.h err.h exp.h atom.h env.h
 err.o: err.c extern.h err.h
-eval.o: eval.c extern.h err.h exp.h atom.h env.h eval.h type.h
+eval.o: eval.c extern.h err.h exp.h atom.h env.h eval.h type.h stream.h
 exp.o: exp.c extern.h err.h exp.h atom.h env.h
 extern.o: extern.c extern.h err.h
 main.o: main.c extern.h err.h exp.h atom.h env.h prim.h

@@ -41,7 +41,12 @@ err_sys(const char *fmt, ...)
 exfram_t *exstack = NULL;       /* Reinitialize when loading a new file. */
 
 /* Raise an exception. Has the same format as printf. */
-void raise(const excpt_t *e, const char *file, int line, const char *fmt, ...)
+void raise(const excpt_t *e,
+           const char *file,
+           unsigned line,
+           unsigned col,
+           const char *fmt,
+           ...)
 {
         exfram_t *p = exstack;
         static char msg[MAXLINE];
@@ -57,14 +62,17 @@ void raise(const excpt_t *e, const char *file, int line, const char *fmt, ...)
                         fprintf(stderr, " %s: %s", e->reason, msg);
                 else
                         fprintf(stderr, " at 0x%p: %s", (void *)e, msg);
-                if (file && line > 0)
-                        fprintf(stderr, " raised in %s at line %d", file, line);
+                if (file && line > 0 && col > 0)
+                        fprintf(stderr, " raised in %s at %d:%d", file,
+                                                                  line,
+                                                                  col);
                 fprintf(stderr, "\naborting...\n");
                 abort();
         }
         p->exception = e;
         p->file      = file;
         p->line      = line;
+        p->col       = col;
         p->msg       = msg;
 
         exstack = exstack->prev;

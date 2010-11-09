@@ -3,6 +3,7 @@
 #include "env.h"
 #include "eval.h"
 #include "type.h"
+#include "stream.h"
 
 const excpt_t eval_error = { "eval" };
 const excpt_t syntax_error = { "syntax" };
@@ -573,7 +574,8 @@ evvar(exp_t *var, env_t *envp)
         return np->defn;
 }
 
-#define valerr(var)	raise(&eval_error, filename, linenum,                  \
+#define valerr(var)	raise(&eval_error, instream->name, instream->line,     \
+                              instream->col,                                   \
                               "the expression assigned to %s returns no value",\
                               var)
 

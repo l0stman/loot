@@ -137,9 +137,9 @@ getch(stream *sp)
         return c;
 }
 
-#define doterr(line)	raise(&read_error, filename, line, "Illegal use of .")
 #define eoferr()	RAISE(read_error, "unexpected end of file")
-#define readerr(fmt, s) raise(&read_error, filename, linenum, fmt, s)
+#define readerr(fmt, s) raise(&read_error, instream->name, instream->line, \
+                              instream->col, fmt, s)
 
 /*
  * Read an expression from an input stream.
@@ -160,9 +160,10 @@ read_pair(stream *sp)
 {
         exp_t *car, *cdr;
         char c;
-        int ln;
+        unsigned line, col;
 
-        ln = linenum;
+        line = sp->line;
+        col  = sp->col;
         TRY
                 if ((c = getch(sp)) == ')')
                         RETURN(null);
@@ -173,7 +174,7 @@ read_pair(stream *sp)
                         if (issep(c = sgetc(sp))) {
                                 cdr = read(sp);
                                 if (getch(sp) != ')')
-                                        doterr(ln);
+                                        RAISE(read_error, "should be a )");
                         } else {
                                 sungetc(c, sp);
                                 c = '.';
@@ -183,7 +184,8 @@ read_pair(stream *sp)
                         cdr = read_pair(sp);
                 }
         CATCH(eof_error)
-                raise(&read_error, filename, ln, "too many open parenthesis");
+                raise(&read_error, sp->name, line, col,
+                      "too many open parenthesis");
         ENDTRY;
 
         return cons(car, cdr);
@@ -239,16 +241,18 @@ static exp_t *
 read_str(stream *sp)
 {
         register char c;
-        int ln = linenum;
+        unsigned line, col;
         buf_t *bp;
         exp_t *ep;
 
-        bp = binit();
+        bp   = binit();
+        line = sp->line;
+        col  = sp->col;
         TRY
                 while ((c = sgetc(sp)) != '"')
                         bputc(c, bp);
         CATCH(eof_error)
-                raise(&read_error, filename, ln, "unmatched quote");
+                raise(&read_error, sp->name, line, col, "unmatched quote");
         ENDTRY;
 
         ep = nstr(bp->buf, bp->len);
@@ -370,6 +374,8 @@ read_rparen(stream *sp)
         return NULL;            /* not reached */
 }
 
+#define doterr()	RAISE(read_error, "Illegal use of .")
+
 /* Read a dot expression. */
 static exp_t *
 read_dot(stream *sp)
@@ -378,9 +384,9 @@ read_dot(stream *sp)
 
         TRY
                 if (issep(c = sgetc(sp)))
-                        doterr(linenum);
+                        doterr();
         CATCH(eof_error)
-                doterr(linenum);
+                doterr();
         ENDTRY;
         sungetc(c, sp);
         return read_atm(sp, '.');

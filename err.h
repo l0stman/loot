@@ -26,10 +26,12 @@ typedef struct exfram {
 enum { ENTERED = 0, RAISED, HANDLED };
 
 extern exfram_t *exstack;
-void raise(const excpt_t *, const char *, int, const char *, ...);
+void raise(const excpt_t *, const char *, unsigned, unsigned ,const char *,...);
 
-#define RAISE(e, msg) raise(&(e), filename, linenum, "%s", msg)
-#define RERAISE  raise(exfram.exception,exfram.file,exfram.line,"%s",exfram.msg)
+#define RAISE(e, msg) raise(&(e), instream->name, instream->line,instream->col,\
+                            "%s", msg)
+#define RERAISE  raise(exfram.exception, exfram.file, exfram.line, exfram.col, \
+                       "%s", exfram.msg)
 #define RETURN   switch (exstack = exstack->prev, 0) default: return
 
 #define TRY     do {                            \
