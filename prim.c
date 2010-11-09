@@ -92,17 +92,17 @@ instprim(env_t *envp)
 int
 load(char *path, mode_t isinter)
 {
-        stream   *sp;
-        exp_t    *ep;
-        int	  rc = 0;
+        stream *sp = instream;  /* save the current input stream */
+        int	rc = 0;
+        exp_t  *ep;
 
         if (path != NULL) {
-                if ((sp = sopen(path)) == NULL) {
+                if ((instream = sopen(path)) == NULL) {
                         rc = 1;
                         goto cleanup;
                 }
         } else
-                sp = sstdin;
+                instream = nstream("stdin", stdin);
 
 read:
         TRY
@@ -110,7 +110,7 @@ read:
                         printf("%s", INPR);
                         fflush(stdout);
                 }
-                ep = eval(read(sp), globenv);
+                ep = eval(read(instream), globenv);
                 if (isinter && ep != NULL) {
                         printf("%s%s\n", OUTPR, tostr(ep));
                         fflush(stdout);
@@ -126,8 +126,10 @@ read:
         goto read;
 cleanup:
         xfreeall();
-        if (sp && sp != sstdin)
-                sclose(sp);
+        if (instream)
+                sclose(instream);
+        instream = sp;
+
         return rc;
 }
 
@@ -512,5 +514,5 @@ prim_write(exp_t *args)
 static exp_t *
 prim_read(void)
 {
-        return read(sstdin);
+        return read(instream);
 }

@@ -8,7 +8,7 @@ typedef struct stream {
         unsigned  col;
 } stream;
 
-extern stream *sstdin;
+extern stream *instream;
 extern const excpt_t  eof_error;
 
 stream *nstream(char *, FILE *);
