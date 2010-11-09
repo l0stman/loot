@@ -2,6 +2,7 @@
 #include "exp.h"
 #include "env.h"
 #include "prim.h"
+#include "stream.h"
 
 static void initenv(void);
 const char *progname;
@@ -32,6 +33,7 @@ initenv(void)
         int ret;
 
         initkeys();
+        sstdin = nstream("stdin", stdin);
         globenv = newenv();
         instcst(globenv);
         instprim(globenv);

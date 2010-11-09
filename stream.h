@@ -8,11 +8,12 @@ typedef struct stream {
         unsigned  col;
 } stream;
 
-extern const excpt_t eof_error;
+extern const stream  *sstdin;
+extern const excpt_t  eof_error;
 
 stream *nstream(char *, FILE *);
 stream *sopen(const char *path);
-void sclose(stream *);
+void    sclose(stream *);
 
 /* Get a character from the input stream. */
 static inline char
