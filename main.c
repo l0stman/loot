@@ -21,6 +21,8 @@ main(int argc, char *argv[])
                 putchar('\n');
         }
         free((void *)progname);
+        sclose(sstdin);
+
         exit(EXIT_SUCCESS);
 }
 
@@ -43,6 +45,7 @@ initenv(void)
                 snprintf(buf, BUFSIZ, "%s/%s", pref, LOOTRC);
                 if ((ret = (fp = fopen(buf, "r")) != NULL))
                         fgets(buf, BUFSIZ, fp);
+                fclose(fp);
         } else
                 warnx("environment variable %s not defined", PREFIX);
         if (!ret)
