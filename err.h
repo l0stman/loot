@@ -29,7 +29,7 @@ void raise(const excpt_t *, const char *, int, const char *, ...);
 
 #define RAISE(e, msg) raise(&(e), filename, linenum, "%s", msg)
 #define RERAISE  raise(exfram.exception,exfram.file,exfram.line,"%s",exfram.msg)
-#define RETURN(r)   switch (exstack = exstack->prev, 0) default: return(r)
+#define RETURN   switch (exstack = exstack->prev, 0) default: return
 
 #define TRY     do {                            \
                 volatile int exflag;            \
