@@ -4,9 +4,9 @@ err.o: err.c extern.h err.h
 eval.o: eval.c extern.h err.h exp.h atom.h env.h eval.h type.h
 exp.o: exp.c extern.h err.h exp.h atom.h env.h
 extern.o: extern.c extern.h err.h
-main.o: main.c extern.h err.h exp.h atom.h env.h prim.h
-prim.o: prim.c extern.h err.h exp.h atom.h type.h prim.h read.h env.h \
-  eval.h
-read.o: read.c extern.h err.h exp.h atom.h read.h type.h
+main.o: main.c extern.h err.h exp.h atom.h env.h prim.h stream.h
+prim.o: prim.c extern.h err.h exp.h atom.h type.h prim.h read.h stream.h \
+  env.h eval.h
+read.o: read.c extern.h err.h exp.h atom.h read.h stream.h type.h
 stream.o: stream.c extern.h err.h stream.h
 type.o: type.c extern.h err.h exp.h atom.h type.h
