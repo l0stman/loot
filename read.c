@@ -229,7 +229,8 @@ read_atm(stream *sp, char c)
                 while (!issep(c = sgetc(sp)));
         CATCH(eof_error);
         ENDTRY;
-        sungetc(c, sp);
+        if (!feof(sp->fp))
+                sungetc(c, sp);
 
         ep = parse_atm(bp->buf, bp->len);
         bfree(bp);
