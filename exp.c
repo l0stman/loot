@@ -153,6 +153,16 @@ ctostr(const exp_t *ep)
         return buf;
 }
 
+/* Return a string representing a string. */
+static char *
+stostr(const exp_t *ep)
+{
+        char *buf = xalloc(slen(ep)+2);
+
+        sprintf(buf, "\"%s\"", str(ep));
+        return buf;
+}
+
 /* Return a string representing the expression */
 char *
 tostr(const exp_t *ep)
@@ -172,7 +182,7 @@ tostr(const exp_t *ep)
         else if (ischar(ep))
                 return ctostr(ep);
         else if (isstr(ep))
-                return str(ep);
+                return stostr(ep);
         else
                 err_quit("tostr: unknown expression");
         return NULL;
