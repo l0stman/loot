@@ -360,8 +360,12 @@ read_char()
         buf_t *bp;
         exp_t *exp;
         register char c;
+        unsigned line, col;
 
         bp = binit();
+        line = instream->line;
+        col  = instream->col;
+
         TRY
                 while (!issep(c = sgetchar()))
                         bputc(c, bp);
@@ -369,16 +373,16 @@ read_char()
                 eoferr();
         ENDTRY;
         sungetch(c);
+
         if (bp->len == 1 && isprint(bp->buf[0]))
                 exp = nchar(bp->buf[0]);
         else if (bp->len == 7 && !strncmp("newline", bp->buf, 7))
                 exp = nchar('\n');
         else if (bp->len == 5 && !strncmp("space", bp->buf, 5))
                 exp = nchar(' ');
-        else {
-                bputc('\0', bp);
-                RAISE(read_error, "bad character constant #\\%s", bp->buf);
-        }
+        else
+                raise(&read_error, instream->name, line, col,
+                      "bad character constant #\\.*%s", bp->buf, bp->len);
         bfree(bp);
         return exp;
 }
