@@ -382,7 +382,7 @@ read_char()
                 exp = nchar(' ');
         else
                 raise(&read_error, instream->name, line, col,
-                      "bad character constant #\\.*%s", bp->buf, bp->len);
+                      "bad character constant #\\%.*s", bp->len, bp->buf);
         bfree(bp);
         return exp;
 }
