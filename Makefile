@@ -1,6 +1,6 @@
 CC		= clang
 CFLAGS		= -O0 -g -Wall -std=c99 -pedantic
-#CFLAGS		= -O3 -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS		= -O3 -Wall -std=c99 -pedantic -DNDEBUG
 LDFLAGS		= -lm
 
 OBJS		= main.o err.o read.o extern.o exp.o type.o eval.o env.o \
