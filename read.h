@@ -7,7 +7,7 @@ extern const excpt_t read_error;
 extern unsigned topexplin;
 extern unsigned topexpcol;
 
-extern exp_t *read(stream *);
+extern exp_t *read(void);
 
 #define RAISE1(e, ...)	raise(&(e), instream->name, topexplin, topexpcol, \
                               __VA_ARGS__)

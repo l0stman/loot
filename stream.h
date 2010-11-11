@@ -32,8 +32,6 @@ sgetc(stream *sp)
         return c;
 }
 
-#define sgetchar()	sgetc(instream)
-
 /* Push-back a non white-space character into the input stream. */
 static inline void
 sungetc(int c, stream *sp)
@@ -44,5 +42,8 @@ sungetc(int c, stream *sp)
                 sp->col--;
         }
 }
+
+#define sgetchar()	sgetc(instream)
+#define sungetch(c)	sungetc(c, instream)
 
 #endif  /* !STREAM_H */

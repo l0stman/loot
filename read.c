@@ -5,16 +5,16 @@
 
 const excpt_t read_error = { "read" };
 
-static exp_t *read_atm(stream *, char);
-static exp_t *read_char(stream *);
-static exp_t *read_sharp(stream *);
-static exp_t *read_rparen(stream *);
-static exp_t *read_dot(stream *);
-static exp_t *read_str(stream *);
-static exp_t *read_pair(stream *, unsigned);
-static exp_t *read_quote(stream *, unsigned);
-static exp_t *read_qquote(stream *, unsigned);
-static exp_t *read_comma(stream *, unsigned);
+static exp_t *read_atm(char);
+static exp_t *read_char(void);
+static exp_t *read_sharp(void);
+static exp_t *read_rparen(void);
+static exp_t *read_dot(void);
+static exp_t *read_str(void);
+static exp_t *read_pair(unsigned);
+static exp_t *read_quote(unsigned);
+static exp_t *read_qquote(unsigned);
+static exp_t *read_comma(unsigned);
 
 /* Syntax table. */
 static exp_t *(*stab[128])() = {
@@ -122,16 +122,16 @@ static exp_t *(*stab[128])() = {
  * and white-spaces.
  */
 static char
-getch(stream *sp)
+getch(void)
 {
         register char c;
 
         for (;;) {
-                while (isspace(c = sgetc(sp)))
+                while (isspace(c = sgetchar()))
                         ;
                 if (c != ';')
                         break;
-                while ((c = sgetc(sp)) != '\n') /* comment */
+                while ((c = sgetchar()) != '\n') /* comment */
                         ;
         }
         return c;
@@ -142,64 +142,64 @@ unsigned topexplin;
 unsigned topexpcol;
 
 #define eoferr() 		RAISE(read_error, "unexpected end of file")
-#define doterr(file, line, col)	raise(&read_error, file, line, col,     \
+#define doterr(line, col)	raise(&read_error, instream->name, line, col, \
                                       "Illegal use of .")
 
 /*
  * Read an expression from the input stream.
  */
 static inline exp_t *
-read0(stream *sp, unsigned level)
+read0(unsigned level)
 {
         exp_t *(*read_syn)();
         unsigned char c;
 
-        c = getch(sp);
+        c = getch();
         if (level == 0) {
-                topexplin = sp->line;
-                topexpcol = sp->col;
+                topexplin = instream->line;
+                topexpcol = instream->col;
         }
         return (c < NELEMS(stab) && (read_syn = stab[c]) != NULL ?
-                read_syn(sp, level) : read_atm(sp, c));
+                read_syn(level) : read_atm(c));
 }
 
 /* External interface to read. Use read0 internally. */
 exp_t *
-read(stream *sp)
+read(void)
 {
-        return read0(sp, 0);
+        return read0(0);
 }
 
 /* Read a pair expression from the input stream. */
 static exp_t *
-read_pair(stream *sp, unsigned level)
+read_pair(unsigned level)
 {
         exp_t *car, *cdr;
         char c;
 
         TRY
-                if ((c = getch(sp)) == ')')
+                if ((c = getch()) == ')')
                         RETURN(null);
-        sungetc(c, sp);
-        car = read0(sp, level+1);
-        cdr = NULL;
-        if ((c = getch(sp)) == '.') {
-                unsigned dotline, dotcol;
-                dotline = sp->line;
-                dotcol  = sp->col;
-                if (issep(c = sgetc(sp))) {
-                        cdr = read0(sp, level+1);
-                        if (getch(sp) != ')')
-                                doterr(sp->name, dotline, dotcol);
-                } else {
-                        sungetc(c, sp);
-                        c = '.';
+                sungetch(c);
+                car = read0(level+1);
+                cdr = NULL;
+                if ((c = getch()) == '.') {
+                        unsigned dotline, dotcol;
+                        dotline = instream->line;
+                        dotcol  = instream->col;
+                        if (issep(c = sgetchar())) {
+                                cdr = read0(level+1);
+                                if (getch() != ')')
+                                        doterr(dotline, dotcol);
+                        } else {
+                                sungetch(c);
+                                c = '.';
+                        }
                 }
-        }
-        if (!cdr) {
-                sungetc(c, sp);
-                cdr = read_pair(sp, level);
-        }
+                if (!cdr) {
+                        sungetch(c);
+                        cdr = read_pair(level);
+                }
         CATCH(eof_error)
                 RAISE1(read_error, "too many open parenthesis");
         ENDTRY;
@@ -233,7 +233,7 @@ parse_atm(char *s, int len)
 
 /* Read an atom from sp. */
 static exp_t *
-read_atm(stream *sp, char c)
+read_atm(char c)
 {
         buf_t *bp;
         exp_t *ep;
@@ -242,11 +242,11 @@ read_atm(stream *sp, char c)
         TRY
                 do
                         bputc(tolower(c), bp);
-                while (!issep(c = sgetc(sp)));
+                while (!issep(c = sgetchar()));
         CATCH(eof_error);
         ENDTRY;
-        if (!feof(sp->fp))
-                sungetc(c, sp);
+        if (!feof(instream->fp))
+                sungetch(c);
 
         ep = parse_atm(bp->buf, bp->len);
         bfree(bp);
@@ -255,7 +255,7 @@ read_atm(stream *sp, char c)
 
 /* Read a string from the input stream.*/
 static exp_t *
-read_str(stream *sp)
+read_str(void)
 {
         register char c;
         unsigned line, col;
@@ -263,13 +263,13 @@ read_str(stream *sp)
         exp_t *ep;
 
         bp   = binit();
-        line = sp->line;
-        col  = sp->col;
+        line = instream->line;
+        col  = instream->col;
         TRY
-                while ((c = sgetc(sp)) != '"')
+                while ((c = sgetchar()) != '"')
                         bputc(c, bp);
         CATCH(eof_error)
-                raise(&read_error, sp->name, line, col, "unmatched quote");
+                raise(&read_error,instream->name,line,col,"unmatched quote");
         ENDTRY;
 
         ep = nstr(bp->buf, bp->len);
@@ -278,12 +278,12 @@ read_str(stream *sp)
 }
 
 static inline exp_t *
-enclose(stream *sp, enum kindex ki, unsigned level)
+enclose(enum kindex ki, unsigned level)
 {
         exp_t *ep;
 
         TRY
-                ep = read0(sp, level+1);
+                ep = read0(level+1);
         CATCH(eof_error)
                 eoferr();
         ENDTRY;
@@ -292,31 +292,31 @@ enclose(stream *sp, enum kindex ki, unsigned level)
 
 /* Read a quote expression. */
 static exp_t *
-read_quote(stream *sp, unsigned level)
+read_quote(unsigned level)
 {
-        return enclose(sp, QUOTE, level);
+        return enclose(QUOTE, level);
 }
 
 /* Read a quasi-quote expression. */
 static exp_t *
-read_qquote(stream *sp, unsigned level)
+read_qquote(unsigned level)
 {
-        return enclose(sp, QQUOTE, level);
+        return enclose(QQUOTE, level);
 }
 
 /* Read a comma expression. */
 static exp_t *
-read_comma(stream *sp, unsigned level)
+read_comma(unsigned level)
 {
         char c;
         exp_t *exp;
 
         TRY
-                if ((c = sgetc(sp)) != '@') {
-                        sungetc(c, sp);
-                        exp = enclose(sp, UNQUOTE, level);
+                if ((c = sgetchar()) != '@') {
+                        sungetch(c);
+                        exp = enclose(UNQUOTE, level);
                 } else
-                        exp = enclose(sp, SPLICE, level);
+                        exp = enclose(SPLICE, level);
         CATCH(eof_error)
                 eoferr();
         ENDTRY;
@@ -325,22 +325,22 @@ read_comma(stream *sp, unsigned level)
 
 /* Read a sharp expression. */
 static exp_t *
-read_sharp(stream *sp)
+read_sharp(void)
 {
         exp_t *exp;
         char c, ch;
 
         TRY
-                switch (c = sgetc(sp)) {
+                switch (c = sgetchar()) {
                 case 't':
                 case 'f':
-                        if (!issep(ch = sgetc(sp)))
+                        if (!issep(ch = sgetchar()))
                                 RAISE(read_error, "bad syntax #%c...", c);
-                        sungetc(ch, sp);
+                        sungetch(ch);
                         exp = (c == 't' ? true : false);
                         break;
                 case '\\':      /* character? */
-                        exp = read_char(sp);
+                        exp = read_char();
                         break;
                 default:
                         RAISE(read_error, "bad syntax #%c", c);
@@ -355,7 +355,7 @@ read_sharp(stream *sp)
 
 /* Read a character from the input stream. */
 static exp_t *
-read_char(stream *sp)
+read_char()
 {
         buf_t *bp;
         exp_t *exp;
@@ -363,12 +363,12 @@ read_char(stream *sp)
 
         bp = binit();
         TRY
-                while (!issep(c = sgetc(sp)))
+                while (!issep(c = sgetchar()))
                         bputc(c, bp);
         CATCH(eof_error)
                 eoferr();
         ENDTRY;
-        sungetc(c, sp);
+        sungetch(c);
         if (bp->len == 1 && isprint(bp->buf[0]))
                 exp = nchar(bp->buf[0]);
         else if (bp->len == 7 && !strncmp("newline", bp->buf, 7))
@@ -385,7 +385,7 @@ read_char(stream *sp)
 
 /* Read a right parenthesis. */
 static exp_t *
-read_rparen(stream *sp)
+read_rparen()
 {
         RAISE(read_error, "unexpected )");
         return NULL;            /* not reached */
@@ -393,19 +393,19 @@ read_rparen(stream *sp)
 
 /* Read a dot expression. */
 static exp_t *
-read_dot(stream *sp)
+read_dot()
 {
         char c;
         unsigned dotline, dotcol;
 
-        dotline = sp->line;
-        dotcol  = sp->col;
+        dotline = instream->line;
+        dotcol  = instream->col;
         TRY
-                if (issep(c = sgetc(sp)))
-                        doterr(sp->name, dotline, dotcol);
+                if (issep(c = sgetchar()))
+                        doterr(dotline, dotcol);
         CATCH(eof_error)
-                doterr(sp->name, dotline, dotcol);
+                doterr(dotline, dotcol);
         ENDTRY;
-        sungetc(c, sp);
-        return read_atm(sp, '.');
+        sungetch(c);
+        return read_atm('.');
 }

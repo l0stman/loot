@@ -110,7 +110,7 @@ read:
                         printf("%s", INPR);
                         fflush(stdout);
                 }
-                ep = eval(read(instream), globenv);
+                ep = eval(read(), globenv);
                 if (isinter && ep != NULL) {
                         printf("%s%s\n", OUTPR, tostr(ep));
                         fflush(stdout);
@@ -513,5 +513,5 @@ prim_write(exp_t *args)
 static exp_t *
 prim_read(void)
 {
-        return read(instream);
+        return read();
 }
