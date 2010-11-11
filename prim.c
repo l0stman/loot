@@ -143,7 +143,7 @@ chkargs(char *name, exp_t *args, int num)
         for (ep = args, n = num; n-- && !isnull(ep); ep = cdr(ep))
                 ;
         if (n != -1 || !isnull(ep))
-                raise(&eval_error, instream->name, instream->line,instream->col,
+                raise(&eval_error, instream->name, topexplin, topexpcol,
                       "%s: expects %d arguments, given %s",
                       name, num, tostr(args));
 }

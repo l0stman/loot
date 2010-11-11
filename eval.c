@@ -575,8 +575,7 @@ evvar(exp_t *var, env_t *envp)
         return np->defn;
 }
 
-#define valerr(var)	raise(&eval_error, instream->name, instream->line,     \
-                              instream->col,                                   \
+#define valerr(var)	raise(&eval_error,instream->name,topexplin,topexpcol,  \
                               "the expression assigned to %s returns no value",\
                               var)
 
