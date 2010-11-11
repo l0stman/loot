@@ -231,7 +231,7 @@ parse_atm(char *s, int len)
         return ep;
 }
 
-/* Read an atom from sp. */
+/* Read an atom from the input stream. */
 static exp_t *
 read_atm(char c)
 {
