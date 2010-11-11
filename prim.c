@@ -143,9 +143,8 @@ chkargs(char *name, exp_t *args, int num)
         for (ep = args, n = num; n-- && !isnull(ep); ep = cdr(ep))
                 ;
         if (n != -1 || !isnull(ep))
-                raise(&eval_error, instream->name, topexplin, topexpcol,
-                      "%s: expects %d arguments, given %s",
-                      name, num, tostr(args));
+                RAISE1(eval_error, "%s: expects %d arguments, given %s",
+                       name, num, tostr(args));
 }
 
 /* Return the accumulation of the expression combined with the

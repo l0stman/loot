@@ -9,4 +9,7 @@ extern unsigned topexpcol;
 
 extern exp_t *read(stream *);
 
+#define RAISE1(e, ...)	raise(&(e), instream->name, topexplin, topexpcol, \
+                              __VA_ARGS__)
+
 #endif /* !READ_H */

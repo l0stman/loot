@@ -201,8 +201,7 @@ read_pair(stream *sp, unsigned level)
                 cdr = read_pair(sp, level);
         }
         CATCH(eof_error)
-                raise(&read_error, sp->name, topexplin, topexpcol,
-                      "too many open parenthesis");
+                RAISE1(read_error, "too many open parenthesis");
         ENDTRY;
 
         return cons(car, cdr);
