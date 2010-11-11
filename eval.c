@@ -3,6 +3,7 @@
 #include "env.h"
 #include "eval.h"
 #include "type.h"
+#include "read.h"
 #include "stream.h"
 
 const excpt_t eval_error = { "eval" };

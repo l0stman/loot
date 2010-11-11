@@ -138,8 +138,8 @@ getch(stream *sp)
 }
 
 /* Position of the current top-level expression. */
-static unsigned topexplin;
-static unsigned topexpcol;
+unsigned topexplin;
+unsigned topexpcol;
 
 #define eoferr() 		RAISE(read_error, "unexpected end of file")
 #define doterr(file, line, col)	raise(&read_error, file, line, col,     \
