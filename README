@@ -2,5 +2,7 @@ This is a toy scheme interpreter implemented in C.  To compile it:
 > make depend && make
 And to install
 > make install clean
-This will install the binary under $HOME/bin so it should be on your
-$PATH environment  variable.
+
+If you're under Linux, you should use pmake which is the BSD version
+of make. This will install the binary under $HOME/bin so it should be
+on your $PATH environment variable.
