@@ -21,7 +21,7 @@ nstream(char *name, FILE *fp)
 
 /* Open a file and associate a stream with it. */
 stream *
-sopen(const char *path)
+sopen(char *path)
 {
         FILE *fp;
 

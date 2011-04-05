@@ -12,7 +12,7 @@ extern stream *instream;
 extern const excpt_t  eof_error;
 
 stream *nstream(char *, FILE *);
-stream *sopen(const char *path);
+stream *sopen(char *path);
 void    sclose(stream *);
 
 /* Get a character from the input stream. */
