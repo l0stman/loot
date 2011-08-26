@@ -40,9 +40,10 @@ initenv(void)
         /* load the library */
         if ((ret = (pref = getenv(PREFIX)) != NULL)) {
                 snprintf(buf, BUFSIZ, "%s/%s", pref, LOOTRC);
-                if ((ret = (fp = fopen(buf, "r")) != NULL))
+                if ((ret = (fp = fopen(buf, "r")) != NULL)) {
                         fgets(buf, BUFSIZ, fp);
-                fclose(fp);
+                        fclose(fp);
+                }
         } else
                 warnx("environment variable %s not defined", PREFIX);
         if (!ret)
