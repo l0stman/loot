@@ -487,7 +487,7 @@ static int cunq(exp_t *, int);
  *
  * We store the expression that serve as a template as the first
  * argument passed to evqquote.  We then traverse the template in
- * deep-first order and stores the analyzed expressions of `unquote'
+ * depth-first order and stores the analyzed expressions of `unquote'
  * and `unquote-splicing' as remaining arguments.  Their place in the
  * template is then replaced respectively by the variables ``unquote''
  * and ``splice''.  Note that only the ``unquotes'' which are at the
