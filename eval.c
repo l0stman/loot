@@ -331,13 +331,15 @@ ancond(exp_t *ep)
                         anerr("should be a test-value pair", cl);
                 if (iselse(car(cl)) && !isnull(cdr(clauses)))
                         anerr("else clause must be last", ep);
-                if (isarrow(cadr(cl)))
+                if (isarrow(cadr(cl))) {
                         if (iselse(car(cl)))
                                 anerr("illegal use of arrow", cl);
                         else if (isnull(cddr(cl)) || !isnull(cdddr(cl)))
                                 anerr("bad clause form", cl);
                         else
                                 ++argc;
+
+                }
         }
         if (!isnull(clauses))
                 anerr("should be a list", ep);
