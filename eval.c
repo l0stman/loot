@@ -194,7 +194,7 @@ static evproc_t *
 anif(exp_t *ep)
 {
         evproc_t **argv;
-        exp_t *p;
+        exp_t *p = NULL;
 
         if (isnull(cdr(ep)) || isnull(cddr(ep)) ||
             (!isnull(p = cdddr(ep)) && !isnull(cdr(p))))
