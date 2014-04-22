@@ -444,7 +444,7 @@ prim_atan(exp_t *args)
 static exp_t *
 prim_log(exp_t *args)
 {
-        double v;
+        double v = 0.0;
 
         chkargs("log", args, 1);
         if (!isnum(car(args)) || (v = VALUE(car(args))) <= 0)
